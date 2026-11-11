@@ -85,15 +85,6 @@ h1,h2,h3{color:var(--head);margin:0;font-family:var(--ff-d)}
 .pin span{width:30px;height:30px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font:900 16px/1 var(--ff-d);color:#0b2a3f}
 .pin.me{width:18px;height:18px;border:3px solid #fff;background:#1d6fe0}
 .leaflet-container{font-family:inherit}
-.leaflet-popup-content{margin:12px 14px;font-size:14px}
-.leaflet-popup-content-wrapper{border-radius:12px;padding:6px}
-.leaflet-popup-content{margin:12px 14px!important}
-.leaflet-container a.leaflet-popup-close-button{top:10px;right:10px;width:28px;height:28px;font-size:22px;line-height:26px;padding:0;text-align:center}
-.leaflet-popup-content{width:260px!important}
-.pop h3{font-size:16px;margin:0 16px 2px 0}.pop p{margin:0 0 10px;font-size:13px}
-.pop .cod{gap:4px;margin-bottom:10px}.pop .cod div{padding:6px 2px;border-radius:6px}.pop .cod b{font-size:17px}.pop .cod span{font-size:10px;gap:3px}
-.pop button{width:100%}
-.pop button{min-height:44px;padding:0 12px;border-radius:50px;border:1px solid var(--btn-bg);background:var(--btn-bg);color:var(--btn-fg);font-weight:700;cursor:pointer}
 .nomap{display:flex;height:100%;align-items:center;justify-content:center;text-align:center;padding:20px}
 
 /* strumenti */
@@ -253,12 +244,6 @@ dialog::backdrop{background:rgba(6,20,31,.7)}
 @media (max-width:520px){.hero-in{padding-block:24px 20px}#map{height:340px}.s-in{padding:16px}.s-h h2{font-size:22px}}
 .mleg .dc{border:1px solid rgba(0,0,0,.4);width:14px;height:14px}
 .mleg .sep{width:1px;height:14px;background:var(--line)}
-.ps-tip{padding:8px 10px;border:0;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.35)}
-.ps-tip:before{display:none}
-.tip{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--head);min-width:230px}
-.tip strong{font-size:14px}
-.tip .cod{margin:2px 0 0;gap:4px}
-.tip .cod b{font-size:15px}
 
 /* tema scuro: pannelli Leaflet e interruttore */
 :root[data-theme=dark] .raster .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.95) contrast(.9) saturate(.7)}
@@ -396,3 +381,47 @@ header .tema{margin-left:-8px;border-color:rgba(255,255,255,.35);background:tran
   #lista td:nth-child(6){background:var(--lv-ok);border-color:var(--lv-ok);color:var(--lv-ok-fg)}#lista td:nth-child(6):before{content:"Verde"}
   #lista td:nth-child(7){background:var(--white);border-color:var(--ctl);color:var(--head)}#lista td:nth-child(7):before{content:"Bianco"}
 }
+
+/* popup e tooltip grafici: fascia scura, righe etichetta/valore, quadrati colore, linea guida con punto */
+.leaflet-popup-content-wrapper{padding:0;border:0;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px -6px var(--shadow),0 2px 6px var(--shadow)}
+.ps-tip{padding:0;border:0;background:none;box-shadow:none;color:var(--ink)}
+.leaflet-popup-content{margin:0!important;width:232px!important;font-size:13px}
+.leaflet-popup-tip{display:none}
+/* linea guida a gomito: sale in verticale dal pin e gira in orizzontale verso il riquadro; punto sul pin */
+.leaflet-popup-tip-container,.ps-tip.leaflet-tooltip-top:before{--ln:var(--sea);display:block;overflow:visible;position:absolute;width:16px;height:auto;margin:0;border:0;background:linear-gradient(var(--ln),var(--ln)) 0 0/16px 2px no-repeat,linear-gradient(var(--ln),var(--ln)) 0 0/2px 100% no-repeat}
+:root[data-theme=dark] .leaflet-popup-tip-container,:root[data-theme=dark] .ps-tip.leaflet-tooltip-top:before{--ln:var(--acc)}
+.leaflet-popup-tip-container{left:-15px;top:18px;bottom:-20px}
+.ps-tip.leaflet-tooltip-top:before{left:-15px;top:18px;bottom:-16px}
+.ps-tip.rev.leaflet-tooltip-top:before{left:auto;right:-15px;background:linear-gradient(var(--ln),var(--ln)) 100% 0/16px 2px no-repeat,linear-gradient(var(--ln),var(--ln)) 100% 0/2px 100% no-repeat}
+.leaflet-popup-tip-container:after,.ps-tip.leaflet-tooltip-top:after{content:"";position:absolute;left:-3px;bottom:-4px;width:8px;height:8px;border-radius:50%;background:var(--sea);border:2px solid #fff;box-sizing:content-box}
+.ps-tip.leaflet-tooltip-top:after{left:-20px}
+.ps-tip.rev.leaflet-tooltip-top:after{left:auto;right:-20px}
+:root[data-theme=dark] .leaflet-popup-tip-container:after,:root[data-theme=dark] .ps-tip.leaflet-tooltip-top:after{background:var(--acc)}
+.ps-tip:before,.ps-tip:after{display:none}
+.ps-tip.leaflet-tooltip-top:before,.ps-tip.leaflet-tooltip-top:after{display:block}
+.leaflet-container a.leaflet-popup-close-button{top:7px;right:7px;width:24px;height:24px;font-size:18px;line-height:22px;padding:0;text-align:center;color:#fff;border-radius:50%}
+.leaflet-container a.leaflet-popup-close-button:hover{background:rgba(255,255,255,.18);color:#fff}
+.pn{width:232px;color:var(--ink);background:var(--white);border-radius:12px;overflow:hidden}
+.ps-tip .pn{width:200px;box-shadow:0 6px 20px -4px var(--shadow),0 1px 4px var(--shadow)}
+.pn-h{display:flex;align-items:center;gap:8px;padding:8px 36px 8px 8px;background:var(--sea);color:#fff}
+.ps-tip .pn-h{padding-right:10px}
+:root[data-theme=dark] .pn-h{background:#0b2538}
+.pn-i{flex:none;width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,.16);display:grid;place-items:center}
+.pn-h h3{margin:0;color:#fff;font:700 11px/1.25 var(--ff-b);letter-spacing:.09em;text-transform:uppercase}
+.pn-b{padding:2px 12px 4px}
+.pn-r{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--soft);font-size:12.5px}
+.pn-r:last-of-type{border-bottom:0}
+.pn-r>b{color:var(--head);font-weight:800;font-variant-numeric:tabular-nums}
+.pn-big{font:900 19px/1 var(--ff-d)!important}
+.pn-st{font-style:normal;font-size:11px;font-weight:700;padding:2px 8px;border-radius:50px;background:var(--nd-bg);color:var(--nd-fg)}
+.pn-st.lv-ok{background:var(--ok-bg);color:var(--ok-fg)}.pn-st.lv-mid{background:var(--mid-bg);color:var(--mid-fg)}.pn-st.lv-bad{background:var(--bad-bg);color:var(--bad-fg)}
+.pn-n{display:flex;align-items:center;gap:8px}
+.pn-q{width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.25);display:inline-block}
+.pn-q.c-bianco{border-color:var(--ctl)}
+.pn-g{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:6px 0 4px;border-top:1px solid var(--soft)}
+.pn-c{display:grid;place-items:center;height:26px;border-radius:5px;border:1px solid;font:800 13px/1 var(--ff-d);font-variant-numeric:tabular-nums}
+.pn-t{margin:0;padding:6px 0 8px;border-top:1px solid var(--soft);font-size:11px}
+.pn>button{display:block;width:calc(100% - 24px);margin:0 12px 12px;min-height:38px;padding:0 12px;border-radius:50px;border:1px solid var(--btn-bg);background:var(--btn-bg);color:var(--btn-fg);font-weight:700;font-size:13px;cursor:pointer}
+.pn>button:hover{background:var(--btn-hov)}
+.pop-aperto .leaflet-tooltip{display:none!important}
+.pop.pn .pn-r{padding:4px 0}

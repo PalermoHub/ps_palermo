@@ -93,7 +93,7 @@ function renderStats() {
 /** Mappa di base: stili vettoriali OpenFreeMap (chiaro/scuro), senza chiavi API. Se WebGL manca, ripiego su OpenStreetMap raster. */
 const IC = {
   home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h4.5v-6h4v6h4.5V10"/>',
-  piu: '<path d="M12 5v14M5 12h14"/>', meno: '<path d="M5 12h14"/>',
+  piu: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="currentColor" stroke="none"/>', meno: '<path d="M5 12h14"/>',
   gps: '<circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
   full: '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>', esci: '<path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/>',
   share: '<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/>',
@@ -179,6 +179,23 @@ function controlliMappa(m, cont) {
   new Ctl({ position: 'topleft' }).addTo(m);
   impostaTema(tema());
 }
+/** Pannello grafico per popup (completo, con pulsante) e tooltip (compatto): fascia scura col titolo, righe etichetta/valore, quadrati colore. */
+function pannello(p, meno, completo) {
+  const l = p.lettura, b = badge(p, meno), box = el('div', completo ? 'pn pop' : 'pn tip');
+  const h = el('div', 'pn-h'), ic = el('span', 'pn-i'); ic.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="currentColor" stroke="none"/></svg>';
+  h.append(ic, el('h3', null, p.nome)); box.append(h);
+  const riga = (k, v, cl) => { const r = el('div', 'pn-r'), s = el('span', null, k), d = el('b', cl || null); typeof v === 'string' ? (d.textContent = v) : d.append(v); r.append(s, d); return r; };
+  const body = el('div', 'pn-b');
+  body.append(riga('In attesa', nd(l?.inAttesa), 'pn-big'), riga('Stato', el('em', `pn-st lv-${b.k}`, b.txt)));
+  if (l) {
+    if (completo) COD.forEach((c) => { const v = l.codici[c]?.attesa, q = el('i', `pn-q c-${c}`); body.append(riga(ETI[c], (() => { const w = el('span', 'pn-n'); w.append(q, document.createTextNode(nd(v))); return w; })())); });
+    else { const g = el('div', 'pn-g'); COD.forEach((c) => { const v = l.codici[c]?.attesa, q = el('span', `pn-c c-${c}`, nd(v)); q.title = ETI[c]; g.append(q); }); body.append(g); }
+  }
+  body.append(el('p', 'pn-t', freschezza(p).txt));
+  box.append(body);
+  if (completo) { const bt = el('button', null, 'Apri la scheda'); bt.type = 'button'; box.append(bt); }
+  return box;
+}
 function renderMappa(ps, refit) {
   const m = $('map');
   if (!window.L) { if (!m.firstChild) m.append(el('p', 'nomap', 'La mappa non è disponibile al momento. Le schede qui sotto mostrano gli stessi dati.')); return; }
@@ -190,28 +207,24 @@ function renderMappa(ps, refit) {
     mappa.on('zoomend', distanzia);
     mappa.on('resize', () => { mappa.setMinZoom(mappa.getBoundsZoom(PROVINCIA)); centra(); });
     controlliMappa(mappa, m);
-    mappa.on('popupopen', () => marcatori.forEach((x) => x.mk.closeTooltip()));
+    let aperto = null;
+    mappa.on('popupopen', (e) => { aperto = e.popup; mappa.getContainer().classList.add('pop-aperto'); marcatori.forEach((x) => x.mk.closeTooltip()); });
+    mappa.on('popupclose', (e) => { if (aperto === e.popup) { aperto = null; mappa.getContainer().classList.remove('pop-aperto'); } setTimeout(() => { if (!aperto) centra(); }, 60); });
   }
   strato.clearLayers(); marcatori = [];
   const meno = menoAffollato()?.id, cc = coordsMappa(ps), punti = [];
   ps.forEach((p, i) => {
     const mk = L.marker(cc[i], { icon: pin(p, meno), keyboard: true, alt: `${p.nome}: ${p.lettura?.inAttesa ?? 'nessun dato'} in attesa` , zIndexOffset: p.lettura?.inAttesa ?? 0 }).addTo(strato);
-    const pop = el('div', 'pop'), b = el('button', null, 'Apri la scheda');
-    pop.append(el('h3', null, p.nome), el('p', null, `${nd(p.lettura?.inAttesa)} in attesa · ${badge(p, meno).txt}`));
-    if (p.lettura) { const g = el('div', 'cod'); COD.forEach((c) => g.append(chip(p.lettura, c))); pop.append(g); }
-    pop.append(b);
-    b.type = 'button'; b.addEventListener('click', () => apriScheda(p.id));
-    mk.bindPopup(pop, { minWidth: 260, maxWidth: 260, offset: [0, -22], autoPanPaddingTopLeft: [20, 70], autoPanPaddingBottomRight: [20, 20] });
-    const tip = el('div', 'tip');
-    tip.append(el('strong', null, p.nome), el('span', null, `${nd(p.lettura?.inAttesa)} in attesa · ${badge(p, meno).txt}`));
-    if (p.lettura) { const g = el('div', 'cod'); COD.forEach((c) => g.append(chip(p.lettura, c))); tip.append(g); }
-    mk.bindTooltip(tip, { direction: 'top', offset: [0, -24], opacity: 1, className: 'ps-tip' });
+    const pop = pannello(p, meno, true), tip = pannello(p, meno, false);
+    pop.querySelector('button').addEventListener('click', () => apriScheda(p.id));
+    mk.bindPopup(pop, { minWidth: 232, maxWidth: 232, offset: [130, -26], className: 'ps-pop', autoPanPaddingTopLeft: [20, 20], autoPanPaddingBottomRight: [20, 100] });
+    mk.bindTooltip(tip, { direction: 'top', offset: [114, -36], opacity: 1, className: 'ps-tip' });
     mk.on('mouseover', () => {
       const pt = mappa.latLngToContainerPoint(mk.getLatLng()), sz = mappa.getSize(), t = mk.getTooltip();
-      const d = pt.x < 135 ? 'right' : pt.x > sz.x - 135 ? 'left' : pt.y < 140 ? 'bottom' : 'top';
-      if (t.options.direction === d) return;
-      t.options.direction = d;
-      t.options.offset = d === 'top' ? [0, -24] : d === 'bottom' ? [0, 24] : d === 'right' ? [26, 0] : [-26, 0];
+      const d = pt.y < 200 ? 'bottom' : 'top', rev = d === 'top' && pt.x > sz.x - 330;
+      const off = d === 'bottom' ? [0, 24] : [rev ? -114 : 114, -36], cn = `ps-tip${rev ? ' rev' : ''}`;
+      if (t.options.direction === d && t.options.className === cn) return;
+      t.options.direction = d; t.options.offset = off; t.options.className = cn;
       mk.closeTooltip(); mk.openTooltip();
     });
     marcatori.push({ mk, base: cc[i] });
