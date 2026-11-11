@@ -272,7 +272,8 @@ function tempiTesto(l) {
 function card(p, menoId) {
   const l = p.lettura, b = badge(p, menoId), art = el('article', 'card lv-' + b.k);
   const head = el('div', 'card-h'), tit = el('div');
-  tit.append(el('h3', null, p.nome), el('p', null, `${p.struttura} · ${p.tipo === 'adulti' ? 'adulti' : 'pediatrico'}${st.pos ? ` · ${km(st.pos, p.coords).toFixed(1)} km` : ''}`));
+  const sub = el('p', null, `${p.struttura} · ${p.tipo === 'adulti' ? 'adulti' : 'pediatrico'}${st.pos ? ` · ${km(st.pos, p.coords).toFixed(1)} km` : ''}`); sub.title = sub.textContent;
+  tit.append(el('h3', null, p.nome), sub);
   head.append(tit, el('span', `badge ${b.k}`, b.txt)); art.append(head);
   if (!l) { art.append(el('p', 'err', 'Dati non disponibili al momento.')); }
   else {
