@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://palermo-ps.coseerobe.workers.dev/sitemap.xml

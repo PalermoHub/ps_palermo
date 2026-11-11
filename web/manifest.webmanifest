@@ -1,0 +1,12 @@
+{
+  "name": "Pronto Soccorso Palermo",
+  "short_name": "PS Palermo",
+  "description": "Attese in tempo reale nei pronto soccorso di Palermo.",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b3a5a",
+  "theme_color": "#0b3a5a",
+  "icons": [{ "src": "img/favicon.png", "sizes": "any", "type": "image/png", "purpose": "any" }]
+}
