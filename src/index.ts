@@ -72,7 +72,9 @@ export default {
       return new Response(JSON.stringify(out, null, 1), { headers: { 'Content-Type': 'application/json' } });
     }
     if (pathname === '/api/refresh') {
-      await rinfrescaSeLibero(env);
+      // Pubblico ma innocuo: rinfresca solo se lo snapshot ha più di 90s (il cron arriva ogni 120s), quindi chi lo chiama non può moltiplicare le letture.
+      const snap = await snapshot(env);
+      if (!snap || Date.now() - Date.parse(snap.aggiornatoAlle) > 90_000) await rinfrescaSeLibero(env);
       return new Response('ok');
     }
     if (pathname === '/api/palermo') {
