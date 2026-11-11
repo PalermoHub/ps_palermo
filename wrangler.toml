@@ -1,0 +1,17 @@
+name = "palermo-ps"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# Sito statico servito dallo stesso Worker; /api/* passa prima dal codice.
+[assets]
+directory = "./web"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[triggers]
+crons = ["*/2 * * * *"]
+
+# Prima del deploy: npx wrangler kv namespace create PS_KV  e incolla l'id qui sotto.
+[[kv_namespaces]]
+binding = "PS_KV"
+id = "REPLACE_ME"

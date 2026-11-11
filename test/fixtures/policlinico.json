@@ -1,0 +1,35 @@
+{
+  "carichiUrgenza" : {
+    "Nero" : 0.0,
+    "Rosso (1)" : 8.0,
+    "Arancione (2)" : 52.0,
+    "Bianco (5)" : 0.0,
+    "Azzurro (3)" : 32.0,
+    "Verde (4)" : 8.0
+  },
+  "pazientiInAttesa" : {
+    "Nero" : 0.0,
+    "Rosso (1)" : 0.0,
+    "Arancione (2)" : 4.0,
+    "Bianco (5)" : 0.0,
+    "Azzurro (3)" : 2.0,
+    "Verde (4)" : 9.0
+  },
+  "pazientiInCarico" : {
+    "Nero" : 0.0,
+    "Rosso (1)" : "2",
+    "Arancione (2)" : "13",
+    "Bianco (5)" : 0.0,
+    "Azzurro (3)" : "8",
+    "Verde (4)" : "2"
+  },
+  "tempiMediAttesa" : {
+    "Nero" : 0.0,
+    "Rosso (1)" : "22m ",
+    "Arancione (2)" : "2h  25m ",
+    "Bianco (5)" : "3h ",
+    "Azzurro (3)" : "3h  27m ",
+    "Verde (4)" : "2h  10m "
+  },
+  "unitaoperativa" : "PRONTO SOCCORSO E OSSERVAZIONE"
+}

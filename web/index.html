@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pronto Soccorso Palermo</title>
+  <meta name="description" content="Pazienti in attesa e sovraffollamento dei pronto soccorso di Palermo città, dai dati pubblici degli ospedali.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Pronto Soccorso <span>Palermo</span></h1>
+    <p class="sub" id="sub">Caricamento…</p>
+  </header>
+  <aside class="avviso" role="note">
+    <strong>In emergenza chiama il 118.</strong> I dati sono pubblicati dagli ospedali e possono avere minuti di ritardo: non indicano il tempo che aspetterai.
+  </aside>
+  <nav class="filtri" aria-label="Filtri">
+    <button data-f="tutti" aria-pressed="true">Tutti</button>
+    <button data-f="adulti" aria-pressed="false">Adulti</button>
+    <button data-f="pediatrico" aria-pressed="false">Pediatrici</button>
+    <button id="vicino" class="geo" aria-pressed="false">Vicino a me</button>
+  </nav>
+  <main id="lista" aria-live="polite"></main>
+  <footer>Fonti: Ospedali Riuniti Villa Sofia-Cervello, ARNAS Civico, Policlinico, ASP Palermo, Fatebenefratelli. Progetto non ufficiale.</footer>
+  <script src="app.js"></script>
+</body>
+</html>

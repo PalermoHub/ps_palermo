@@ -1,0 +1,461 @@
+ <!--  ----------------------------------------------Fine Script PHP ------------>
+
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Cristofaro Cappellano, Andrea Ruisi - Servizio Informatico aziendale e collegamenti ASP 6 Palermo">
+    <meta name="generator" content="Pronto scoccorso in tempo reale ospedali palermo">
+    <title>Pronto soccorso in tempo reale</title>
+
+
+      <!-- Bootstrap core CSS -->
+      
+      <link rel="stylesheet" href="./css/mystyle.css">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"  crossorigin="anonymous">
+
+      <link rel="canonical" href="http://www.aspaplermo.org">
+    <!--===============================================================================================-->	
+      <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+    <!--===============================================================================================-->
+      <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <!--===============================================================================================-->
+      <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+    <!--===============================================================================================-->
+      <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+    <!--===============================================================================================-->
+      <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <!--===============================================================================================-->
+      <link rel="stylesheet" type="text/css" href="vendor/perfect-scrollbar/perfect-scrollbar.css">
+    <!--===============================================================================================-->
+      <link rel="stylesheet" type="text/css" href="css/util.css">
+      <link rel="stylesheet" type="text/css" href="css/main.css">
+    <!--===============================================================================================-->
+
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    
+    <style>
+      .bg-arancione {
+        background-color: #FF9047 !important;
+      }
+
+      .bg-azzurro {
+        background-color: #68C0FF !important;
+      }
+	  
+	  .riga-totali {
+		  background-color: #d6d8d9;
+		  font-weight: bold;
+	  }
+    </style>
+
+</head>
+
+<body>
+    
+  <header>
+    <div class="navbar">
+      <div class="container">
+        <a href="http://www.asppalermo.org" class="navbar-brand d-flex align-items-center">
+        <img src="asp-palermo.png" alt="" width="120" height="80" class="d-inline-block align-text-top">
+          <strong style="color: black;"> </strong>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+          
+        </button>
+      </div>
+    </div>
+  </header>
+
+<main>
+  
+<div class="container">
+
+  <!-- INGRASSIA -->
+
+            <h5 class="alert alert-info nome-presidio" role="alert" >PRONTO SOCCORSO - INGRASSIA DI PALERMO</h5>
+            <div class="alert alert-dark text-monospace" role="alert">
+              Aggiornato al: <span class="fw-bold">  11/11/26 - 19:21:57 </span> </br>
+              Posti tecnici presidiati: <span class="fw-bold">13</span> </br>
+              Indice di Sovraffollamento: <span class="fw-bold">261.54 %</span>
+              
+            </div>
+         
+
+      <!-- TABELLA COLORI ATTESE -->
+      <table class="table">
+        <thead>
+          <tr class="bg-dark text-white">
+            <th scope="col" class="text-left ">Ingrassia</th>
+            <th scope="col" class="text-center ">Rosso</th>
+            <th scope="col" class="text-center ">Arancione</th>
+            <th scope="col" class="text-center ">Azzurro</th>
+            <th scope="col" class="text-center ">Verde</th>
+            <th scope="col" class="text-center ">Bianco</th>
+          </tr>
+        </thead>
+        <tbody >
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Attesa</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center  font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-azzurro text-black text-center  font-weight-bold animate__animated animate__zoomIn">9</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">4</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Trattam.</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="bg-arancione text-black text-center  font-weight-bold animate__animated animate__zoomIn">9</td>
+            <td class="bg-azzurro text-black text-center  font-weight-bold animate__animated animate__zoomIn">4</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+          </tr>
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Osservaz.</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center   font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="bg-azzurro text-black text-center   font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr class="riga-totali">
+            <th scope="row">Totale n. 34</th>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="text-center  font-weight-bold animate__animated animate__zoomIn">11</td>
+            <td class="text-center  font-weight-bold animate__animated animate__zoomIn">15</td>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">5</td>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- TABELLA COLORI ATTESE FINE -->
+
+</div>
+
+<br>
+<br>
+<div class="container">
+  <!-- PARTINICO -->
+
+		<h5 class="alert alert-info nome-presidio" role="alert" >PRONTO SOCCORSO - CIVICO DI PARTINICO</h5>
+		<div class="alert alert-dark text-monospace" role="alert">
+		  Aggiornato al: <span class="fw-bold">  11/11/26 - 19:21:57 </span> </br>
+		  Posti tecnici presidiati: <span class="fw-bold">11</span> </br>
+		  Indice di Sovraffollamento: <span class="fw-bold">300 %</span>
+		  
+		</div>
+         
+
+      <!-- TABELLA COLORI ATTESE -->
+      <table class="table">
+        <thead>
+          <tr class="bg-dark text-white">
+            <th scope="col" class="text-left ">Partinico</th>
+            <th scope="col" class="text-center ">Rosso</th>
+            <th scope="col" class="text-center ">Arancione</th>
+            <th scope="col" class="text-center ">Azzurro</th>
+            <th scope="col" class="text-center ">Verde</th>
+            <th scope="col" class="text-center ">Bianco</th>
+          </tr>
+        </thead>
+        <tbody >
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Attesa</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center  font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="bg-azzurro text-black text-center  font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">5</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Trattam.</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center  font-weight-bold animate__animated animate__zoomIn">8</td>
+            <td class="bg-azzurro text-black text-center  font-weight-bold animate__animated animate__zoomIn">3</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">9</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Osservaz.</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center   font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-azzurro text-black text-center   font-weight-bold animate__animated animate__zoomIn">3</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr class="riga-totali">
+            <th scope="row">Totale n. 33</th>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="text-center  font-weight-bold animate__animated animate__zoomIn">10</td>
+            <td class="text-center  font-weight-bold animate__animated animate__zoomIn">8</td>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">15</td>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- TABELLA COLORI ATTESE FINE -->
+
+</div>
+<br>
+<br>
+
+<div class="container">
+  <!-- CORLEONE -->
+
+		<h5 class="alert alert-info nome-presidio" role="alert" >PRONTO SOCCORSO - P.O. 'DEI BIANCHI' DI CORLEONE</h5>
+		<div class="alert alert-dark text-monospace" role="alert">
+		  Aggiornato al: <span class="fw-bold">  11/11/26 - 19:21:57 </span> </br>
+		  Posti tecnici presidiati: <span class="fw-bold">6</span> </br>
+		  Indice di Sovraffollamento: <span class="fw-bold">166.67 %</span>
+		  
+		</div>
+         
+
+      <!-- TABELLA COLORI ATTESE -->
+      <table class="table">
+        <thead>
+          <tr class="bg-dark text-white">
+            <th scope="col" class="text-left ">Corleone</th>
+            <th scope="col" class="text-center ">Rosso</th>
+            <th scope="col" class="text-center ">Arancione</th>
+            <th scope="col" class="text-center ">Azzurro</th>
+            <th scope="col" class="text-center ">Verde</th>
+            <th scope="col" class="text-center ">Bianco</th>
+          </tr>
+        </thead>
+        <tbody >
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Attesa</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center  font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-azzurro text-black text-center  font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Trattam.</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center  font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="bg-azzurro text-black text-center  font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">3</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Osservaz.</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="bg-arancione text-black text-center   font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="bg-azzurro text-black text-center   font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr class="riga-totali">
+            <th scope="row">Totale n. 10</th>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="text-center  font-weight-bold animate__animated animate__zoomIn">3</td>
+            <td class="text-center  font-weight-bold animate__animated animate__zoomIn">3</td>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">3</td>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- TABELLA COLORI ATTESE FINE -->
+
+</div>
+
+<br>
+<br>
+<div class="container">
+  <!-- PETRALIA -->
+
+		<h5 class="alert alert-info nome-presidio" role="alert" >PRONTO SOCCORSO - MADONNA SS. DELL'ALTO DI PETRALIA SOTTANA</h5>
+		<div class="alert alert-dark text-monospace" role="alert">
+		  Aggiornato al: <span class="fw-bold">  11/11/26 - 19:21:57 </span> </br>
+		  Posti tecnici presidiati: <span class="fw-bold">10</span> </br>
+		  Indice di Sovraffollamento: <span class="fw-bold">80 %</span>
+		  
+		</div>
+         
+
+      <!-- TABELLA COLORI ATTESE -->
+      <table class="table">
+        <thead>
+          <tr class="bg-dark text-white">
+            <th scope="col" class="text-left ">Petralia</th>
+            <th scope="col" class="text-center ">Rosso</th>
+            <th scope="col" class="text-center ">Arancione</th>
+            <th scope="col" class="text-center ">Azzurro</th>
+            <th scope="col" class="text-center ">Verde</th>
+            <th scope="col" class="text-center ">Bianco</th>
+          </tr>
+        </thead>
+        <tbody >
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Attesa</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center  font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-azzurro text-black text-center  font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Trattam.</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="bg-arancione text-black text-center  font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-azzurro text-black text-center  font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Osservaz.</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="bg-arancione text-black text-center   font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-azzurro text-black text-center   font-weight-bold animate__animated animate__zoomIn">3</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr class="riga-totali">
+            <th scope="row">Totale n. 8</th>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">3</td>
+            <td class="text-center  font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="text-center  font-weight-bold animate__animated animate__zoomIn">5</td>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- TABELLA COLORI ATTESE FINE -->
+
+</div>
+<br>
+<br>
+
+<div class="container">
+  <!-- TERMINI -->
+
+		<h5 class="alert alert-info nome-presidio" role="alert" >PRONTO SOCCORSO - CIMINO DI TERMINI IMERESE</h5>
+		<div class="alert alert-dark text-monospace" role="alert">
+		  Aggiornato al: <span class="fw-bold">  11/11/26 - 19:21:57 </span> </br>
+		  Posti tecnici presidiati: <span class="fw-bold">8</span> </br>
+		  Indice di Sovraffollamento: <span class="fw-bold">225 %</span>
+		  
+		</div>
+         
+
+      <!-- TABELLA COLORI ATTESE -->
+      <table class="table">
+        <thead>
+          <tr class="bg-dark text-white">
+            <th scope="col" class="text-left ">Termini</th>
+            <th scope="col" class="text-center ">Rosso</th>
+            <th scope="col" class="text-center ">Arancione</th>
+            <th scope="col" class="text-center ">Azzurro</th>
+            <th scope="col" class="text-center ">Verde</th>
+            <th scope="col" class="text-center ">Bianco</th>
+          </tr>
+        </thead>
+        <tbody >
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Attesa</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center  font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-azzurro text-black text-center  font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">2</td>
+          </tr>
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Trattam.</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center  font-weight-bold animate__animated animate__zoomIn">6</td>
+            <td class="bg-azzurro text-black text-center  font-weight-bold animate__animated animate__zoomIn">3</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+          </tr>
+          <tr>
+            <th scope="row" class="bg-dark text-white ">Osservaz.</th>
+            <td class="bg-danger text-white text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="bg-arancione text-black text-center   font-weight-bold animate__animated animate__zoomIn">2</td>
+            <td class="bg-azzurro text-black text-center   font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="bg-success text-white text-center font-weight-bold animate__animated animate__zoomIn">1</td>
+            <td class="bg-light text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+          </tr>
+          <tr class="riga-totali">
+            <th scope="row">Totale n. 18</th>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">0</td>
+            <td class="text-center  font-weight-bold animate__animated animate__zoomIn">8</td>
+            <td class="text-center  font-weight-bold animate__animated animate__zoomIn">4</td>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">3</td>
+            <td class="text-center font-weight-bold animate__animated animate__zoomIn">3</td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- TABELLA COLORI ATTESE FINE -->
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <!-- CARD GROUP FINE -->    
+
+    
+  
+
+  </main>
+
+  <footer class="text-muted py-5">
+    <div class="container">
+      <p class="float-end mb-1">
+        <a href="#">To top</a>
+      </p>
+    </div>
+  </footer>
+
+
+  <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+  <!--===============================================================================================-->	
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+  <!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+  <!--===============================================================================================-->
+	<script src="js/main.js"></script>
+      
+  </body>
+</html>

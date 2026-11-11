@@ -1,0 +1,40 @@
+name: Test e deploy su Cloudflare
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Secret Cloudflare mancanti, deploy saltato
+        if: ${{ env.CLOUDFLARE_API_TOKEN == '' }}
+        run: echo "::warning::Imposta CLOUDFLARE_API_TOKEN e CLOUDFLARE_ACCOUNT_ID nei secret del repo per abilitare il deploy."
+      - uses: actions/checkout@v4
+        if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
+      - uses: actions/setup-node@v4
+        if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+        if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
+      - name: Deploy del Worker (API + sito + cron)
+        if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
+        run: npx wrangler deploy
