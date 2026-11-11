@@ -87,6 +87,16 @@ function renderStats() {
 
 /* ---------- mappa ---------- */
 /** Mappa di base: stili vettoriali OpenFreeMap (chiaro/scuro), senza chiavi API. Se WebGL manca, ripiego su OpenStreetMap raster. */
+const IC = {
+  home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h4.5v-6h4v6h4.5V10"/>',
+  piu: '<path d="M12 5v14M5 12h14"/>', meno: '<path d="M5 12h14"/>',
+  gps: '<circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+  full: '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>', esci: '<path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/>',
+  share: '<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/>',
+  luna: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
+  sole: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>',
+};
+const icona = (k) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
 const STILI = { light: 'https://tiles.openfreemap.org/styles/positron', dark: 'https://tiles.openfreemap.org/styles/dark' };
 const ATTR = '© <a href="https://openfreemap.org">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/">OpenMapTiles</a> dati <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 const basi = [];
@@ -105,12 +115,17 @@ function impostaTema(t, salva) {
   document.documentElement.dataset.theme = t;
   if (salva) try { localStorage.setItem('tema', t); } catch {}
   basi.forEach(({ l }) => l.getMaplibreMap?.()?.setStyle(STILI[t]));
-  const b = $('tema'); if (b) b.setAttribute('aria-pressed', String(t === 'dark'));
+  document.querySelectorAll('.mc-tema').forEach((b) => { b.innerHTML = icona(t === 'dark' ? 'sole' : 'luna'); b.title = b.ariaLabel = t === 'dark' ? 'Tema chiaro' : 'Tema scuro'; });
   document.querySelector('meta[name=theme-color]')?.setAttribute('content', t === 'dark' ? '#0c0c0b' : '#1a1a1a');
 }
-$('tema')?.addEventListener('click', () => impostaTema(tema() === 'dark' ? 'light' : 'dark', true));
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change', (e) => { let s = null; try { s = localStorage.getItem('tema'); } catch {} if (!s) impostaTema(e.matches ? 'dark' : 'light'); });
+$('tema')?.addEventListener('click', () => impostaTema(tema() === 'dark' ? 'light' : 'dark', true));
 impostaTema(tema());
+if ($('condividi')) $('condividi').innerHTML = icona('share');
+$('condividi')?.addEventListener('click', async (e) => {
+  const b = e.currentTarget, url = location.origin + location.pathname;
+  try { if (navigator.share) await navigator.share({ title: document.title, url }); else { await navigator.clipboard.writeText(url); b.title = 'Link copiato'; setTimeout(() => (b.title = 'Condividi'), 2000); } } catch {}
+});
 
 const COL = { rosso: '#d62b2b', arancione: '#f08a1c', azzurro: '#2fa7d8', verde: '#2f9e5b', bianco: '#e2dfd9' };
 /** Pin tondo: l'anello è diviso nei codici colore in proporzione ai pazienti, al centro il totale in attesa. */
@@ -132,21 +147,45 @@ function coordsMappa(ps) {
     return [p.coords.lat + n * 0.0007, p.coords.lng + n * 0.0007];
   });
 }
+/** Colonna di pulsanti tondi sulla mappa: centra, zoom, posizione, schermo intero. */
+function controlliMappa(m, cont) {
+  const Ctl = L.Control.extend({ onAdd() {
+    const box = L.DomUtil.create('div', 'mc');
+    L.DomEvent.disableClickPropagation(box);
+    const btn = (k, label, fn) => {
+      const b = L.DomUtil.create('button', 'mc-b', box); b.type = 'button'; b.title = label; b.setAttribute('aria-label', label); b.innerHTML = icona(k);
+      b.addEventListener('click', (e) => fn(b, e)); return b;
+    };
+    btn('home', 'Centra sugli ospedali', () => centra());
+    btn('piu', 'Ingrandisci', () => m.zoomIn());
+    btn('meno', 'Riduci', () => m.zoomOut());
+    btn('gps', 'La mia posizione', (b) => navigator.geolocation?.getCurrentPosition(
+      (g) => { st.pos = { lat: g.coords.latitude, lng: g.coords.longitude }; $('vicino')?.setAttribute('aria-pressed', 'true'); renderLista(); m.setView([st.pos.lat, st.pos.lng], Math.max(m.getZoom(), 14)); },
+      () => alert('Posizione non disponibile. Controlla i permessi del browser.')));
+    btn('full', 'Schermo intero', (b) => {
+      if (document.fullscreenElement) document.exitFullscreen(); else cont.requestFullscreen?.();
+    });
+    document.addEventListener('fullscreenchange', () => {
+      const on = document.fullscreenElement === cont, f = box.children[4];
+      f.innerHTML = icona(on ? 'esci' : 'full'); f.title = f.ariaLabel = on ? 'Esci da schermo intero' : 'Schermo intero';
+      m.invalidateSize();
+    });
+    return box;
+  } });
+  new Ctl({ position: 'topleft' }).addTo(m);
+  impostaTema(tema());
+}
 function renderMappa(ps, refit) {
   const m = $('map');
   if (!window.L) { if (!m.firstChild) m.append(el('p', 'nomap', 'La mappa non è disponibile al momento. Le schede qui sotto mostrano gli stessi dati.')); return; }
   if (!mappa) {
-    mappa = L.map(m, { scrollWheelZoom: false, maxBounds: PROVINCIA, maxBoundsViscosity: 1, zoomSnap: 0.5 }).setView([38.12, 13.36], 12);
+    mappa = L.map(m, { zoomControl: false, scrollWheelZoom: false, maxBounds: PROVINCIA, maxBoundsViscosity: 1, zoomSnap: 0.5 }).setView([38.12, 13.36], 12);
     mappa.setMinZoom(mappa.getBoundsZoom(PROVINCIA));
     aggiungiBase(mappa);
     strato = L.layerGroup().addTo(mappa);
     mappa.on('zoomend', distanzia);
     mappa.on('resize', () => { mappa.setMinZoom(mappa.getBoundsZoom(PROVINCIA)); centra(); });
-    const Ctl = L.Control.extend({ onAdd() {
-      const b = L.DomUtil.create('button', 'leaflet-bar centra'); b.type = 'button'; b.textContent = 'Centra sugli ospedali';
-      L.DomEvent.disableClickPropagation(b); b.addEventListener('click', () => centra()); return b;
-    } });
-    new Ctl({ position: 'topright' }).addTo(mappa);
+    controlliMappa(mappa, m);
     mappa.on('popupopen', () => marcatori.forEach((x) => x.mk.closeTooltip()));
   }
   strato.clearLayers(); marcatori = [];
