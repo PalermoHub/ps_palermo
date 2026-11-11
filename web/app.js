@@ -305,7 +305,7 @@ function tabella(ps, menoId) {
     h.append(lk, el('small', null, p.tipo === 'adulti' ? 'adulti' : 'pediatrico'));
     const s = el('td'); s.append(el('span', `badge ${b.k}`, l?.sovraffollamentoPct == null ? '–' : Math.round(l.sovraffollamentoPct) + '%'));
     tr.append(h, s);
-    COD.forEach((c) => tr.append(el('td', null, nd(l?.codici[c]?.attesa))));
+    COD.forEach((c) => { const n = l?.codici[c]?.attesa, td = el('td'); td.append(el('span', `cn c-${c}${n == null ? ' nd' : n === 0 ? ' z' : ''}`, nd(n))); tr.append(td); });
     tr.append(el('td', null, nd(l?.inAttesa))); tb.append(tr);
   }
   t.append(tb); w.append(t); return w;
