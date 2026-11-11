@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Di quanto i pronto soccorso di Palermo sono sopra la loro capacità: una barra per presidio, pazienti presenti contro posti disponibili.">
+  <meta name="keywords" content="pronto soccorso, Palermo, attese, sovraffollamento, codici colore, triage, ospedali, open data, opendatasicilia, Sicilia">
+  <meta name="author" content="#opendatasicilia">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#0b3a5a" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#06141f" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="application-name" content="Pronto Soccorso Palermo">
+  <meta name="apple-mobile-web-app-title" content="PS Palermo">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="geo.region" content="IT-82">
+  <meta name="geo.placename" content="Palermo">
+  <link rel="canonical" href="https://palermo-ps.coseerobe.workers.dev/grafici.html">
+  <link rel="manifest" href="manifest.webmanifest">
+  <script>try{var t=localStorage.getItem('tema');document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch(e){}</script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pronto Soccorso Palermo">
+  <meta property="og:locale" content="it_IT">
+  <meta property="og:url" content="https://palermo-ps.coseerobe.workers.dev/">
+  <meta property="og:title" content="Pronto Soccorso Palermo · attese in tempo reale">
+  <meta property="og:description" content="Quanta gente c'è oggi nei pronto soccorso di Palermo? Dati pubblici degli ospedali, in un'unica pagina.">
+  <meta property="og:image" content="https://palermo-ps.coseerobe.workers.dev/img/social.png">
+  <meta property="og:image:secure_url" content="https://palermo-ps.coseerobe.workers.dev/img/social.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Pronto Soccorso Palermo: attese in tempo reale. Un progetto di #opendatasicilia.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pronto Soccorso Palermo · attese in tempo reale">
+  <meta name="twitter:description" content="Quanta gente c'è oggi nei pronto soccorso di Palermo? Dati pubblici degli ospedali, in un'unica pagina.">
+  <meta name="twitter:image" content="https://palermo-ps.coseerobe.workers.dev/img/social.png">
+  <meta name="twitter:image:alt" content="Pronto Soccorso Palermo: attese in tempo reale. Un progetto di #opendatasicilia.">
+  <title>Grafici · Pronto Soccorso Palermo</title>
+  <link rel="icon" href="img/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Figtree:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="/">
+        <span class="logo"><img src="img/opendatasicilia.png" alt="" width="40" height="44"></span>
+        <span class="brand-t"><strong>Pronto Soccorso <span class="acc">Palermo</span></strong><small>un progetto di #opendatasicilia</small></span>
+      </a>
+      <nav aria-label="Principale">
+        <a href="/#mappa">Mappa</a><a href="grafici.html" aria-current="page">Grafici</a><a href="/#presidi">Presidi</a><a href="/#legenda">Come leggere i dati</a><a href="/#fonti">Fonti</a>
+      </nav>
+      <button type="button" class="mc-b mc-tema tema" id="tema" title="Tema scuro" aria-label="Tema scuro"></button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section id="attesa-sez" class="wrap sez">
+      <p class="sez-s"><span id="sub">Caricamento dati…</span></p>
+      <h1 class="sez-h">Chi aspetta di più</h1>
+      <p class="sez-s">Una barra per presidio, dal più al meno carico di pazienti in attesa. I colori sono i codici di triage: rosso, arancio, azzurro, verde, bianco. Tutte le barre hanno la stessa scala, quindi si confrontano a colpo d'occhio. Tocca una barra per aprire la scheda.</p>
+      <div id="attesa"></div>
+    </section>
+
+    <section id="dumbbell-sez" class="wrap sez">
+      <h2 class="sez-h">In attesa contro in struttura</h2>
+      <p class="sez-s">Due punti per presidio sulla stessa scala: quanti aspettano la visita e quanti sono in struttura in tutto. Più i punti sono distanti, più pazienti sono già presi in carico ma occupano ancora il pronto soccorso, in osservazione o in attesa di un posto letto. È un indicatore di pressione che altrove non si vede.</p>
+      <div id="dumbbell"></div>
+    </section>
+
+    <section id="confronto-sez" class="wrap sez">
+      <h2 class="sez-h">Di quanto sono sopra capacità</h2>
+      <p class="sez-s">Una barra per presidio, dal più al meno sovraffollato. Il segno verticale è il 100% dei posti: la parte colorata oltre il segno è l'eccesso di pazienti. Tocca una barra per aprire la scheda del presidio.</p>
+      <div id="confronto"></div>
+    </section>
+  </main>
+
+  <footer id="fonti">
+    <div class="wrap foot">
+      <div class="foot-b"><span class="logo"><img src="img/opendatasicilia.png" alt="Logo opendatasicilia" width="48" height="52"></span>
+        <p>Un progetto civico di <a href="https://opendatasicilia.it">opendatasicilia</a>. Non è un servizio ufficiale e non sostituisce le indicazioni del personale sanitario.</p></div>
+      <div><h2>In emergenza</h2><p>Chiama il <strong>112</strong> o contatta direttamente il pronto soccorso.</p></div>
+    </div>
+  </footer>
+  <script src="grafici.js"></script>
+</body>
+</html>
