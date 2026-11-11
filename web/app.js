@@ -282,12 +282,16 @@ function tempiTesto(l) {
   return parti.length ? parti.join(' · ') : null;
 }
 
+/** Pillola che distingue i presidi per adulti da quelli pediatrici. */
+function tipoTag(p) { const ped = p.tipo === 'pediatrico'; return el('span', `tipo t-${ped ? 'ped' : 'ad'}`, ped ? 'Pediatrico' : 'Adulti'); }
+
 function card(p, menoId) {
   const l = p.lettura, b = badge(p, menoId), art = el('article', 'card lv-' + b.k);
   const head = el('div', 'card-h'), tit = el('div');
-  const sub = el('p', null, `${p.struttura} · ${p.tipo === 'adulti' ? 'adulti' : 'pediatrico'}${st.pos ? ` · ${km(st.pos, p.coords).toFixed(1)} km` : ''}`); sub.title = sub.textContent;
+  const sub = el('p', null, `${p.struttura}${st.pos ? ` · ${km(st.pos, p.coords).toFixed(1)} km` : ''}`); sub.title = sub.textContent;
   tit.append(el('h3', null, p.nome), sub);
-  head.append(tit, el('span', `badge ${b.k}`, b.txt)); art.append(head);
+  tit.prepend(tipoTag(p)); head.append(tit);
+  head.append(el('span', `badge ${b.k}`, b.txt)); art.append(head);
   if (!l) { art.append(el('p', 'err', 'Dati non disponibili al momento.')); }
   else {
     const num = el('div', 'num'), a = el('div'), t = el('div');
@@ -312,10 +316,13 @@ function tabella(ps, menoId) {
   ['Presidio', 'Sovraff.', 'Rosso', 'Arancio', 'Azzurro', 'Verde', 'Bianco', 'In attesa'].forEach((h) => { const th = el('th', null, h); th.scope = 'col'; hr.append(th); });
   const th = el('thead'); th.append(hr); t.append(th);
   const tb = el('tbody');
-  for (const p of ps) {
+  for (const [i, p] of ps.entries()) {
+    if (misti(ps) && p.tipo === 'pediatrico' && ps[i - 1].tipo !== 'pediatrico') {
+      const sr = el('tr', 'sep-tipo'), sh = el('th'), si = el('div', 'sep-in'); si.append(el('span', null, 'Pronto soccorso pediatrici')); sh.append(si); sh.colSpan = 8; sh.scope = 'colgroup'; sr.append(sh); tb.append(sr);
+    }
     const l = p.lettura, tr = el('tr'), b = badge(p, menoId), h = el('th'), lk = el('button', 'lk', p.nome);
     h.scope = 'row'; lk.type = 'button'; lk.addEventListener('click', () => apriScheda(p.id));
-    h.append(lk, el('small', null, p.tipo === 'adulti' ? 'adulti' : 'pediatrico'));
+    h.append(lk, tipoTag(p));
     const s = el('td'); s.append(el('span', `badge ${b.k}`, l?.sovraffollamentoPct == null ? '–' : Math.round(l.sovraffollamentoPct) + '%'));
     tr.append(h, s);
     COD.forEach((c) => { const n = l?.codici[c]?.attesa, td = el('td'); td.append(el('span', `cn c-${c}${n == null ? ' nd' : n === 0 ? ' z' : ''}`, nd(n))); tr.append(td); });
@@ -324,11 +331,15 @@ function tabella(ps, menoId) {
   t.append(tb); w.append(t); return w;
 }
 
+/** Adulti prima, pediatrici dopo (l'ordinamento scelto vale dentro ciascun gruppo). */
+const separaTipi = (ps) => [...ps.filter((p) => p.tipo !== 'pediatrico'), ...ps.filter((p) => p.tipo === 'pediatrico')];
+const misti = (ps) => ps.some((p) => p.tipo === 'pediatrico') && ps.some((p) => p.tipo !== 'pediatrico');
+
 function renderLista() {
-  const ps = visibili(), meno = menoAffollato()?.id, box = $('lista'); box.replaceChildren();
+  const ps = separaTipi(visibili()), meno = menoAffollato()?.id, box = $('lista'); box.replaceChildren();
   if (!ps.length) box.append(el('p', 'vuoto', 'Nessun pronto soccorso corrisponde alla ricerca.'));
   else if (st.vista === 'tab') box.append(tabella(ps, meno));
-  else { const g = el('div', 'griglia'); ps.forEach((p) => g.append(card(p, meno))); box.append(g); }
+  else { const g = el('div', 'griglia'); ps.forEach((p, i) => { if (misti(ps) && p.tipo === 'pediatrico' && ps[i - 1].tipo !== 'pediatrico') { const h = el('h3', 'sep-tipo'); h.append(el('span', null, 'Pronto soccorso pediatrici')); g.append(h); } g.append(card(p, meno)); }); box.append(g); }
   const ids = ps.map((p) => p.id).join();
   renderMappa(ps, ids !== ultimiIds); ultimiIds = ids;
 }
