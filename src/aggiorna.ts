@@ -16,16 +16,25 @@ export interface Snapshot {
 
 export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
 
+const TIMEOUT_MS = 20_000;
 const UA = 'palermo-ps/0.1 (monitor pubblico tempi di attesa)';
 
 async function scarica(f: FetchFn, r: Fonte['richieste'][number]): Promise<string> {
-  const res = await f(r.url, {
-    method: r.method ?? 'GET',
-    headers: { 'User-Agent': UA, ...r.headers },
-    signal: AbortSignal.timeout(15_000),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status} da ${r.url}`);
-  return res.text();
+  const t0 = Date.now();
+  const host = new URL(r.url).host;
+  try {
+    const res = await f(r.url, {
+      method: r.method ?? 'GET',
+      headers: { 'User-Agent': UA, ...r.headers },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.text();
+  } catch (e) {
+    // Dettaglio utile a distinguere blocchi, lentezza e errori di rete (finisce in `ultimoErrore`).
+    const causa = e instanceof Error ? e.message : String(e);
+    throw new Error(`${host} dopo ${Date.now() - t0}ms: ${causa}`);
+  }
 }
 
 export function snapshotVuoto(): Snapshot {

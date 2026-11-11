@@ -32,7 +32,7 @@ describe('aggiorna', () => {
     const ing = dopo.ps['ingrassia-adulti']!;
     expect(ing.lettura).not.toBeNull(); // dato vecchio ancora presente
     expect(ing.acquisitaAlle).toBe('2026-11-11T18:30:00.000Z'); // con la sua età vera
-    expect(ing.ultimoErrore).toMatch(/asp: HTTP 500/);
+    expect(ing.ultimoErrore).toMatch(/asp: .*asppalermo.org dopo \d+ms: HTTP 500/);
     expect(dopo.ps['civico-adulti']!.ultimoErrore).toBeNull(); // le altre fonti non sono toccate
   });
 });
