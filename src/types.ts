@@ -31,6 +31,10 @@ export interface Ps {
   indirizzo: string;
   coords: { lat: number; lng: number };
   fonteUrl: string;
+  /** Sito ufficiale della struttura. */
+  sito?: string;
+  /** Solo numeri verificati: se manca, la scheda non mostra «Chiama». */
+  telefono?: string;
 }
 
 /** Una richiesta HTTP verso la fonte. */

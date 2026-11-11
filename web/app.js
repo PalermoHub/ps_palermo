@@ -208,11 +208,12 @@ function barra(l) {
   const wrap = el('div');
   const lab = el('div', 'bar-l'); lab.append(el('span', null, 'Sovraffollamento'), el('span', null, s == null ? '–' : Math.round(s) + '%'));
   const bar = el('div', 'bar'), fill = el('i', lv.k);
-  fill.style.width = (s == null ? 0 : Math.min(100, Math.round(s / 3))) + '%';
+  fill.style.width = (s == null ? 0 : Math.min(100, Math.round(s / 2))) + '%';
   bar.append(fill, el('u'));
   bar.setAttribute('role', 'img');
   bar.setAttribute('aria-label', s == null ? 'Sovraffollamento non disponibile' : `Sovraffollamento ${Math.round(s)} per cento; il segno indica il 100 per cento`);
-  wrap.append(lab, bar); return wrap;
+  const sc = el('div', 'bar-s'); sc.append(el('span', null, '0'), el('span', null, '100%'), el('span', null, '200%+'));
+  wrap.append(lab, bar, sc); return wrap;
 }
 function chip(l, c) {
   const v = l?.codici[c]?.attesa, d = el('div', `c-${c}${v == null ? ' nd' : ''}`);
@@ -277,72 +278,100 @@ function renderLista() {
 
 /* ---------- scheda del presidio ---------- */
 function sezione(titolo) { const s = el('section', 's-sec'); s.append(el('h3', null, titolo)); return s; }
+const somma = (l, k) => { const v = COD.map((c) => l.codici[c]?.[k]).filter((x) => x != null); return v.length ? v.reduce((a, b) => a + b, 0) : null; };
+function righe(box, voci) {
+  voci.filter(([, v]) => v != null).forEach(([lab, v]) => { const r = el('div', 's-r'); r.append(el('span', null, lab), el('b', null, v)); box.append(r); });
+}
+function info(icona, nodo) { const r = el('div', 's-i'); r.append(el('span', 's-ic', icona), nodo); return r; }
+function link(txt, href) { const a = el('a', null, txt); a.href = href; if (href.startsWith('http')) { a.target = '_blank'; a.rel = 'noopener'; } return a; }
+function azione(txt, href, primaria) { const a = link(txt, href); a.className = 'btn' + (primaria ? '' : ' sec'); return a; }
 
 function apriScheda(id, daHash) {
   const p = st.dati?.ps.find((x) => x.id === id);
   if (!p) return;
   const l = p.lettura, meno = menoAffollato()?.id, b = badge(p, meno), corpo = $('s-corpo'), f = freschezza(p);
   corpo.replaceChildren();
+  const c = `${p.coords.lat},${p.coords.lng}`;
 
-  const h = el('div', 's-h'), tit = el('div');
-  const h2 = el('h2', null, p.nome); h2.id = 's-titolo';
-  tit.append(h2, el('p', 'dove', `${p.struttura} · pronto soccorso ${p.tipo === 'adulti' ? 'adulti' : 'pediatrico'}`));
+  // Intestazione: nome, chip di stato, struttura, azioni rapide.
+  const h = el('div', 's-h'), h2 = el('h2', null, p.nome); h2.id = 's-titolo';
   const x = el('button', 's-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Chiudi la scheda'); x.addEventListener('click', () => $('scheda').close());
-  h.append(tit, x); corpo.append(h);
-  corpo.append(Object.assign(el('span', `badge ${b.k}`, b.txt), { style: 'align-self:flex-start' }));
+  h.append(h2, x); corpo.append(h);
+  const chips = el('div', 's-chips');
+  chips.append(el('span', `badge ${b.k}`, b.txt), el('span', 'badge nd', p.tipo === 'adulti' ? 'Adulti' : 'Pediatrico'));
+  if (p.id === meno && b.txt !== 'Meno affollato') chips.append(el('span', 'badge ok', 'Meno affollato'));
+  corpo.append(chips, el('p', 'dove', p.struttura));
+  const az = el('div', 's-az');
+  az.append(azione('Indicazioni', `https://www.google.com/maps/dir/?api=1&destination=${c}`, true));
+  if (p.telefono) az.append(azione('Chiama', `tel:${p.telefono.replace(/\s/g, '')}`));
+  if (p.sito) az.append(azione('Sito', p.sito));
+  const sh = el('button', 'btn sec', 'Condividi'); sh.type = 'button';
+  sh.addEventListener('click', async () => {
+    const url = `${location.origin}${location.pathname}#ps=${encodeURIComponent(p.id)}`;
+    try { if (navigator.share) await navigator.share({ title: `Pronto soccorso ${p.nome}`, url }); else { await navigator.clipboard.writeText(url); sh.textContent = 'Link copiato'; setTimeout(() => (sh.textContent = 'Condividi'), 2000); } } catch {}
+  });
+  az.append(sh); corpo.append(az);
 
-  if (!l) corpo.append(el('p', 'err', 'Dati non disponibili al momento.'));
+  const griglia = el('div', 's-grid'), sx = el('div', 's-col'), dx = el('div', 's-col');
+
+  // Colonna sinistra: situazione attuale.
+  const cur = el('section', 's-box'), top = el('div', 's-top');
+  top.append(el('h3', null, 'Situazione attuale'), el('span', `live${f.vecchio ? ' vecchio' : ''}`, f.txt));
+  cur.append(top);
+  if (!l) cur.append(el('p', 'err', 'Dati non disponibili al momento.'));
   else {
     const big = el('div', 's-big');
-    [[l.inAttesa, 'in attesa'], [l.pazientiTotali, 'in struttura'], [l.sovraffollamentoPct == null ? null : Math.round(l.sovraffollamentoPct) + '%', 'sovraffollamento'], [l.postiTecnici, 'posti tecnici']]
-      .filter(([v]) => v != null).forEach(([v, lab]) => { const d = el('div'); d.append(el('b', null, v), el('span', null, lab)); big.append(d); });
-    corpo.append(big, barra(l));
+    [[l.inAttesa, 'pazienti in attesa'], [l.sovraffollamentoPct == null ? null : Math.round(l.sovraffollamentoPct) + '%', 'indice di sovraffollamento', b.k]]
+      .filter(([v]) => v != null).forEach(([v, lab, k]) => { const d = el('div'); d.append(el('b', k, v), el('span', null, lab)); big.append(d); });
+    cur.append(big, barra(l));
 
-    // Tutte le colonne che la fonte pubblica per i codici colore.
-    const cols = [['attesa', 'In attesa'], ['trattamento', 'In trattamento'], ['osservazione', 'In osservazione'], ['totale', 'Totale']]
-      .filter(([k]) => COD.some((c) => l.codici[c]?.[k] != null));
-    const sec = sezione('Pazienti per codice colore'), tw = el('div', 'tw'), t = el('table', 's-t'), hr = el('tr');
-    ['Codice', ...cols.map((c) => c[1])].forEach((n) => { const th = el('th', null, n); th.scope = 'col'; hr.append(th); });
+    const cols = [['attesa', 'In attesa di visita'], ['trattamento', 'In trattamento'], ['osservazione', 'In osservazione'], ['totale', 'Totali']]
+      .filter(([k]) => COD.some((cd) => l.codici[cd]?.[k] != null));
+    const tw = el('div', 'tw'), t = el('table', 's-t'), hr = el('tr');
+    ['Codice', ...cols.map((k) => k[1])].forEach((n) => { const th = el('th', null, n); th.scope = 'col'; hr.append(th); });
     const thd = el('thead'); thd.append(hr); t.append(thd);
     const tb = el('tbody');
-    COD.forEach((c) => {
+    COD.forEach((cd) => {
       const tr = el('tr'), th = el('th'), sw = el('span', 'sw'); th.scope = 'row';
-      sw.style.background = c === 'bianco' ? '#fff' : `var(--${c})`;
-      th.append(sw, ETI[c] === 'Arancio' ? 'Arancione' : ETI[c]); tr.append(th);
-      cols.forEach(([k]) => tr.append(el('td', 'n', nd(l.codici[c]?.[k]))));
+      sw.style.background = cd === 'bianco' ? '#fff' : `var(--${cd})`;
+      th.append(sw, cd === 'arancione' ? 'Arancione' : ETI[cd]); tr.append(th);
+      cols.forEach(([k]) => tr.append(el('td', 'n', nd(l.codici[cd]?.[k]))));
       tb.append(tr);
     });
-    t.append(tb); tw.append(t); sec.append(tw);
-    if (cols.length === 1) sec.append(el('p', 's-nota', 'Questo ospedale pubblica solo i pazienti in attesa per codice.'));
-    corpo.append(sec);
-
-    const tm = tempiTesto(l);
-    if (tm) { const s = sezione('Attesa media'); s.append(el('p', 's-nota', tm.charAt(0).toUpperCase() + tm.slice(1) + '.')); corpo.append(s); }
-
-    const perm = l.permanenza;
-    if (perm && (perm.meno24h != null || perm.da24a48h != null || perm.oltre48h != null)) {
-      const s = sezione('Da quanto tempo sono in struttura'), g = el('div', 's-perm');
-      [[perm.meno24h, 'meno di 24 ore'], [perm.da24a48h, 'da 24 a 48 ore'], [perm.oltre48h, 'oltre 48 ore']].forEach(([v, lab]) => { const d = el('div'); d.append(el('b', null, nd(v)), el('span', null, lab)); g.append(d); });
-      s.append(g); corpo.append(s);
-    }
+    const tot = el('tr', 's-tot'), tth = el('th', null, 'Totale'); tth.scope = 'row'; tot.append(tth);
+    cols.forEach(([k]) => tot.append(el('td', 'n', k === 'totale' ? '–' : nd(somma(l, k)))));
+    tb.append(tot);
+    t.append(tb); tw.append(t); cur.append(tw);
+    if (cols.length === 1) cur.append(el('p', 's-nota', 'Questo ospedale pubblica solo i pazienti in attesa per codice.'));
   }
+  sx.append(cur);
 
-  const dove = sezione('Dove si trova');
-  dove.append(el('p', 's-nota', p.indirizzo));
+  // Colonna destra: altri dati, informazioni, mappa.
+  if (l) {
+    const perm = l.permanenza, tm = l.tempiMediAttesaMin;
+    const box = el('section', 's-box'); box.append(el('h3', null, 'Altri dati pubblicati'));
+    righe(box, [
+      ['Pazienti in struttura', l.pazientiTotali], ['Pazienti in trattamento', somma(l, 'trattamento')], ['Pazienti in osservazione', somma(l, 'osservazione')],
+      ['Num. posti tecnici presidiati', l.postiTecnici],
+      ['In struttura da meno di 24 ore', perm?.meno24h], ['In struttura da 24 a 48 ore', perm?.da24a48h], ['In struttura da oltre 48 ore', perm?.oltre48h],
+      ...(tm ? COD.filter((cd) => tm[cd] != null).map((cd) => [`Attesa media · ${cd === 'arancione' ? 'arancione' : cd}`, fmtMin(tm[cd])]) : []),
+    ]);
+    if (box.children.length > 1) dx.append(box);
+  }
+  const inf = el('section', 's-box'); inf.append(el('h3', null, 'Informazioni'));
+  inf.append(info('📍', link(p.indirizzo, `https://www.google.com/maps/search/?api=1&query=${c}`)));
+  if (p.telefono) inf.append(info('📞', link(p.telefono, `tel:${p.telefono.replace(/\s/g, '')}`)));
+  if (p.sito) inf.append(info('🌐', link(p.sito.replace(/^https?:\/\/(www\.)?/, ''), p.sito)));
+  inf.append(info('📄', link('Pagina ufficiale della fonte', p.fonteUrl)));
+  if (p.ultimoErrore) inf.append(el('p', 'err', 'La fonte non è raggiungibile: si vede l’ultimo dato valido.'));
+  dx.append(inf);
+  const dove = el('section', 's-box'); dove.append(el('h3', null, 'Mappa'));
   const mm = el('div'); mm.id = 's-map'; mm.setAttribute('role', 'region'); mm.setAttribute('aria-label', `Posizione di ${p.nome}`); dove.append(mm);
-  const az = el('div', 's-az'); az.style.marginTop = '10px';
-  const c = `${p.coords.lat},${p.coords.lng}`;
-  const ind = el('a', 'btn', 'Indicazioni stradali'); ind.href = `https://www.google.com/maps/dir/?api=1&destination=${c}`; ind.target = '_blank'; ind.rel = 'noopener';
-  const osm = el('a', 'btn sec', 'Apri su OpenStreetMap'); osm.href = `https://www.openstreetmap.org/?mlat=${p.coords.lat}&mlon=${p.coords.lng}#map=17/${p.coords.lat}/${p.coords.lng}`; osm.target = '_blank'; osm.rel = 'noopener';
-  az.append(ind, osm); dove.append(az); corpo.append(dove);
+  dx.append(dove);
 
-  const fo = sezione('Fonte e aggiornamento');
-  fo.append(el('p', 's-nota', f.txt + (f.vecchio ? ': il dato potrebbe non essere aggiornato.' : '.')));
-  if (p.ultimoErrore) fo.append(el('p', 'err', 'La fonte non è raggiungibile: si vede l’ultimo dato valido.'));
-  const lf = el('a', null, 'Pagina ufficiale della fonte'); lf.href = p.fonteUrl; lf.target = '_blank'; lf.rel = 'noopener';
-  const pf = el('p', 's-nota'); pf.append(lf); fo.append(pf);
-  const nota = el('p', 's-nota', 'In emergenza chiama il 112.'); nota.style.fontWeight = '700'; fo.append(nota);
-  corpo.append(fo);
+  griglia.append(sx, dx); corpo.append(griglia);
+  const nota = el('p', 's-avviso'); nota.append('I dati sono pubblicati dal pronto soccorso e potrebbero non essere sempre accurati o aggiornati. In caso di emergenza chiama il ', el('strong', null, '112'), '.');
+  corpo.append(nota);
 
   const dlg = $('scheda');
   if (!dlg.open) dlg.showModal();
