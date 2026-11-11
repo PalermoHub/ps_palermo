@@ -116,13 +116,25 @@ function renderMappa(ps, refit) {
   strato.clearLayers(); marcatori = [];
   const meno = menoAffollato()?.id, cc = coordsMappa(ps), punti = [];
   ps.forEach((p, i) => {
-    const mk = L.marker(cc[i], { icon: pin(p, meno), title: p.nome, keyboard: true, alt: `${p.nome}: ${p.lettura?.inAttesa ?? 'nessun dato'} in attesa` , zIndexOffset: p.lettura?.inAttesa ?? 0 }).addTo(strato);
+    const mk = L.marker(cc[i], { icon: pin(p, meno), keyboard: true, alt: `${p.nome}: ${p.lettura?.inAttesa ?? 'nessun dato'} in attesa` , zIndexOffset: p.lettura?.inAttesa ?? 0 }).addTo(strato);
     const pop = el('div', 'pop'), b = el('button', null, 'Apri la scheda');
     pop.append(el('h3', null, p.nome), el('p', null, `${nd(p.lettura?.inAttesa)} in attesa · ${badge(p, meno).txt}`));
     if (p.lettura) { const g = el('div', 'cod'); COD.forEach((c) => g.append(chip(p.lettura, c))); pop.append(g); }
     pop.append(b);
     b.type = 'button'; b.addEventListener('click', () => apriScheda(p.id));
     mk.bindPopup(pop);
+    const tip = el('div', 'tip');
+    tip.append(el('strong', null, p.nome), el('span', null, `${nd(p.lettura?.inAttesa)} in attesa · ${badge(p, meno).txt}`));
+    if (p.lettura) { const g = el('div', 'cod'); COD.forEach((c) => g.append(chip(p.lettura, c))); tip.append(g); }
+    mk.bindTooltip(tip, { direction: 'top', offset: [0, -24], opacity: 1, className: 'ps-tip' });
+    mk.on('mouseover', () => {
+      const pt = mappa.latLngToContainerPoint(mk.getLatLng()), sz = mappa.getSize(), t = mk.getTooltip();
+      const d = pt.x < 135 ? 'right' : pt.x > sz.x - 135 ? 'left' : pt.y < 140 ? 'bottom' : 'top';
+      if (t.options.direction === d) return;
+      t.options.direction = d;
+      t.options.offset = d === 'top' ? [0, -24] : d === 'bottom' ? [0, 24] : d === 'right' ? [26, 0] : [-26, 0];
+      mk.closeTooltip(); mk.openTooltip();
+    });
     marcatori.push({ mk, base: cc[i] });
     punti.push(cc[i]);
   });
