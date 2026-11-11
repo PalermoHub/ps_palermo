@@ -186,6 +186,10 @@ td:last-child{font:800 20px var(--ff-d);color:var(--head)}
 .box h3{font-size:20px;margin-bottom:10px}
 .box p,.box li{font-size:14px;line-height:1.5;margin:0}
 .box ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.box li{display:flex;align-items:center;gap:10px}
+.box p+p{margin-top:10px}
+.dot{flex:none;width:14px;height:14px;border-radius:50%;border:1px solid transparent}
+.dot.c-bianco{border-color:var(--cb-bd)}
 
 /* footer */
 footer{margin-top:56px;background:var(--bar);color:#d3e1eb}
