@@ -48,8 +48,9 @@ h1,h2,h3{color:var(--head);margin:0}
 #map{height:420px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#e8e6e1;box-shadow:0 2px 5px rgba(0,0,0,.2)}
 .mleg{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px}
 .mleg li{display:flex;align-items:center;gap:6px}.mleg i{width:14px;height:14px;border-radius:50%;border:3px solid;background:#fff;display:inline-block}
-.pin{width:40px;height:40px;border-radius:50%;background:#fff;border:4px solid var(--ctl);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:var(--head);box-shadow:0 1px 5px rgba(0,0,0,.6);font-variant-numeric:tabular-nums}
+.pin{position:relative;width:52px;height:52px;box-sizing:border-box;border-radius:50%;border:3px solid var(--ctl);box-shadow:0 1px 5px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
 .pin.ok{border-color:var(--verde)}.pin.mid{border-color:var(--arancione)}.pin.bad{border-color:var(--rosso)}
+.pin span{width:30px;height:30px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:var(--head)}
 .pin.me{width:18px;height:18px;border:3px solid #fff;background:#1d6fe0}
 .leaflet-container{font-family:inherit}
 .leaflet-popup-content{margin:12px 14px;font-size:14px}
@@ -167,3 +168,5 @@ dialog::backdrop{background:rgba(26,26,26,.6)}
 .s-az{display:flex;gap:8px;flex-wrap:wrap}
 .s-nota{margin:0;font-size:13px}
 @media (max-width:520px){.hero-in{padding-block:24px 20px}#map{height:340px}.s-in{padding:16px}.s-h h2{font-size:22px}}
+.mleg .dc{border:1px solid rgba(0,0,0,.4);width:14px;height:14px}
+.mleg .sep{width:1px;height:14px;background:var(--line)}

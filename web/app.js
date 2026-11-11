@@ -4,7 +4,7 @@ const ORDINI = [['attesa', 'Più in attesa'], ['sov', 'Meno affollati'], ['nome'
 const FILTRI = [['tutti', 'Tutti'], ['adulti', 'Adulti'], ['pediatrico', 'Pediatrici']];
 
 const st = { dati: null, filtro: 'tutti', ordine: 'attesa', vista: 'card', q: '', pos: null };
-let mappa = null, strato = null, miniMappa = null, ultimiIds = '';
+let mappa = null, strato = null, marcatori = [], miniMappa = null, ultimiIds = '';
 
 const $ = (id) => document.getElementById(id);
 const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.textContent = h; return e; };
@@ -84,10 +84,16 @@ function renderStats() {
 }
 
 /* ---------- mappa ---------- */
+const COL = { rosso: '#d62b2b', arancione: '#f08a1c', azzurro: '#2fa7d8', verde: '#2f9e5b', bianco: '#e2dfd9' };
+/** Pin tondo: l'anello è diviso nei codici colore in proporzione ai pazienti, al centro il totale in attesa. */
 function pin(p, menoId) {
-  const l = p.lettura, lv = badge(p, menoId).k;
-  const cls = lv === 'nd' ? '' : lv;
-  return L.divIcon({ className: '', iconSize: [40, 40], iconAnchor: [20, 20], html: `<div class="pin ${cls}">${l?.inAttesa ?? '–'}</div>` });
+  const l = p.lettura, lv = badge(p, menoId).k, cls = lv === 'nd' ? '' : lv;
+  const v = COD.map((c) => [c, l?.codici[c]?.attesa ?? 0]), tot = v.reduce((s, x) => s + x[1], 0);
+  let acc = 0, stops = [];
+  for (const [c, n] of v) if (n > 0) { const a0 = (acc / tot) * 360; acc += n; stops.push(`${COL[c]} ${a0}deg ${(acc / tot) * 360}deg`); }
+  const ring = tot ? `conic-gradient(${stops.join(',')})` : '#bdbab4';
+  const html = `<div class="pin ${cls}" style="background:${ring}"><span>${nd(l?.inAttesa)}</span></div>`;
+  return L.divIcon({ className: '', iconSize: [52, 52], iconAnchor: [26, 26], html });
 }
 /** Due presidi nello stesso punto (es. Cervello adulti e pediatrico) si sposterebbero uno sull'altro: li distanzio. */
 function coordsMappa(ps) {
@@ -105,19 +111,41 @@ function renderMappa(ps, refit) {
     mappa = L.map(m, { scrollWheelZoom: false }).setView([38.12, 13.36], 12);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(mappa);
     strato = L.layerGroup().addTo(mappa);
+    mappa.on('zoomend', distanzia);
   }
-  strato.clearLayers();
+  strato.clearLayers(); marcatori = [];
   const meno = menoAffollato()?.id, cc = coordsMappa(ps), punti = [];
   ps.forEach((p, i) => {
-    const mk = L.marker(cc[i], { icon: pin(p, meno), title: p.nome, keyboard: true, alt: `${p.nome}: ${p.lettura?.inAttesa ?? 'nessun dato'} in attesa` }).addTo(strato);
+    const mk = L.marker(cc[i], { icon: pin(p, meno), title: p.nome, keyboard: true, alt: `${p.nome}: ${p.lettura?.inAttesa ?? 'nessun dato'} in attesa` , zIndexOffset: p.lettura?.inAttesa ?? 0 }).addTo(strato);
     const pop = el('div', 'pop'), b = el('button', null, 'Apri la scheda');
-    pop.append(el('h3', null, p.nome), el('p', null, `${nd(p.lettura?.inAttesa)} in attesa · ${badge(p, meno).txt}`), b);
+    pop.append(el('h3', null, p.nome), el('p', null, `${nd(p.lettura?.inAttesa)} in attesa · ${badge(p, meno).txt}`));
+    if (p.lettura) { const g = el('div', 'cod'); COD.forEach((c) => g.append(chip(p.lettura, c))); pop.append(g); }
+    pop.append(b);
     b.type = 'button'; b.addEventListener('click', () => apriScheda(p.id));
     mk.bindPopup(pop);
+    marcatori.push({ mk, base: cc[i] });
     punti.push(cc[i]);
   });
   if (st.pos) { L.marker([st.pos.lat, st.pos.lng], { icon: L.divIcon({ className: '', iconSize: [18, 18], html: '<div class="pin me"></div>' }), title: 'La tua posizione', interactive: false }).addTo(strato); punti.push([st.pos.lat, st.pos.lng]); }
-  if (refit && punti.length) mappa.fitBounds(punti, { padding: [40, 40], maxZoom: 14 });
+  if (refit && punti.length) mappa.fitBounds(punti, { paddingTopLeft: [85, 55], paddingBottomRight: [85, 45], maxZoom: 14 });
+  distanzia();
+}
+/** Le etichette larghe si coprirebbero: le sposto solo in visualizzazione, in pixel, finché non si toccano. */
+function distanzia() {
+  if (!mappa) return;
+  const W = 54, H = 54, pt = marcatori.map((m) => mappa.latLngToContainerPoint(m.base));
+  for (let it = 0; it < 60; it++) {
+    let mosso = false;
+    for (let i = 0; i < pt.length; i++) for (let j = i + 1; j < pt.length; j++) {
+      const dx = pt[j].x - pt[i].x, dy = pt[j].y - pt[i].y, ox = W - Math.abs(dx), oy = H - Math.abs(dy);
+      if (ox <= 0 || oy <= 0) continue;
+      mosso = true;
+      if (oy <= ox) { const s = (dy >= 0 ? 1 : -1) * (oy / 2 + 0.5); pt[i].y -= s; pt[j].y += s; }
+      else { const s = (dx >= 0 ? 1 : -1) * (ox / 2 + 0.5); pt[i].x -= s; pt[j].x += s; }
+    }
+    if (!mosso) break;
+  }
+  marcatori.forEach((m, i) => m.mk.setLatLng(mappa.containerPointToLatLng(pt[i])));
 }
 
 /* ---------- lista ---------- */
