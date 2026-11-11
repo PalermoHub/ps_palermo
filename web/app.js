@@ -353,19 +353,25 @@ function apriScheda(id, daHash) {
 
   const griglia = el('div', 's-grid'), sx = el('div', 's-col'), dx = el('div', 's-col');
 
-  // Colonna sinistra: situazione attuale.
-  const cur = el('section', 's-box'), top = el('div', 's-top');
+  // Fascia in alto: i numeri che contano, con il termometro del sovraffollamento.
+  const cur = el('section', 's-hero'), top = el('div', 's-top');
   top.append(el('h3', null, 'Situazione attuale'), el('span', `live${f.vecchio ? ' vecchio' : ''}`, f.txt));
   cur.append(top);
   if (!l) cur.append(el('p', 'err', 'Dati non disponibili al momento.'));
   else {
     const big = el('div', 's-big');
-    [[l.inAttesa, 'pazienti in attesa'], [l.sovraffollamentoPct == null ? null : Math.round(l.sovraffollamentoPct) + '%', 'indice di sovraffollamento', b.k]]
+    [[l.inAttesa, 'pazienti in attesa'], [l.pazientiTotali, 'pazienti in struttura'], [l.sovraffollamentoPct == null ? null : Math.round(l.sovraffollamentoPct) + '%', 'sovraffollamento', b.k]]
       .filter(([v]) => v != null).forEach(([v, lab, k]) => { const d = el('div'); d.append(el('b', k, v), el('span', null, lab)); big.append(d); });
-    cur.append(big, barra(l));
+    cur.append(big);
+    if (l.sovraffollamentoPct != null) cur.append(barra(l));
+  }
+  corpo.append(cur);
 
+  // Colonna sinistra: tabella per codice colore e mappa.
+  if (l) {
     const cols = [['attesa', 'In attesa di visita'], ['trattamento', 'In trattamento'], ['osservazione', 'In osservazione'], ['totale', 'Totali']]
       .filter(([k]) => COD.some((cd) => l.codici[cd]?.[k] != null));
+    const box = el('section', 's-box'); box.append(el('h3', null, 'Per codice colore'));
     const tw = el('div', 'tw'), t = el('table', 's-t'), hr = el('tr');
     ['Codice', ...cols.map((k) => k[1])].forEach((n) => { const th = el('th', null, n); th.scope = 'col'; hr.append(th); });
     const thd = el('thead'); thd.append(hr); t.append(thd);
@@ -380,22 +386,28 @@ function apriScheda(id, daHash) {
     const tot = el('tr', 's-tot'), tth = el('th', null, 'Totale'); tth.scope = 'row'; tot.append(tth);
     cols.forEach(([k]) => tot.append(el('td', 'n', k === 'totale' ? '–' : nd(somma(l, k)))));
     tb.append(tot);
-    t.append(tb); tw.append(t); cur.append(tw);
-    if (cols.length === 1) cur.append(el('p', 's-nota', 'Questo ospedale pubblica solo i pazienti in attesa per codice.'));
+    t.append(tb); tw.append(t); box.append(tw);
+    if (cols.length === 1) box.append(el('p', 's-nota', 'Questo ospedale pubblica solo i pazienti in attesa per codice.'));
+    sx.append(box);
   }
-  sx.append(cur);
+  const dove = el('section', 's-box'); dove.append(el('h3', null, 'Mappa'));
+  const mm = el('div'); mm.id = 's-map'; mm.setAttribute('role', 'region'); mm.setAttribute('aria-label', `Posizione di ${p.nome}`); dove.append(mm);
 
-  // Colonna destra: altri dati, informazioni, mappa.
+  // Colonna destra: dati a gruppi (piastrelle) e informazioni.
   if (l) {
     const perm = l.permanenza, tm = l.tempiMediAttesaMin;
-    const box = el('section', 's-box'); box.append(el('h3', null, 'Altri dati pubblicati'));
-    righe(box, [
-      ['Pazienti in struttura', l.pazientiTotali], ['Pazienti in trattamento', somma(l, 'trattamento')], ['Pazienti in osservazione', somma(l, 'osservazione')],
-      ['Num. posti tecnici presidiati', l.postiTecnici],
-      ['In struttura da meno di 24 ore', perm?.meno24h], ['In struttura da 24 a 48 ore', perm?.da24a48h], ['In struttura da oltre 48 ore', perm?.oltre48h],
-      ...(tm ? COD.filter((cd) => tm[cd] != null).map((cd) => [`Attesa media · ${cd === 'arancione' ? 'arancione' : cd}`, fmtMin(tm[cd])]) : []),
-    ]);
-    if (box.children.length > 1) dx.append(box);
+    const pres = el('section', 's-box'); pres.append(el('h3', null, 'Presenze'));
+    righe(pres, [['In trattamento', somma(l, 'trattamento')], ['In osservazione', somma(l, 'osservazione')], ['Posti tecnici presidiati', l.postiTecnici]]);
+    if (pres.children.length > 1) dx.append(pres);
+    const tiles = (tit, voci, cls) => {
+      const v = voci.filter(([, x]) => x != null); if (!v.length) return;
+      const bx = el('section', 's-box'); bx.append(el('h3', null, tit));
+      const g = el('div', `s-tiles ${cls || ''}`);
+      v.forEach(([lab, x, col]) => { const d = el('div'); if (col) d.style.setProperty('--tc', col); d.append(el('b', null, x), el('span', null, lab)); g.append(d); });
+      bx.append(g); dx.append(bx);
+    };
+    tiles('Tempo in struttura', [['meno di 24 ore', perm?.meno24h], ['24–48 ore', perm?.da24a48h], ['oltre 48 ore', perm?.oltre48h]]);
+    if (tm) tiles('Attesa media', COD.filter((cd) => tm[cd] != null).map((cd) => [cd === 'arancione' ? 'Arancione' : ETI[cd], fmtMin(tm[cd]), cd === 'bianco' ? 'var(--ctl)' : `var(--${cd})`]), 'col');
   }
   const inf = el('section', 's-box'); inf.append(el('h3', null, 'Informazioni'));
   inf.append(info('📍', link(p.indirizzo, `https://www.google.com/maps/search/?api=1&query=${c}`)));
@@ -403,9 +415,7 @@ function apriScheda(id, daHash) {
   if (p.sito) inf.append(info('🌐', link(p.sito.replace(/^https?:\/\/(www\.)?/, ''), p.sito)));
   inf.append(info('📄', link('Pagina ufficiale della fonte', p.fonteUrl)));
   if (p.ultimoErrore) inf.append(el('p', 'err', 'La fonte non è raggiungibile: si vede l’ultimo dato valido.'));
-  dx.append(inf);
-  const dove = el('section', 's-box'); dove.append(el('h3', null, 'Mappa'));
-  const mm = el('div'); mm.id = 's-map'; mm.setAttribute('role', 'region'); mm.setAttribute('aria-label', `Posizione di ${p.nome}`); dove.append(mm);
+  sx.append(inf);
   dx.append(dove);
 
   griglia.append(sx, dx); corpo.append(griglia);

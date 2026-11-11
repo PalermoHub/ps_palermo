@@ -229,3 +229,26 @@ dialog::backdrop{background:rgba(26,26,26,.6)}
 .mc-b:hover{background:var(--accbg)}.mc-b:focus-visible{outline:2px solid var(--head);outline-offset:2px}
 #map:fullscreen{height:100vh;border-radius:0}
 header .tema{margin-left:-8px;border-color:#55524d;background:transparent;color:#fff;box-shadow:none}header .tema:hover{background:#333}header .tema:focus-visible{outline-color:#fff}
+
+/* scheda: fascia in alto, colonne bilanciate, piastrelle */
+.s-hero{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:var(--paper)}
+.s-hero .s-top{margin-bottom:14px}.s-hero .s-top h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin:0;font-weight:700}
+.s-hero .s-big{margin-bottom:14px;gap:0;flex-wrap:wrap}
+.s-hero .s-big div{flex:1 1 140px;padding:0 20px;border-left:1px solid var(--line)}
+.s-hero .s-big div:first-child{padding-left:0;border-left:0}
+.s-hero .s-big b{font-size:52px;letter-spacing:-.02em}
+.s-hero .s-big span{font-size:13px;margin-top:6px}
+.s-hero .bar-s{margin-top:6px}
+.s-chips+.dove{margin:-8px 0 0}
+.s-az{padding-bottom:2px}
+.s-box .tw{border:0;box-shadow:none;background:none;border-radius:0}
+.s-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.s-tiles.col{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
+.s-tiles div{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:10px 12px;border-top:3px solid var(--tc,var(--line))}
+.s-tiles b{display:block;font-size:20px;font-weight:800;color:var(--head);line-height:1.1;font-variant-numeric:tabular-nums}
+.s-tiles span{display:block;font-size:12px;margin-top:3px}
+.s-box #s-map{height:260px}
+@media (max-width:760px){.s-hero .s-big div{padding:0 12px}.s-hero .s-big b{font-size:38px}.s-tiles{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:520px){.s-hero .s-big div{flex:1 1 40%;padding:8px 12px 8px 0;border-left:0}.s-hero .s-big{row-gap:6px}}
+.s-t th[scope=row]{white-space:nowrap}
+.s-box #s-map{height:230px}
