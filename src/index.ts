@@ -33,6 +33,12 @@ export default {
   // Cron (wrangler.toml): ogni 2 minuti legge le fonti e salva lo snapshot.
   async scheduled(_c: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     ctx.waitUntil(rinfresca(env));
+    // TEMPORANEO: dove esce il cron?
+    ctx.waitUntil(
+      fetch('https://www.cloudflare.com/cdn-cgi/trace')
+        .then((r) => r.text())
+        .then((t) => env.PS_KV.put('diag:cron', `${new Date().toISOString()}\n${t}`)),
+    );
   },
 
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -52,6 +58,7 @@ export default {
       };
       const cf = (req as Request & { cf?: Record<string, unknown> }).cf ?? {};
       const out = {
+        cron: await env.PS_KV.get('diag:cron'),
         richiesta: { colo: cf.colo, country: cf.country, city: cf.city, asn: cf.asn },
         sonde: await Promise.all([
           sonda('https://www.cloudflare.com/cdn-cgi/trace'),
