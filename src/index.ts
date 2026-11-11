@@ -5,6 +5,8 @@ import { FONTI } from './registry';
 interface Env {
   PS_KV: KVNamespace;
   ASSETS: Fetcher;
+  /** Il Worker stesso: il cron gira fuori dal placement (Varsavia), le richieste no (Milano). */
+  SELF: Fetcher;
 }
 
 const CHIAVE = 'palermo:snapshot';
@@ -32,7 +34,8 @@ async function rinfrescaSeLibero(env: Env): Promise<void> {
 export default {
   // Cron (wrangler.toml): ogni 2 minuti legge le fonti e salva lo snapshot.
   async scheduled(_c: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
-    ctx.waitUntil(rinfresca(env));
+    // Lo scraping deve partire da una richiesta, non dal cron: solo le richieste rispettano il placement.
+    ctx.waitUntil(env.SELF.fetch('https://self.internal/api/refresh').then(() => undefined));
     // TEMPORANEO: dove esce il cron?
     ctx.waitUntil(
       fetch('https://www.cloudflare.com/cdn-cgi/trace')
@@ -67,6 +70,10 @@ export default {
         ]),
       };
       return new Response(JSON.stringify(out, null, 1), { headers: { 'Content-Type': 'application/json' } });
+    }
+    if (pathname === '/api/refresh') {
+      await rinfrescaSeLibero(env);
+      return new Response('ok');
     }
     if (pathname === '/api/palermo') {
       let snap = await snapshot(env);

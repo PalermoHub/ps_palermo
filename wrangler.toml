@@ -19,3 +19,8 @@ crons = ["*/2 * * * *"]
 [[kv_namespaces]]
 binding = "PS_KV"
 id = "7da51ffb54f741789be80b9baf7d96e9"
+
+# Binding a sé stesso: il cron lo usa per far girare lo scraping nella regione di placement.
+[[services]]
+binding = "SELF"
+service = "palermo-ps"
