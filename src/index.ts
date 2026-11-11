@@ -37,6 +37,30 @@ export default {
 
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const { pathname } = new URL(req.url);
+    if (pathname === '/api/diag') {
+      // TEMPORANEO: diagnosi di dove gira il Worker e cosa rispondono le fonti.
+      const sonda = async (url: string) => {
+        const t0 = Date.now();
+        try {
+          const r = await fetch(url, { headers: { 'User-Agent': 'palermo-ps/0.1' }, signal: AbortSignal.timeout(15000) });
+          const h: Record<string, string> = {};
+          for (const k of ['server', 'cf-ray', 'cf-cache-status', 'content-type']) h[k] = r.headers.get(k) ?? '';
+          return { url, status: r.status, ms: Date.now() - t0, headers: h, corpo: (await r.text()).slice(0, 300) };
+        } catch (e) {
+          return { url, errore: String(e), ms: Date.now() - t0 };
+        }
+      };
+      const cf = (req as Request & { cf?: Record<string, unknown> }).cf ?? {};
+      const out = {
+        richiesta: { colo: cf.colo, country: cf.country, city: cf.city, asn: cf.asn },
+        sonde: await Promise.all([
+          sonda('https://www.cloudflare.com/cdn-cgi/trace'),
+          sonda('https://www.ospedaliriunitipalermo.it/amministrazione-trasparente/servizi-erogati/liste-di-attesa/pazienti-in-attesa-al-pronto-soccorso/'),
+          sonda('https://www.arnascivico.it/index.php?option=com_content&view=article&id=3415&catid=24&Itemid=139'),
+        ]),
+      };
+      return new Response(JSON.stringify(out, null, 1), { headers: { 'Content-Type': 'application/json' } });
+    }
     if (pathname === '/api/palermo') {
       let snap = await snapshot(env);
       if (!snap) {
