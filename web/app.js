@@ -3,7 +3,7 @@ const ETI = { rosso: 'Rosso', arancione: 'Arancio', azzurro: 'Azzurro', verde: '
 const ORDINI = [['attesa', 'Più in attesa'], ['sov', 'Meno affollati'], ['nome', 'Nome']];
 const FILTRI = [['tutti', 'Tutti'], ['adulti', 'Adulti'], ['pediatrico', 'Pediatrici']];
 
-const st = { dati: null, filtro: 'tutti', ordine: 'attesa', vista: 'card', q: '', pos: null };
+const st = { dati: null, filtro: 'tutti', ordine: 'attesa', vista: new URLSearchParams(location.search).get('vista') === 'tab' ? 'tab' : 'card', q: '', pos: null };
 /** Riquadro della provincia di Palermo [sud-ovest, nord-est]: la mappa non può uscirne. */
 const PROVINCIA = [[37.6, 12.85], [38.3, 14.1]];
 let puntiMappa = [], mappa = null, strato = null, marcatori = [], miniMappa = null, ultimiIds = '';
@@ -499,6 +499,7 @@ $('vicino').addEventListener('click', (e) => {
 /* ---------- avvio ---------- */
 function mostra(d) {
   st.dati = d; renderStats(); controlli(); renderLista();
+  if (avviaVicino) { avviaVicino = false; $('vicino').click(); }
   const m = location.hash.match(/^#ps=(.+)$/);
   if (m && !$('scheda').open) apriScheda(decodeURIComponent(m[1]), true);
 }
@@ -516,15 +517,19 @@ $('bn-vicino')?.addEventListener('click', () => {
   $('presidi').scrollIntoView({ behavior: 'smooth' });
   if (!st.pos) $('vicino').click();
 });
+// Arrivo da un'altra pagina (?vicino=1): avvia la geolocalizzazione dopo il primo caricamento dati.
+let avviaVicino = new URLSearchParams(location.search).get('vicino') === '1';
 const bnVoci = [...document.querySelectorAll('.bnav [data-v]')], bnMappa = document.querySelector('.bnav [data-s=mappa]');
-let sezVista = 'mappa';
+let sezVista = /^#(presidi)$/.test(location.hash) || /[?&](vista|vicino)=/.test(location.search) ? 'presidi' : 'mappa';
 function bnAggiorna() {
   bnMappa?.classList.toggle('on', sezVista === 'mappa');
-  bnVoci.forEach((b) => b.classList.toggle('on', sezVista === 'presidi' && b.dataset.v === st.vista));
+  bnVoci.forEach((b) => b.classList.toggle('on', st.vista === b.dataset.v && sezVista === 'presidi' && b.dataset.v === 'tab'));
 }
 bnVoci.forEach((b) => b.addEventListener('click', () => {
-  st.vista = b.dataset.v; controlli(); renderLista(); sezVista = 'presidi'; bnAggiorna();
-  $('presidi').scrollIntoView({ behavior: 'smooth' });
+  // on/off: se già attiva torna alle schede, altrimenti attiva la tabella
+  const on = st.vista === b.dataset.v;
+  st.vista = on ? 'card' : b.dataset.v; controlli(); renderLista(); sezVista = 'presidi'; bnAggiorna();
+  if (!on) $('presidi').scrollIntoView({ behavior: 'smooth' });
 }));
 try {
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { sezVista = e.target.id; bnAggiorna(); } }), { rootMargin: '-45% 0px -50% 0px' });

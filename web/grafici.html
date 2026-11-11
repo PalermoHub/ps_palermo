@@ -56,6 +56,7 @@
       <nav aria-label="Principale">
         <a href="/#mappa">Mappa</a><a href="grafici.html" aria-current="page">Grafici</a><a href="/#presidi">Presidi</a><a href="/#legenda">Come leggere i dati</a><a href="/#fonti">Fonti</a>
       </nav>
+      <button type="button" class="mc-b tema" id="condividi" title="Condividi" aria-label="Condividi"></button>
       <button type="button" class="mc-b mc-tema tema" id="tema" title="Tema scuro" aria-label="Tema scuro"></button>
     </div>
   </header>
@@ -88,6 +89,13 @@
       <div><h2>In emergenza</h2><p>Chiama il <strong>112</strong> o contatta direttamente il pronto soccorso.</p></div>
     </div>
   </footer>
+  <nav class="bnav" aria-label="Sezioni">
+    <a href="/#mappa"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13L9 17l6 3 6-2.5v-13L15 7z"/><path d="M9 4v13M15 7v13"/></svg><span>Mappa</span></a>
+    <a href="/?vista=tab#presidi"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 10h17M3.5 15h17M10 10v10"/></svg><span>Tabella</span></a>
+    <a href="/" class="on" aria-current="page" title="Chiudi i grafici"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Grafici</span></a>
+    <a href="/?vicino=1#presidi"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span>Vicino a me</span></a>
+  </nav>
+
   <script src="grafici.js"></script>
 </body>
 </html>
