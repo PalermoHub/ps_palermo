@@ -8,6 +8,10 @@ directory = "./web"
 binding = "ASSETS"
 run_worker_first = ["/api/*"]
 
+# Esegue il Worker (cron compreso) a Milano: Riuniti e ARNAS Civico non rispondono a IP di datacenter esteri (ipotesi: filtro geografico).
+[placement]
+region = "aws:eu-south-1"
+
 [triggers]
 crons = ["*/2 * * * *"]
 
