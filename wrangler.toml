@@ -11,7 +11,7 @@ run_worker_first = ["/api/*"]
 [triggers]
 crons = ["*/2 * * * *"]
 
-# Prima del deploy: npx wrangler kv namespace create PS_KV  e incolla l'id qui sotto.
+# Namespace creato con: npx wrangler kv namespace create PS_KV
 [[kv_namespaces]]
 binding = "PS_KV"
-id = "REPLACE_ME"
+id = "7da51ffb54f741789be80b9baf7d96e9"

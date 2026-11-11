@@ -23,7 +23,7 @@ Regola dei dati: se la fonte non pubblica un valore è `null`, mai `0` inventato
 ## Su GitHub
 `.github/workflows/deploy.yml`: a ogni push su `main` esegue typecheck e test, poi `wrangler deploy`.
 Secret da impostare nel repo: `CLOUDFLARE_API_TOKEN` (template "Edit Cloudflare Workers") e `CLOUDFLARE_ACCOUNT_ID`.
-Una tantum: `npx wrangler kv namespace create PS_KV` e incollare l'id in `wrangler.toml`.
+Il namespace KV `PS_KV` è già creato e il suo id è in `wrangler.toml`.
 
 ## Da fare
 1. Verificare "Policlinico: `pazientiInCarico` = in trattamento" (assunzione, vedi commento in `policlinico.ts`).
