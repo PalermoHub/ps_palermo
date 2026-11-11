@@ -36,41 +36,10 @@ export default {
   async scheduled(_c: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     // Lo scraping deve partire da una richiesta, non dal cron: solo le richieste rispettano il placement.
     ctx.waitUntil(env.SELF.fetch('https://self.internal/api/refresh').then(() => undefined));
-    // TEMPORANEO: dove esce il cron?
-    ctx.waitUntil(
-      fetch('https://www.cloudflare.com/cdn-cgi/trace')
-        .then((r) => r.text())
-        .then((t) => env.PS_KV.put('diag:cron', `${new Date().toISOString()}\n${t}`)),
-    );
   },
 
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const { pathname } = new URL(req.url);
-    if (pathname === '/api/diag') {
-      // TEMPORANEO: diagnosi di dove gira il Worker e cosa rispondono le fonti.
-      const sonda = async (url: string) => {
-        const t0 = Date.now();
-        try {
-          const r = await fetch(url, { headers: { 'User-Agent': 'palermo-ps/0.1' }, signal: AbortSignal.timeout(15000) });
-          const h: Record<string, string> = {};
-          for (const k of ['server', 'cf-ray', 'cf-cache-status', 'content-type']) h[k] = r.headers.get(k) ?? '';
-          return { url, status: r.status, ms: Date.now() - t0, headers: h, corpo: (await r.text()).slice(0, 300) };
-        } catch (e) {
-          return { url, errore: String(e), ms: Date.now() - t0 };
-        }
-      };
-      const cf = (req as Request & { cf?: Record<string, unknown> }).cf ?? {};
-      const out = {
-        cron: await env.PS_KV.get('diag:cron'),
-        richiesta: { colo: cf.colo, country: cf.country, city: cf.city, asn: cf.asn },
-        sonde: await Promise.all([
-          sonda('https://www.cloudflare.com/cdn-cgi/trace'),
-          sonda('https://www.ospedaliriunitipalermo.it/amministrazione-trasparente/servizi-erogati/liste-di-attesa/pazienti-in-attesa-al-pronto-soccorso/'),
-          sonda('https://www.arnascivico.it/index.php?option=com_content&view=article&id=3415&catid=24&Itemid=139'),
-        ]),
-      };
-      return new Response(JSON.stringify(out, null, 1), { headers: { 'Content-Type': 'application/json' } });
-    }
     if (pathname === '/api/refresh') {
       // Pubblico ma innocuo: rinfresca solo se lo snapshot ha più di 90s (il cron arriva ogni 120s), quindi chi lo chiama non può moltiplicare le letture.
       const snap = await snapshot(env);
