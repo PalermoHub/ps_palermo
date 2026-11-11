@@ -4,7 +4,9 @@ const ORDINI = [['attesa', 'Più in attesa'], ['sov', 'Meno affollati'], ['nome'
 const FILTRI = [['tutti', 'Tutti'], ['adulti', 'Adulti'], ['pediatrico', 'Pediatrici']];
 
 const st = { dati: null, filtro: 'tutti', ordine: 'attesa', vista: 'card', q: '', pos: null };
-let mappa = null, strato = null, marcatori = [], miniMappa = null, ultimiIds = '';
+/** Riquadro della provincia di Palermo [sud-ovest, nord-est]: la mappa non può uscirne. */
+const PROVINCIA = [[37.6, 12.85], [38.3, 14.1]];
+let puntiMappa = [], mappa = null, strato = null, marcatori = [], miniMappa = null, ultimiIds = '';
 
 const $ = (id) => document.getElementById(id);
 const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.textContent = h; return e; };
@@ -84,6 +86,32 @@ function renderStats() {
 }
 
 /* ---------- mappa ---------- */
+/** Mappa di base: stili vettoriali OpenFreeMap (chiaro/scuro), senza chiavi API. Se WebGL manca, ripiego su OpenStreetMap raster. */
+const STILI = { light: 'https://tiles.openfreemap.org/styles/positron', dark: 'https://tiles.openfreemap.org/styles/dark' };
+const ATTR = '© <a href="https://openfreemap.org">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/">OpenMapTiles</a> dati <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const basi = [];
+const tema = () => document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+function aggiungiBase(m) {
+  let l = null;
+  try { if (L.maplibreGL && window.maplibregl?.supported?.() !== false) l = L.maplibreGL({ style: STILI[tema()], attribution: ATTR }).addTo(m); } catch { l = null; }
+  if (!l) {
+    m.getContainer().classList.add('raster');
+    l = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(m);
+  }
+  basi.push({ m, l });
+  m.once('unload', () => { const k = basi.findIndex((b) => b.m === m); if (k >= 0) basi.splice(k, 1); });
+}
+function impostaTema(t, salva) {
+  document.documentElement.dataset.theme = t;
+  if (salva) try { localStorage.setItem('tema', t); } catch {}
+  basi.forEach(({ l }) => l.getMaplibreMap?.()?.setStyle(STILI[t]));
+  const b = $('tema'); if (b) b.setAttribute('aria-pressed', String(t === 'dark'));
+  document.querySelector('meta[name=theme-color]')?.setAttribute('content', t === 'dark' ? '#0c0c0b' : '#1a1a1a');
+}
+$('tema')?.addEventListener('click', () => impostaTema(tema() === 'dark' ? 'light' : 'dark', true));
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change', (e) => { let s = null; try { s = localStorage.getItem('tema'); } catch {} if (!s) impostaTema(e.matches ? 'dark' : 'light'); });
+impostaTema(tema());
+
 const COL = { rosso: '#d62b2b', arancione: '#f08a1c', azzurro: '#2fa7d8', verde: '#2f9e5b', bianco: '#e2dfd9' };
 /** Pin tondo: l'anello è diviso nei codici colore in proporzione ai pazienti, al centro il totale in attesa. */
 function pin(p, menoId) {
@@ -108,10 +136,18 @@ function renderMappa(ps, refit) {
   const m = $('map');
   if (!window.L) { if (!m.firstChild) m.append(el('p', 'nomap', 'La mappa non è disponibile al momento. Le schede qui sotto mostrano gli stessi dati.')); return; }
   if (!mappa) {
-    mappa = L.map(m, { scrollWheelZoom: false }).setView([38.12, 13.36], 12);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(mappa);
+    mappa = L.map(m, { scrollWheelZoom: false, maxBounds: PROVINCIA, maxBoundsViscosity: 1, zoomSnap: 0.5 }).setView([38.12, 13.36], 12);
+    mappa.setMinZoom(mappa.getBoundsZoom(PROVINCIA));
+    aggiungiBase(mappa);
     strato = L.layerGroup().addTo(mappa);
     mappa.on('zoomend', distanzia);
+    mappa.on('resize', () => { mappa.setMinZoom(mappa.getBoundsZoom(PROVINCIA)); centra(); });
+    const Ctl = L.Control.extend({ onAdd() {
+      const b = L.DomUtil.create('button', 'leaflet-bar centra'); b.type = 'button'; b.textContent = 'Centra sugli ospedali';
+      L.DomEvent.disableClickPropagation(b); b.addEventListener('click', () => centra()); return b;
+    } });
+    new Ctl({ position: 'topright' }).addTo(mappa);
+    mappa.on('popupopen', () => marcatori.forEach((x) => x.mk.closeTooltip()));
   }
   strato.clearLayers(); marcatori = [];
   const meno = menoAffollato()?.id, cc = coordsMappa(ps), punti = [];
@@ -122,7 +158,7 @@ function renderMappa(ps, refit) {
     if (p.lettura) { const g = el('div', 'cod'); COD.forEach((c) => g.append(chip(p.lettura, c))); pop.append(g); }
     pop.append(b);
     b.type = 'button'; b.addEventListener('click', () => apriScheda(p.id));
-    mk.bindPopup(pop);
+    mk.bindPopup(pop, { minWidth: 260, maxWidth: 260, offset: [0, -22], autoPanPaddingTopLeft: [20, 70], autoPanPaddingBottomRight: [20, 20] });
     const tip = el('div', 'tip');
     tip.append(el('strong', null, p.nome), el('span', null, `${nd(p.lettura?.inAttesa)} in attesa · ${badge(p, meno).txt}`));
     if (p.lettura) { const g = el('div', 'cod'); COD.forEach((c) => g.append(chip(p.lettura, c))); tip.append(g); }
@@ -139,8 +175,14 @@ function renderMappa(ps, refit) {
     punti.push(cc[i]);
   });
   if (st.pos) { L.marker([st.pos.lat, st.pos.lng], { icon: L.divIcon({ className: '', iconSize: [18, 18], html: '<div class="pin me"></div>' }), title: 'La tua posizione', interactive: false }).addTo(strato); punti.push([st.pos.lat, st.pos.lng]); }
-  if (refit && punti.length) mappa.fitBounds(punti, { paddingTopLeft: [85, 55], paddingBottomRight: [85, 45], maxZoom: 14 });
+  puntiMappa = punti;
+  if (refit) centra();
   distanzia();
+}
+/** Inquadra tutti i presidi (e la posizione dell'utente, se nota), restando dentro i confini della provincia. */
+function centra() {
+  if (!mappa || !puntiMappa.length) return;
+  mappa.fitBounds(puntiMappa, { paddingTopLeft: [85, 55], paddingBottomRight: [85, 45], maxZoom: 14 });
 }
 /** Le etichette larghe si coprirebbero: le sposto solo in visualizzazione, in pixel, finché non si toccano. */
 function distanzia() {
@@ -310,7 +352,7 @@ function apriScheda(id, daHash) {
   if (window.L) {
     if (miniMappa) { miniMappa.remove(); miniMappa = null; }
     miniMappa = L.map(mm, { scrollWheelZoom: false }).setView([p.coords.lat, p.coords.lng], 16);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(miniMappa);
+    aggiungiBase(miniMappa);
     L.marker([p.coords.lat, p.coords.lng], { title: p.nome }).addTo(miniMappa);
   } else mm.append(el('p', 'nomap', 'Mappa non disponibile.'));
   dlg.scrollTop = 0;
