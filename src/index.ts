@@ -8,6 +8,9 @@ interface Env {
 }
 
 const CHIAVE = 'palermo:snapshot';
+const LOCK = 'palermo:lock';
+/** Oltre questa età l'API avvia un rinfresco in background (rete di sicurezza se il cron ritarda). */
+const ETA_MAX_MS = 3 * 60_000;
 const VUOTO = { lettura: null, acquisitaAlle: null, ultimoErrore: null };
 
 async function snapshot(env: Env): Promise<Snapshot | null> {
@@ -17,6 +20,13 @@ async function snapshot(env: Env): Promise<Snapshot | null> {
 async function rinfresca(env: Env): Promise<void> {
   const next = await aggiorna(await snapshot(env), FONTI, fetch);
   await env.PS_KV.put(CHIAVE, JSON.stringify(next));
+}
+
+/** Un solo rinfresco alla volta: KV non è atomico, ma il lock da 60s evita la maggior parte delle sovrapposizioni. */
+async function rinfrescaSeLibero(env: Env): Promise<void> {
+  if (await env.PS_KV.get(LOCK)) return;
+  await env.PS_KV.put(LOCK, '1', { expirationTtl: 60 });
+  await rinfresca(env);
 }
 
 export default {
@@ -33,7 +43,7 @@ export default {
         // Primo avvio (o `wrangler dev` senza cron): popola subito, così la pagina non resta vuota.
         await rinfresca(env);
         snap = await snapshot(env);
-      }
+      } else if (Date.now() - Date.parse(snap.aggiornatoAlle) > ETA_MAX_MS) ctx.waitUntil(rinfrescaSeLibero(env));
       const body = {
         aggiornatoAlle: snap?.aggiornatoAlle ?? null,
         ps: PS.map((p) => ({ ...p, ...(snap?.ps[p.id] ?? VUOTO) })),
