@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pronto Soccorso Palermo · attese in tempo reale</title>
   <meta name="description" content="Pazienti in attesa, sovraffollamento e codici colore dei pronto soccorso di Palermo, dai dati pubblici degli ospedali. Un progetto di #opendatasicilia.">
-  <meta name="theme-color" content="#1a1a1a">
+  <meta name="theme-color" content="#0b3a5a">
   <script>try{var t=localStorage.getItem('tema');document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch(e){}</script>
   <meta property="og:title" content="Pronto Soccorso Palermo · attese in tempo reale">
   <meta property="og:description" content="Quanta gente c'è oggi nei pronto soccorso di Palermo? Dati pubblici degli ospedali, in un'unica pagina.">
@@ -15,7 +15,7 @@
   <link rel="apple-touch-icon" href="img/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Figtree:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
   <link rel="stylesheet" href="style.css">
@@ -114,6 +114,13 @@
       <div><h2>In emergenza</h2><p>Chiama il <strong>112</strong> o contatta direttamente il pronto soccorso.</p></div>
     </div>
   </footer>
+
+  <nav class="bnav" aria-label="Sezioni">
+    <a href="#mappa" data-s="mappa"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13L9 17l6 3 6-2.5v-13L15 7z"/><path d="M9 4v13M15 7v13"/></svg><span>Mappa</span></a>
+    <button type="button" data-v="card"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="7" rx="2"/><rect x="3.5" y="13" width="17" height="7" rx="2"/></svg><span>Schede</span></button>
+    <button type="button" data-v="tab"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 10h17M3.5 15h17M10 10v10"/></svg><span>Tabella</span></button>
+    <button type="button" id="bn-vicino"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span>Vicino a me</span></button>
+  </nav>
 
   <dialog id="scheda" aria-labelledby="s-titolo">
     <div class="s-in" id="s-corpo"></div>

@@ -73,14 +73,18 @@ function renderStats() {
   const aff = con.filter((p) => (p.lettura.sovraffollamentoPct ?? 0) >= 120).length;
   const meno = menoAffollato();
   const box = $('stats'); box.replaceChildren();
-  const add = (valore, small, lab, cls) => {
-    const d = el('div', 'stat'), b = el('b', cls, valore);
-    if (small) b.append(' ', el('small', null, small));
-    d.append(b, el('span', null, lab)); box.append(d);
-  };
-  add(attesa, null, 'persone in attesa ora');
-  add(aff, `su ${con.length}`, 'presidi affollati o molto affollati');
-  if (meno) add(meno.nome, null, `il meno affollato adesso · ${Math.round(meno.s)}%`, 't');
+  const p1 = el('div', 'plate sole');
+  p1.append(el('span', 'pl-k', 'In attesa adesso'), el('b', null, attesa), el('span', 'pl-t', `persone nei pronto soccorso · ${aff} presidi su ${con.length} affollati`));
+  box.append(p1);
+  if (meno) {
+    const p2 = el('button', 'plate verde'); p2.type = 'button';
+    const t = el('div'); t.append(el('span', 'pl-k', 'Meno affollato adesso'), el('div', 'pl-t', meno.nome));
+    p2.append(el('span', 'pct', Math.round(meno.s) + '%'), t);
+    p2.insertAdjacentHTML('beforeend', '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>');
+    p2.setAttribute('aria-label', `Apri la scheda di ${meno.nome}, il meno affollato adesso, ${Math.round(meno.s)} per cento`);
+    p2.addEventListener('click', () => apriScheda(meno.id));
+    box.append(p2);
+  }
   const a = eta(st.dati.aggiornatoAlle);
   $('sub').textContent = `Dati in tempo reale · sito aggiornato ${a ? a.txt : '—'} · ${con.length}/${ps.length} pronto soccorso con dati`;
 }
@@ -116,7 +120,7 @@ function impostaTema(t, salva) {
   if (salva) try { localStorage.setItem('tema', t); } catch {}
   basi.forEach(({ l }) => l.getMaplibreMap?.()?.setStyle(STILI[t]));
   document.querySelectorAll('.mc-tema').forEach((b) => { b.innerHTML = icona(t === 'dark' ? 'sole' : 'luna'); b.title = b.ariaLabel = t === 'dark' ? 'Tema chiaro' : 'Tema scuro'; });
-  document.querySelector('meta[name=theme-color]')?.setAttribute('content', t === 'dark' ? '#0c0c0b' : '#1a1a1a');
+  document.querySelector('meta[name=theme-color]')?.setAttribute('content', t === 'dark' ? '#06141f' : '#0b3a5a');
 }
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change', (e) => { let s = null; try { s = localStorage.getItem('tema'); } catch {} if (!s) impostaTema(e.matches ? 'dark' : 'light'); });
 $('tema')?.addEventListener('click', () => impostaTema(tema() === 'dark' ? 'light' : 'dark', true));
@@ -266,7 +270,7 @@ function tempiTesto(l) {
 }
 
 function card(p, menoId) {
-  const l = p.lettura, art = el('article', 'card'), b = badge(p, menoId);
+  const l = p.lettura, b = badge(p, menoId), art = el('article', 'card lv-' + b.k);
   const head = el('div', 'card-h'), tit = el('div');
   tit.append(el('h3', null, p.nome), el('p', null, `${p.struttura} · ${p.tipo === 'adulti' ? 'adulti' : 'pediatrico'}${st.pos ? ` · ${km(st.pos, p.coords).toFixed(1)} km` : ''}`));
   head.append(tit, el('span', `badge ${b.k}`, b.txt)); art.append(head);
@@ -481,3 +485,24 @@ setInterval(() => fetch('/api/palermo').then((r) => r.json()).then((d) => {
   st.dati = d; renderStats(); renderLista();
   if (aperta && $('scheda').open) { const y = $('scheda').scrollTop; apriScheda(aperta, true); $('scheda').scrollTop = y; }
 }).catch(() => {}), 120000);
+
+/* ---------- barra in basso (mobile) ---------- */
+$('bn-vicino')?.addEventListener('click', () => {
+  $('presidi').scrollIntoView({ behavior: 'smooth' });
+  if (!st.pos) $('vicino').click();
+});
+const bnVoci = [...document.querySelectorAll('.bnav [data-v]')], bnMappa = document.querySelector('.bnav [data-s=mappa]');
+let sezVista = 'mappa';
+function bnAggiorna() {
+  bnMappa?.classList.toggle('on', sezVista === 'mappa');
+  bnVoci.forEach((b) => b.classList.toggle('on', sezVista === 'presidi' && b.dataset.v === st.vista));
+}
+bnVoci.forEach((b) => b.addEventListener('click', () => {
+  st.vista = b.dataset.v; controlli(); renderLista(); sezVista = 'presidi'; bnAggiorna();
+  $('presidi').scrollIntoView({ behavior: 'smooth' });
+}));
+try {
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { sezVista = e.target.id; bnAggiorna(); } }), { rootMargin: '-45% 0px -50% 0px' });
+  ['mappa', 'presidi'].forEach((id) => $(id) && io.observe($(id)));
+} catch {}
+document.addEventListener('click', (e) => { if (e.target.closest('#viste')) setTimeout(bnAggiorna, 0); });
