@@ -3,26 +3,113 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pronto Soccorso Palermo</title>
-  <meta name="description" content="Pazienti in attesa e sovraffollamento dei pronto soccorso di Palermo città, dai dati pubblici degli ospedali.">
+  <title>Pronto Soccorso Palermo · attese in tempo reale</title>
+  <meta name="description" content="Pazienti in attesa, sovraffollamento e codici colore dei pronto soccorso di Palermo, dai dati pubblici degli ospedali. Un progetto di #opendatasicilia.">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta property="og:title" content="Pronto Soccorso Palermo · attese in tempo reale">
+  <meta property="og:description" content="Quanta gente c'è oggi nei pronto soccorso di Palermo? Dati pubblici degli ospedali, in un'unica pagina.">
+  <meta property="og:image" content="img/opendatasicilia.png">
+  <link rel="icon" href="img/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Pronto Soccorso <span>Palermo</span></h1>
-    <p class="sub" id="sub">Caricamento…</p>
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="#top">
+        <span class="logo"><img src="img/opendatasicilia.png" alt="" width="40" height="44"></span>
+        <span class="brand-t"><strong>Pronto Soccorso <span class="acc">Palermo</span></strong><small>un progetto di #opendatasicilia</small></span>
+      </a>
+      <nav aria-label="Principale">
+        <a href="#mappa">Mappa</a><a href="#presidi">Presidi</a><a href="#legenda">Come leggere i dati</a><a href="#fonti">Fonti</a>
+      </nav>
+    </div>
   </header>
-  <aside class="avviso" role="note">
-    <strong>In emergenza chiama il 118.</strong> I dati sono pubblicati dagli ospedali e possono avere minuti di ritardo: non indicano il tempo che aspetterai.
-  </aside>
-  <nav class="filtri" aria-label="Filtri">
-    <button data-f="tutti" aria-pressed="true">Tutti</button>
-    <button data-f="adulti" aria-pressed="false">Adulti</button>
-    <button data-f="pediatrico" aria-pressed="false">Pediatrici</button>
-    <button id="vicino" class="geo" aria-pressed="false">Vicino a me</button>
-  </nav>
-  <main id="lista" aria-live="polite"></main>
-  <footer>Fonti: Ospedali Riuniti Villa Sofia-Cervello, ARNAS Civico, Policlinico, ASP Palermo, Fatebenefratelli. Progetto non ufficiale.</footer>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-in">
+        <p class="live"><span class="dot" aria-hidden="true"></span><span id="sub">Caricamento dati…</span></p>
+        <h1>Quanta gente c’è oggi nei pronto soccorso di <span class="mark">Palermo</span>?</h1>
+        <p class="lead">Pazienti in attesa, sovraffollamento e codici colore dei pronto soccorso della città, letti dai dati pubblici degli ospedali e riuniti in un’unica pagina.</p>
+        <div class="stats" id="stats"></div>
+        <aside class="avviso" role="note">
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+          <span><strong>In emergenza chiama il 112.</strong> I dati sono pubblicati dagli ospedali e possono avere minuti di ritardo: non indicano il tempo che aspetterai.</span>
+        </aside>
+      </div>
+    </section>
+
+    <section id="mappa" class="wrap sez">
+      <h2>Dove sono</h2>
+      <p class="sez-s">Il numero nel cerchio sono i pazienti in attesa. Il colore del bordo indica il sovraffollamento. Tocca un cerchio per aprire la scheda del presidio.</p>
+      <div id="map" role="region" aria-label="Mappa dei pronto soccorso di Palermo"></div>
+      <ul class="mleg" aria-label="Legenda della mappa">
+        <li><i style="border-color:#2f9e5b"></i>Poco affollato</li>
+        <li><i style="border-color:#f08a1c"></i>Affollato</li>
+        <li><i style="border-color:#d62b2b"></i>Molto affollato</li>
+        <li><i style="border-color:#8a8680"></i>Dato non disponibile</li>
+      </ul>
+    </section>
+
+    <section id="presidi" class="wrap sez">
+      <h2>I presidi</h2>
+      <div class="tools">
+        <div class="cerca">
+          <label for="cerca" class="vh">Cerca un presidio</label>
+          <input id="cerca" type="search" placeholder="Cerca un presidio…" autocomplete="off">
+        </div>
+        <div class="grp" role="group" aria-label="Tipo di pronto soccorso" id="filtri"></div>
+        <button type="button" class="pill geo" id="vicino" aria-pressed="false">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          Vicino a me
+        </button>
+      </div>
+      <div class="tools2">
+        <div class="grp" role="group" aria-label="Ordina per"><span class="lab">Ordina per</span><span id="ordini" class="grp"></span></div>
+        <div class="grp vista" role="group" aria-label="Vista" id="viste"></div>
+      </div>
+      <div id="lista" aria-live="polite"></div>
+    </section>
+
+    <section id="legenda" class="wrap sez">
+      <h2>Come leggere i dati</h2>
+      <div class="info">
+        <div class="box"><h3>Codici colore</h3>
+          <ul>
+            <li><strong>Rosso</strong> · emergenza, accesso immediato</li>
+            <li><strong>Arancione</strong> · urgenza, entro pochi minuti</li>
+            <li><strong>Azzurro</strong> · urgenza differibile</li>
+            <li><strong>Verde</strong> · urgenza minore</li>
+            <li><strong>Bianco</strong> · non urgente</li>
+          </ul></div>
+        <div class="box"><h3>In attesa e in struttura</h3>
+          <p><strong>In attesa</strong>: registrati al triage, non ancora presi in carico. <strong>In struttura</strong>: tutti i pazienti presenti, compresi quelli in osservazione o in attesa di un posto letto.</p></div>
+        <div class="box"><h3>Sovraffollamento</h3>
+          <p>Rapporto fra pazienti presenti e posti disponibili. Il segno sulla barra è il 100%: oltre quel punto il pronto soccorso lavora sopra la sua capacità. Un valore alto non dice quanto aspetterai tu.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="fonti">
+    <div class="wrap foot">
+      <div class="foot-b"><span class="logo"><img src="img/opendatasicilia.png" alt="Logo opendatasicilia" width="48" height="52"></span>
+        <p>Un progetto civico di <a href="https://opendatasicilia.it">opendatasicilia</a>. Non è un servizio ufficiale e non sostituisce le indicazioni del personale sanitario.</p></div>
+      <div><h2>Fonti dei dati</h2><p>Ospedali Riuniti Villa Sofia-Cervello, ARNAS Civico, Policlinico, ASP Palermo, Fatebenefratelli.</p></div>
+      <div><h2>In emergenza</h2><p>Chiama il <strong>112</strong> o contatta direttamente il pronto soccorso.</p></div>
+    </div>
+  </footer>
+
+  <dialog id="scheda" aria-labelledby="s-titolo">
+    <div class="s-in" id="s-corpo"></div>
+  </dialog>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
   <script src="app.js"></script>
 </body>
 </html>

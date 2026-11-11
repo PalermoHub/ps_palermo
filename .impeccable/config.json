@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "open sans",
+        "createdAt": "2026-11-11T20:29:39.093Z",
+        "reason": "Open Sans è il font del design system OpenDataSicilia scelto per il brand; non deciso dall'utente, ma imposto dal design system"
+      }
+    ]
+  }
+}
