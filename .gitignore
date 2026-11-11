@@ -3,3 +3,4 @@ node_modules
 .dev.vars
 dist
 .playwright-mcp
+graphify-out/
