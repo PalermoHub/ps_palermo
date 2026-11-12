@@ -115,6 +115,13 @@
       <p class="sez-s">Quanto puoi fidarti di quello che vedi: per ognuna delle cinque fonti, com'è andata nelle ultime 24 ore. Ogni quadratino è una mezz'ora. Un dato «invariato» per diverse ore non è per forza un errore: di notte i numeri cambiano poco. Lo stato di ogni fonte usa le stesse soglie dell'avviso «dati non aggiornati».</p>
       <div id="salute"></div>
     </section>
+
+    <section id="scarica-sez" class="wrap sez">
+      <h2 class="sez-h">Scarica i dati</h2>
+      <p class="sez-s">Lo storico delle letture, in file CSV: uno per giorno, uno per settimana, uno per mese. Una riga per presidio ogni due minuti circa, con pazienti in attesa, presenti, indice di sovraffollamento e attese per codice colore. I file si aggiornano ogni notte e comprendono solo giorni, settimane e mesi conclusi: il giorno in corso non c'è. I dati sono quelli pubblicati dagli ospedali, senza altre elaborazioni.</p>
+      <div class="chip-g" id="scarica-per" role="group" aria-label="Periodo"></div>
+      <div id="scarica"></div>
+    </section>
   </main>
 
   <footer id="fonti">
@@ -135,6 +142,7 @@
   <script src="storico.js"></script>
   <script src="grafici.js"></script>
   <script src="esporta.js"></script>
+  <script src="scarica.js"></script>
   <script src="cima.js"></script>
   <script src="embed.js"></script>
 </body>

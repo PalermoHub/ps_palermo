@@ -1,7 +1,8 @@
 name: Backup storico dati
 
 # Ogni notte copia lo storico (D1) in dati/storico/AAAA/AAAA-MM-GG.csv (backup) e ricalcola dati/storico/heatmap.json,
-# che il sito legge da raw.githubusercontent.com per la heatmap.
+# che il sito legge da raw.githubusercontent.com per la heatmap. Poi scripts/aggrega.mjs crea i CSV di settimane e mesi chiusi
+# e dati/storico/indice.json, da cui il sito offre i download (statici: non costano letture D1).
 on:
   schedule:
     - cron: '30 2 * * *'
@@ -36,6 +37,8 @@ jobs:
         with: { node-version: 22 }
       - name: Ricalcola la heatmap dai CSV
         run: node scripts/heatmap.mjs
+      - name: Crea i file settimanali e mensili e l'indice dei download
+        run: node scripts/aggrega.mjs
       - name: Commit
         run: |
           git config user.name "backup-storico"
