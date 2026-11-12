@@ -58,7 +58,7 @@
       b.addEventListener('click', () => scarica(x, b));
       li.append(t, b); ul.append(li);
     });
-    box.append(ul, el('p', 'bc-nota', `Colonne: ${st.indice.colonne.replaceAll(',', ', ')}. Orari in UTC. Un campo vuoto vuol dire che la fonte non pubblica quel dato. Archivio completo su github.com/PalermoHub/ps_palermo, cartella dati/storico.`));
+    box.append(ul, el('p', 'bc-nota', `Colonne: ${st.indice.colonne.replaceAll(',', ', ')}. Orari in UTC. Un campo vuoto vuol dire che la fonte non pubblica quel dato.`));
   }
   function periodi() {
     const c = $('scarica-per'); if (!c) return; c.replaceChildren();
