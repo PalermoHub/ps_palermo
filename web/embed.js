@@ -51,30 +51,6 @@
     if (d && d.source === 'ps-palermo' && d.type === 'rimisura') { ult = 0; altezza(); }
   });
 
-  // barra in basso (mobile): l'iframe è alto quanto il contenuto, quindi "fixed" finirebbe in fondo alla pagina.
-  // Sentinelle da 1px ogni PASSO px + IntersectionObserver (vale anche cross-origin): la più bassa visibile nella
-  // finestra del genitore indica dove posare la barra (un solo elemento grande non basta: il suo rapporto di visibilità non cambia scorrendo).
-  const bn = document.querySelector('.bnav');
-  if (bn && 'IntersectionObserver' in window) {
-    const PASSO = 16, vis = new Set(); let box = null, io = null;
-    const posa = () => {
-      if (!vis.size || getComputedStyle(bn).display === 'none') return;
-      bn.style.position = 'absolute'; bn.style.bottom = 'auto';
-      bn.style.top = Math.max(0, Math.max(...vis) * PASSO - bn.offsetHeight) + 'px';
-    };
-    const crea = () => {
-      const n = Math.ceil(document.body.scrollHeight / PASSO);
-      if (box && box.children.length === n) return;
-      io && io.disconnect(); box && box.remove(); vis.clear();
-      box = document.createElement('div'); box.setAttribute('aria-hidden', 'true');
-      box.style.cssText = 'position:absolute;left:0;top:0;width:1px;height:' + n * PASSO + 'px;pointer-events:none;visibility:hidden';
-      io = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? vis.add(+e.target.dataset.i) : vis.delete(+e.target.dataset.i)); posa(); });
-      for (let i = 0; i < n; i++) { const d = document.createElement('i'); d.dataset.i = i; d.style.cssText = 'position:absolute;left:0;width:1px;height:1px;top:' + i * PASSO + 'px'; box.appendChild(d); io.observe(d); }
-      document.body.appendChild(box);
-    };
-    addEventListener('load', crea); new ResizeObserver(crea).observe(document.body);
-  }
-
   // scheda aperta: chiedi al genitore di portare in vista l'inizio dell'iframe
   const sch = document.getElementById('scheda');
   if (sch) new MutationObserver(() => { if (sch.open) invia({ type: 'scroll', y: Math.max(0, sch.getBoundingClientRect().top - 12) }); }).observe(sch, { attributes: true, attributeFilter: ['open'] });
