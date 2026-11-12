@@ -472,6 +472,30 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 .bc-b u{position:absolute;left:var(--cap);top:-4px;width:3px;height:22px;margin-left:-1.5px;border-radius:2px;background:var(--head)}
 :root[data-theme=dark] .bc-b .dentro{background:#5d9bc4}
 .bc-nota{margin:10px 10px 0;font-size:12px;color:var(--ink)}
+/* affidabilità dei dati: 48 mezz'ore per fonte; i 4 stati differiscono per riempimento e bordo, non solo per colore */
+.sl-sum{margin:0 10px 12px;font-size:15px;font-weight:700;color:var(--head)}
+.sl{list-style:none;margin:0;padding:0}
+.sl-r{display:grid;grid-template-columns:minmax(150px,230px) minmax(0,1fr) minmax(140px,200px);gap:6px 20px;align-items:center;padding:14px 10px}
+.sl li.sl-r{border-bottom:1px solid var(--line)}.sl li.sl-r:last-child{border-bottom:0}
+.sl-ax{padding-block:0 4px;font-size:11px;font-weight:700;color:var(--ink)}
+.sl-axs{display:flex;justify-content:space-between}
+.sl-n{display:flex;flex-direction:column;gap:2px;min-width:0}.sl-n b{font:800 17px/1.2 var(--ff-d);color:var(--head)}.sl-n small{font-size:12px}
+.sl-b{display:flex;gap:2px;height:28px}
+.sl-b i,.sl-k{flex:1 1 0;min-width:0;border-radius:3px;box-sizing:border-box;display:block}
+.sl-b i.n,.sl-k.n{background:var(--sea);border:1px solid var(--sea)}
+.sl-b i.s,.sl-k.s{background:var(--track);border:1px solid var(--ctl)}
+.sl-b i.e,.sl-k.e{background:repeating-linear-gradient(45deg,var(--lv-mid) 0 3px,var(--mid-bg) 3px 6px);border:1px solid var(--mid-fg)}
+.sl-b i.x,.sl-k.x{background:transparent;border:1px dashed var(--ctl)}
+:root[data-theme=dark] .sl-b i.n,:root[data-theme=dark] .sl-k.n{background:#5d9bc4;border-color:#5d9bc4}
+.sl-k{flex:none;width:16px;height:16px;border-radius:3px}
+.sb-leg .sl-k{border-radius:3px}
+.sl-s{display:flex;flex-direction:column;align-items:flex-start;gap:3px}.sl-s small{font-size:12px;line-height:1.35}
+.sl-m{color:var(--bad-fg)}
+@media (max-width:760px){
+  .sl-r{grid-template-columns:minmax(0,1fr);gap:8px}
+  .sl-ax>div:first-child,.sl-ax>div:last-child{display:none}
+  .sl-s{flex-direction:row;flex-wrap:wrap;align-items:center;gap:4px 10px}
+}
 .sb-b{display:flex;overflow:hidden}
 .sb-b i{position:static;flex:none;box-sizing:border-box;height:14px;display:flex;align-items:center;justify-content:center;font:700 10px/1 var(--ff-b,inherit);font-style:normal;font-variant-numeric:tabular-nums;border-width:0;border-right:1px solid var(--white)}
 .sb-b i:last-child{border-right:0}.sb-b i.c-bianco{border-width:0 1px 0 0;border-style:solid;border-color:var(--ctl)}

@@ -3,6 +3,7 @@ import { PS } from './anagrafica';
 import { verifica } from './coerenza';
 import { valuta } from './freschezza';
 import { archivia, leggi, pota, type Cattura } from './grezzo';
+import { costruisciSalute } from './salute';
 import { costruisciStorico, csvGiorno, salvaLetture } from './storico';
 import { FONTI } from './registry';
 
@@ -21,6 +22,8 @@ const LOCK = 'palermo:lock';
 const CHIAVE_STORICO = 'palermo:storico:v1';
 /** Il calcolo dello storico legge settimane di righe: lo teniamo in KV e lo rifacciamo al massimo ogni 10 minuti. */
 const STORICO_TTL_S = 600;
+const CHIAVE_SALUTE = 'palermo:salute:v1';
+const SALUTE_TTL_S = 300;
 /** Oltre questa età l'API avvia un rinfresco in background (rete di sicurezza se il cron ritarda). */
 const ETA_MAX_MS = 3 * 60_000;
 const VUOTO = { lettura: null, acquisitaAlle: null, ultimoErrore: null };
@@ -95,6 +98,16 @@ export default {
         await env.DB.prepare('INSERT INTO stato (chiave, valore, ts) VALUES (?1, ?2, ?3) ON CONFLICT(chiave) DO UPDATE SET valore = ?2, ts = ?3').bind(CHIAVE_STORICO, corpo, Date.now()).run();
       }
       return new Response(corpo, { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=300' } });
+    }
+    if (pathname === '/api/salute') {
+      // Stessa cache in D1 dello storico (le letture di 24 ore sono migliaia di righe): al massimo un ricalcolo ogni 5 minuti.
+      const c = await env.DB.prepare('SELECT valore, ts FROM stato WHERE chiave = ?').bind(CHIAVE_SALUTE).first<{ valore: string; ts: number }>();
+      let corpo = c && Date.now() - c.ts < SALUTE_TTL_S * 1000 ? c.valore : null;
+      if (!corpo) {
+        corpo = JSON.stringify(await costruisciSalute(env.DB, await snapshot(env)));
+        await env.DB.prepare('INSERT INTO stato (chiave, valore, ts) VALUES (?1, ?2, ?3) ON CONFLICT(chiave) DO UPDATE SET valore = ?2, ts = ?3').bind(CHIAVE_SALUTE, corpo, Date.now()).run();
+      }
+      return new Response(corpo, { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=120' } });
     }
     if (pathname === '/api/grezzo') {
       // Per rieseguire i parser sul passato: serve il token, come l'export CSV.

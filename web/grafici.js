@@ -213,6 +213,47 @@ function renderHeat() {
   box.append(sc, leg); if (meno) box.append(meno); box.append(av);
 }
 
+/* ---------- affidabilità dei dati: una striscia di 48 mezz'ore per fonte ---------- */
+const SAL_STATO = { ok: ['ok', 'Aggiornata'], sospetto: ['mid', 'Da verificare'], congelato: ['bad', 'Dato fermo'], vecchio: ['bad', 'Non aggiornata'], errore: ['bad', 'In errore'], assente: ['nd', 'Nessun dato'] };
+/** Quattro stati distinti per riempimento e bordo, non solo per colore. */
+const SAL_FIN = { n: 'Dato nuovo', s: 'Invariato', e: 'Errore di lettura', x: 'Nessuna lettura' };
+const fa = (min) => (min < 1 ? 'meno di un minuto fa' : min < 60 ? `${min} min fa` : min < 1440 ? `${Math.floor(min / 60)} h fa` : `${Math.floor(min / 1440)} giorni fa`);
+function renderSalute() {
+  const box = $('salute'); if (!box) return; box.replaceChildren();
+  const S = st.salute;
+  if (S === undefined) { box.append(el('p', 'vuoto', 'Caricamento…')); return; }
+  if (!S) { box.append(el('p', 'vuoto', "Le statistiche di affidabilità non sono disponibili al momento.")); return; }
+  const fOra = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' });
+  const buone = S.fonti.filter((f) => f.stato === 'ok').length, stop = S.fonti.reduce((a, f) => a + f.episodiErrore, 0);
+  box.append(el('p', 'sl-sum', `${buone} fonti su ${S.fonti.length} aggiornate · ${stop ? `${stop} interruzion${stop === 1 ? 'e' : 'i'} di lettura nelle ultime 24 ore` : 'nessuna interruzione di lettura nelle ultime 24 ore'}`));
+  const leg = el('ul', 'sb-leg');
+  Object.entries(SAL_FIN).forEach(([k, t]) => { const li = el('li'); li.append(el('i', `sl-k ${k}`), t); leg.append(li); });
+  const ax = el('div', 'sl-r sl-ax'); ax.setAttribute('aria-hidden', 'true');
+  const asse = el('div', 'sl-axs'); asse.append(el('span', null, '24 ore fa'), el('span', null, '12 ore fa'), el('span', null, 'adesso'));
+  ax.append(el('div'), asse, el('div'));
+  const lista = el('ol', 'sl');
+  S.fonti.forEach((f) => {
+    const li = el('li', 'sl-r');
+    const nome = el('div', 'sl-n'); nome.append(el('b', null, f.nome), el('small', null, f.presidi.join(', ')));
+    const bar = el('div', 'sl-b'), c = { n: 0, s: 0, e: 0, x: 0 };
+    [...f.stati].forEach((k, i) => {
+      c[k]++; const q = el('i', k), a = S.da + i * S.passo;
+      q.title = `${fOra.format(new Date(a * 1000))}–${fOra.format(new Date((a + S.passo) * 1000))} · ${SAL_FIN[k]}`; bar.append(q);
+    });
+    bar.setAttribute('role', 'img');
+    bar.setAttribute('aria-label', `${f.nome}, ultime 24 ore: dato nuovo in ${c.n} mezz'ore su ${f.stati.length}, invariato in ${c.s}, errore in ${c.e}, nessuna lettura in ${c.x}.`);
+    const [cls, txt] = SAL_STATO[f.stato] ?? SAL_STATO.assente;
+    const stato = el('div', 'sl-s'), det = [];
+    if (f.ultimoNuovoAlle) det.push(`Ultimo dato nuovo: ${fa(Math.max(0, Math.round((Date.now() - Date.parse(f.ultimoNuovoAlle)) / 60000)))}`);
+    if (f.episodiErrore) det.push(`${f.episodiErrore} interruzion${f.episodiErrore === 1 ? 'e' : 'i'} in 24 ore`);
+    stato.append(el('span', `badge ${cls}`, txt), ...det.map((t) => el('small', null, t)));
+    if (f.motivo && f.stato !== 'ok') stato.append(el('small', 'sl-m', f.motivo.replace(/^[a-z]+: /i, '')));
+    li.append(nome, bar, stato); lista.append(li);
+  });
+  box.append(leg, ax, lista, el('p', 'bc-nota', "«Invariato» e «dato nuovo» si decidono confrontando i valori che abbiamo salvato (in attesa, in struttura, sovraffollamento e codici), non la pagina dell'ospedale. «Nessuna lettura» vuol dire che né il dato né un errore sono stati registrati in quella mezz'ora."));
+}
+const caricaSalute = () => fetch('/api/salute').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => { st.salute = d; renderSalute(); }).catch(() => { st.salute = null; renderSalute(); });
+
 /* ---------- avvio ---------- */
 const carica = () => fetch('/api/palermo').then((r) => r.json()).then((d) => { st.dati = d; renderConfronto(); renderAttesa(); renderDumbbell(); renderHeat(); $('sub').textContent = `Dati in tempo reale · ${d.ps.filter((p) => p.lettura).length}/${d.ps.length} pronto soccorso con dati`; });
 carica().catch(() => { $('sub').textContent = 'Impossibile caricare i dati. Riprova tra poco.'; });
@@ -220,5 +261,5 @@ setInterval(() => carica().catch(() => {}), 120000);
 periodi();
 const caricaStorico = () => PS_STORICO.carica().then((d) => { st.storico = d; renderCitta(); }).catch(() => renderCitta());
 const caricaHeat = () => PS_STORICO.caricaHeat().then((d) => { st.heat = d; renderHeat(); }).catch(() => renderHeat());
-caricaStorico(); caricaHeat();
-setInterval(caricaStorico, 300000);
+caricaStorico(); caricaHeat(); renderSalute(); caricaSalute();
+setInterval(caricaStorico, 300000); setInterval(caricaSalute, 300000);

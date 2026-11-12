@@ -99,7 +99,7 @@ export async function aggiorna(prev: Snapshot | null, fonti: Fonte[], f: FetchFn
   return next;
 }
 
-const FONTE_DI_PS: Record<string, string> = {
+export const FONTE_DI_PS: Record<string, string> = {
   'villa-sofia-adulti': 'riuniti', 'cervello-adulti': 'riuniti', 'cervello-pediatrico': 'riuniti',
   'civico-adulti': 'civico', 'di-cristina-pediatrico': 'civico',
   'policlinico-adulti': 'policlinico', 'ingrassia-adulti': 'asp', 'buccheri-adulti': 'buccheri',
