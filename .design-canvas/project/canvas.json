@@ -1,0 +1,17 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-12T20:45:00Z" },
+  "title": "PS Palermo: tendenza e salute dati",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 1100, "title": "Scheda presidio (mobile)", "is_interactive": false },
+    "Salute.dc.html": { "x": 470, "y": 0, "w": 1280, "h": 980, "title": "Salute dei dati (desktop)", "expand": "fill" }
+  },
+  "order": ["Main.dc.html", "Salute.dc.html"],
+  "notes": {
+    "titolo": { "x": 0, "y": -240, "text": "Due viste che funzionano già con pochi giorni di storico", "kind": "title1", "maxW": 1750 },
+    "nota1": { "x": 0, "y": 1160, "w": 390, "text": "Dati d'esempio. La fascia «solito» appare solo quando i campioni bastano (circa 7 giorni per la baseline oraria).", "fill": "orange" }
+  },
+  "designSystems": []
+}
