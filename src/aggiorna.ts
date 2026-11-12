@@ -1,5 +1,6 @@
 import { PS } from './anagrafica';
 import type { Cattura } from './grezzo';
+import { invariataDal } from './freschezza';
 import type { Fonte, Lettura } from './types';
 
 export interface StatoPs {
@@ -8,6 +9,8 @@ export interface StatoPs {
   acquisitaAlle: string | null;
   /** Ultimo errore della fonte, se l'ultimo tentativo è fallito (la lettura precedente resta visibile). */
   ultimoErrore: string | null;
+  /** Da quando i numeri sono identici (ISO UTC). Assente nei vecchi snapshot: vale `acquisitaAlle`. */
+  invariataDal?: string | null;
 }
 
 export interface Snapshot {
@@ -82,7 +85,7 @@ export async function aggiorna(prev: Snapshot | null, fonti: Fonte[], f: FetchFn
     const fonte = fonti[i]!;
     if (esito.status === 'fulfilled') {
       for (const l of esito.value.letture) {
-        next.ps[l.psId] = { lettura: l, acquisitaAlle: ora.toISOString(), ultimoErrore: null };
+        next.ps[l.psId] = { lettura: l, acquisitaAlle: ora.toISOString(), ultimoErrore: null, invariataDal: invariataDal(base.ps[l.psId], l, ora) };
       }
     } else {
       const msg = `${fonte.id}: ${esito.reason instanceof Error ? esito.reason.message : String(esito.reason)}`;

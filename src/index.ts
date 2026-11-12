@@ -1,5 +1,6 @@
 import { aggiorna, type Snapshot } from './aggiorna';
 import { PS } from './anagrafica';
+import { valuta } from './freschezza';
 import { archivia, leggi, pota, type Cattura } from './grezzo';
 import { costruisciStorico, csvGiorno, salvaLetture } from './storico';
 import { FONTI } from './registry';
@@ -71,7 +72,10 @@ export default {
       } else if (Date.now() - Date.parse(snap.aggiornatoAlle) > ETA_MAX_MS) ctx.waitUntil(rinfrescaSeLibero(env));
       const body = {
         aggiornatoAlle: snap?.aggiornatoAlle ?? null,
-        ps: PS.map((p) => ({ ...p, ...(snap?.ps[p.id] ?? VUOTO) })),
+        ps: PS.map((p) => {
+          const s = snap?.ps[p.id] ?? VUOTO;
+          return { ...p, ...s, affidabilita: valuta(s, new Date()) };
+        }),
       };
       return new Response(JSON.stringify(body), {
         headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=30' },
