@@ -20,7 +20,7 @@
   <link rel="canonical" href="https://palermo-ps.coseerobe.workers.dev/grafici.html">
   <link rel="manifest" href="manifest.webmanifest">
   <script>try{var t=localStorage.getItem('tema');document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch(e){}</script>
-  <script>try{var q=new URLSearchParams(location.search),e=q.get('embed'),th=q.get('tema');if(e==='1'||(e!=='0'&&self!==top))document.documentElement.classList.add('embed');if(document.documentElement.classList.contains('embed')){if(th==='light'||th==='dark')document.documentElement.dataset.theme=th;else document.documentElement.dataset.theme=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'}}catch(e){}</script>
+  <script>try{var q=new URLSearchParams(location.search),e=q.get('embed'),th=q.get('tema');if(e==='1'||(e!=='0'&&self!==top))document.documentElement.classList.add('embed');if(document.documentElement.classList.contains('embed')){if(th==='light'||th==='dark')document.documentElement.dataset.theme=th;else{var s=null;try{s=sessionStorage.getItem('tema-embed')}catch(e){}document.documentElement.dataset.theme=s==='light'||s==='dark'?s:(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}}}catch(e){}</script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Pronto Soccorso Palermo">
   <meta property="og:locale" content="it_IT">

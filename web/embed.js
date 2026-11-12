@@ -25,7 +25,25 @@
   const gd = document.createElement('button');
   gd.type = 'button'; gd.className = 'emb-sh'; gd.title = 'Guida'; gd.setAttribute('aria-label', 'Apri la guida'); gd.setAttribute('data-guida', '');
   gd.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4.2M12 17.6v.1"/></svg>';
-  nav.append(gd, cond);
+  // tema: il pulsante dell'intestazione è nascosto in embed, quindi lo si comanda da qui (la logica resta quella dell'app).
+  // Segue `data-theme` anche quando a cambiarlo è la pagina ospitante. La scelta vale per la sessione: i link Mappa/Grafici ricaricano l'iframe.
+  const ICT = { luna: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>', sole: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>' };
+  const svgT = (d, n) => `<svg viewBox="0 0 24 24" width="${n}" height="${n}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const scuro = () => H.dataset.theme === 'dark';
+  const alterna = () => {
+    const b = document.getElementById('tema');
+    if (b) b.click(); else H.dataset.theme = scuro() ? 'light' : 'dark';
+    try { sessionStorage.setItem('tema-embed', H.dataset.theme); } catch (e) {}
+  };
+  const tm = document.createElement('button');
+  tm.type = 'button'; tm.className = 'emb-sh'; tm.addEventListener('click', alterna);
+  const aggiornaTema = () => {
+    const eti = scuro() ? 'Passa al tema chiaro' : 'Passa al tema scuro';
+    tm.innerHTML = svgT(scuro() ? ICT.sole : ICT.luna, 20); tm.title = eti; tm.setAttribute('aria-label', eti);
+    if (tmB) { tmB.innerHTML = svgT(scuro() ? ICT.sole : ICT.luna, 22) + '<span>Tema</span>'; tmB.setAttribute('aria-label', eti); }
+  };
+  let tmB = null;
+  nav.append(gd, tm, cond);
   const main = document.querySelector('main');
   main.insertBefore(nav, main.firstChild);
   // il menu deve stare nello stesso contenitore del contenuto
@@ -44,8 +62,12 @@
     bc.innerHTML = ic('<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/>') + '<span>Condividi</span>';
     bc.addEventListener('click', () => cond.click());
     new MutationObserver(() => { bc.lastChild.textContent = ok.textContent || 'Condividi'; }).observe(ok, { childList: true, characterData: true, subtree: true });
-    bn.append(bg, bc);
+    tmB = document.createElement('button');
+    tmB.type = 'button'; tmB.addEventListener('click', alterna);
+    bn.append(bg, tmB, bc);
   }
+  aggiornaTema();
+  new MutationObserver(aggiornaTema).observe(H, { attributes: true, attributeFilter: ['data-theme'] });
 
   // la guida (dialog) esiste solo nella home: dai grafici si passa lì con ?guida=1
   if (!document.getElementById('guida')) document.addEventListener('click', e => { if (e.target.closest('[data-guida]')) location.href = './?guida=1'; });
