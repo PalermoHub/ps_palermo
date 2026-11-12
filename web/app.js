@@ -90,6 +90,13 @@ function renderStats() {
   const box = $('stats'); box.replaceChildren();
   const p1 = el('div', 'plate sole');
   p1.append(el('span', 'pl-k', 'In attesa adesso'), el('b', null, attesa), el('span', 'pl-t', `persone nei pronto soccorso · ${aff} presidi su ${con.length} affollati`));
+  // Adulti e pediatrico separati: chi cerca un pronto soccorso per un bambino non deve leggere un totale che li somma.
+  // Se di un gruppo manca la lettura di qualche presidio, lo si dice: mai una somma parziale presentata come completa.
+  const gruppo = (tipo) => { const tutti = ps.filter((p) => p.tipo === tipo), letti = tutti.filter((p) => p.lettura?.inAttesa != null); return letti.length ? { n: letti.reduce((a, p) => a + p.lettura.inAttesa, 0), parziale: letti.length < tutti.length, letti: letti.length, tutti: tutti.length } : null; };
+  if (ps.some((p) => p.tipo === 'pediatrico')) {
+    const parti = [[gruppo('adulti'), 'adulti'], [gruppo('pediatrico'), 'pediatrico']].filter(([g]) => g).map(([g, e]) => `${g.n} ${e}${g.parziale ? ` (${g.letti} ${g.letti === 1 ? 'presidio' : 'presidi'} su ${g.tutti})` : ''}`);
+    if (parti.length) p1.append(el('span', 'pl-s', `di cui ${parti.join(' · ')}`));
+  }
   box.append(p1);
   for (const [tipo, etichetta] of [['adulti', 'adulti'], ['pediatrico', 'pediatrico']]) {
     const meno = menoAffollato(tipo);
