@@ -92,5 +92,17 @@ const PS_STORICO = (() => {
     svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', `Pazienti in attesa, ${per === '24h' ? 'ultime 24 ore' : 'ultimi 7 giorni'}: picco ${Math.round(Math.max(...v))}, ora ${Math.round(serie[ult])}`);
     w.className = 'ln-w'; w.append(svg, out); return w;
   }
-  return { linea, carica: () => json('/api/storico'), caricaHeat: () => json(URL_HEAT), spark, s, valide };
+  /** Variazione dei pazienti in attesa rispetto a circa un'ora fa.
+   *  `serie` = medie a 30 minuti (stessa origine `da` e passo di /api/storico), `attuale` = lettura di adesso.
+   *  null se manca il termine di confronto: meglio nessuna freccia che una freccia inventata.
+   *  Sotto ±2 pazienti è «stabile»: con code piccole ±1 è rumore di campionamento. */
+  function tendenza(serie, da, passo, attuale, adesso = Date.now() / 1000) {
+    if (!serie || da == null || !passo || attuale == null) return null;
+    const i = Math.floor((adesso - 3600 - da) / passo);
+    const k = [i, i - 1, i + 1].find((j) => j >= 0 && j < serie.length && serie[j] != null);
+    if (k == null) return null;
+    const delta = Math.round(attuale - serie[k]);
+    return { delta, verso: delta >= 2 ? 'su' : delta <= -2 ? 'giu' : 'stabile' };
+  }
+  return { linea, carica: () => json('/api/storico'), caricaHeat: () => json(URL_HEAT), spark, tendenza, s, valide };
 })();

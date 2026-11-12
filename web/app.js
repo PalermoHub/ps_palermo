@@ -415,6 +415,15 @@ function apriScheda(id, daHash) {
     [[l.inAttesa, 'pazienti in attesa'], [l.pazientiTotali, 'pazienti in struttura'], [l.sovraffollamentoPct == null ? null : Math.round(l.sovraffollamentoPct) + '%', 'sovraffollamento', b.k]]
       .filter(([v]) => v != null).forEach(([v, lab, k]) => { const d = el('div'); d.append(el('b', k, v), el('span', null, lab)); big.append(d); });
     cur.append(big);
+    // Tendenza: solo con lettura fresca e con un termine di confronto reale nello storico.
+    const tn = !f.vecchio && st.storico && PS_STORICO.tendenza(st.storico.spark.ps[p.id], st.storico.spark.da, st.storico.passo, l.inAttesa);
+    if (tn) {
+      const t = el('p', `s-trend ${tn.verso}`);
+      const ico = el('span', null, { su: '↑', giu: '↓', stabile: '→' }[tn.verso]); ico.setAttribute('aria-hidden', 'true');
+      const num = tn.delta > 0 ? `+${tn.delta}` : `−${Math.abs(tn.delta)}`;
+      t.append(ico, { su: `In salita: ${num} rispetto a un'ora fa`, giu: `In calo: ${num} rispetto a un'ora fa`, stabile: "Stabile rispetto a un'ora fa" }[tn.verso]);
+      cur.append(t);
+    }
     if (l.sovraffollamentoPct != null) cur.append(barra(l));
   }
   corpo.append(cur);
@@ -439,6 +448,15 @@ function apriScheda(id, daHash) {
     const cols = [['attesa', 'In attesa di visita'], ['trattamento', 'In trattamento'], ['osservazione', 'In osservazione'], ['totale', 'Totali']]
       .filter(([k]) => COD.some((cd) => l.codici[cd]?.[k] != null));
     const box = el('section', 's-box'); box.append(el('h3', null, 'Per codice colore'));
+    // Quanto sono gravi: quota dei codici tra chi aspetta la visita (solo se la fonte pubblica il dato).
+    const att = COD.map((cd) => [cd, l.codici[cd]?.attesa]).filter(([, v]) => v != null), nAtt = att.reduce((a, [, v]) => a + v, 0);
+    if (nAtt > 0) {
+      const bar = el('div', 'bc-b sb-b s-grav'); bar.setAttribute('role', 'img');
+      bar.setAttribute('aria-label', 'In attesa per codice: ' + att.filter(([, v]) => v).map(([cd, v]) => `${ETI[cd].toLowerCase()} ${v}`).join(', '));
+      att.filter(([, v]) => v).forEach(([cd, v]) => { const s = el('i', `c-${cd}`, v / nAtt >= 0.08 ? v : ''); s.style.width = (v / nAtt * 100).toFixed(2) + '%'; bar.append(s); });
+      const alti = l.codici.rosso?.attesa != null && l.codici.arancione?.attesa != null ? l.codici.rosso.attesa + l.codici.arancione.attesa : null;
+      box.append(bar, el('p', 's-nota s-grav-n', alti == null ? `${nAtt} in attesa di visita, per codice colore.` : `Rosso e arancione: ${alti} su ${nAtt} in attesa di visita.`));
+    }
     const tw = el('div', 'tw'), t = el('table', 's-t'), hr = el('tr');
     ['Codice', ...cols.map((k) => k[1])].forEach((n) => { const th = el('th', null, n); th.scope = 'col'; hr.append(th); });
     const thd = el('thead'); thd.append(hr); t.append(thd);
@@ -546,7 +564,12 @@ function mostra(d) {
   if (m && !$('scheda').open) apriScheda(decodeURIComponent(m[1]), true);
 }
 // Lo storico è un di più: se manca, le schede restano senza sparkline.
-const caricaStorico = () => PS_STORICO.carica().then((d) => { st.storico = d; if (st.dati) renderLista(); }).catch(() => {});
+const caricaStorico = () => PS_STORICO.carica().then((d) => {
+  const primo = !st.storico; st.storico = d; if (st.dati) renderLista();
+  // Scheda aperta da link prima che lo storico arrivasse: la ridisegna, senza perdere la posizione.
+  const sc = $('scheda');
+  if (primo && st.dati && sc.open && sc.dataset.id) { const y = sc.scrollTop; apriScheda(sc.dataset.id, true); sc.scrollTop = y; }
+}).catch(() => {});
 caricaStorico();
 /** Dati non aggiornati: la lettura più recente ha più di 20 minuti (o la rete non risponde). */
 const SOGLIA_OBSOLETI_MIN = 20;
