@@ -483,7 +483,9 @@ function apriScheda(id, daHash) {
   dx.append(dove);
 
   griglia.append(sx, dx); corpo.append(griglia);
-  const nota = el('p', 's-avviso'); nota.append('I dati sono pubblicati dal pronto soccorso e potrebbero non essere sempre accurati o aggiornati. In caso di emergenza chiama il ', el('strong', null, '112'), '.');
+  const nota = el('div', 's-avviso');
+  const c112 = el('a', 'call112', 'In emergenza chiama il 112'); c112.href = 'tel:112'; c112.setAttribute('aria-label', 'Chiama il 112, numero unico di emergenza');
+  nota.append(c112, el('p', null, 'I dati sono pubblicati dal pronto soccorso e potrebbero non essere sempre accurati o aggiornati.'));
   corpo.append(nota);
 
   const dlg = $('scheda');
