@@ -34,14 +34,19 @@ function livello(sov) {
   if (sov < 200) return { k: 'mid', txt: 'Affollato' };
   return { k: 'bad', txt: 'Molto affollato' };
 }
+/** Numeri identici da ore (stato calcolato dal server): il dato potrebbe essere fermo, quindi non lo coloriamo né lo consigliamo. */
+const fermo = (p) => p.affidabilita?.stato === 'congelato';
 /** Quando è stato letto il dato: l'ora dichiarata dall'ospedale, se c'è, altrimenti quella della nostra lettura. */
 function freschezza(p) {
-  const l = p.lettura;
+  const l = p.lettura, a = p.affidabilita;
   const e = eta(l?.rilevataAlle) ?? eta(p.acquisitaAlle);
   if (!e) return { txt: 'Orario non disponibile', vecchio: false };
-  return { txt: `${l?.rilevataAlle ? 'Rilevato' : 'Letto'} ${e.txt}`, vecchio: e.min > 30 };
+  // «sospetto» (2 h) è un avviso morbido: testo sì, rosso no. «congelato» (4 h) è rosso.
+  const identici = a && (a.stato === 'sospetto' || a.stato === 'congelato') && a.invariataMin != null ? ` · numeri identici da ${fmtMin(a.invariataMin)}` : '';
+  return { txt: `${l?.rilevataAlle ? 'Rilevato' : 'Letto'} ${e.txt}${identici}`, vecchio: e.min > 30 || fermo(p) };
 }
 function badge(p, menoId) {
+  if (fermo(p)) return { k: 'nd', txt: 'Dato fermo' };
   const lv = livello(p.lettura?.sovraffollamentoPct);
   return p.id === menoId ? { k: 'ok', txt: 'Meno affollato' } : lv;
 }
@@ -49,7 +54,7 @@ function menoAffollato() {
   let best = null;
   for (const p of st.dati.ps) {
     const s = p.lettura?.sovraffollamentoPct;
-    if (s != null && (!best || s < best.s)) best = { id: p.id, s, nome: p.nome };
+    if (s != null && !fermo(p) && (!best || s < best.s)) best = { id: p.id, s, nome: p.nome };
   }
   return best;
 }
@@ -462,6 +467,7 @@ function apriScheda(id, daHash) {
   if (p.sito) inf.append(info('🌐', link(p.sito.replace(/^https?:\/\/(www\.)?/, ''), p.sito)));
   inf.append(info('📄', link('Pagina ufficiale della fonte', p.fonteUrl)));
   if (p.ultimoErrore) inf.append(el('p', 'err', 'La fonte non è raggiungibile: si vede l’ultimo dato valido.'));
+  else if (fermo(p)) inf.append(el('p', 'err', 'I numeri non cambiano da ore: la fonte potrebbe essersi fermata. Non usarli per scegliere dove andare.'));
   sx.append(inf);
   dx.append(dove);
 
