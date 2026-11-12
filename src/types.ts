@@ -17,6 +17,8 @@ export interface Lettura {
   pazientiTotali: number | null;
   inAttesa: number | null;
   sovraffollamentoPct: number | null;
+  /** true se l'indice lo calcoliamo noi (la fonte non lo pubblica): non è un dato dell'ospedale. */
+  sovraffollamentoCalcolato?: boolean;
   postiTecnici: number | null;
   permanenza: { meno24h: number | null; da24a48h: number | null; oltre48h: number | null } | null;
   /** Minuti di attesa media per codice (solo Policlinico). */

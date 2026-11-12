@@ -1,5 +1,6 @@
 import { aggiorna, type Snapshot } from './aggiorna';
 import { PS } from './anagrafica';
+import { verifica } from './coerenza';
 import { valuta } from './freschezza';
 import { archivia, leggi, pota, type Cattura } from './grezzo';
 import { costruisciStorico, csvGiorno, salvaLetture } from './storico';
@@ -74,7 +75,7 @@ export default {
         aggiornatoAlle: snap?.aggiornatoAlle ?? null,
         ps: PS.map((p) => {
           const s = snap?.ps[p.id] ?? VUOTO;
-          return { ...p, ...s, affidabilita: valuta(s, new Date()) };
+          return { ...p, ...s, affidabilita: valuta(s, new Date()), coerenza: s.lettura ? verifica(s.lettura) : null };
         }),
       };
       return new Response(JSON.stringify(body), {

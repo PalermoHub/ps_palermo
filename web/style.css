@@ -54,6 +54,7 @@ h1,h2,h3{color:var(--head);margin:0;font-family:var(--ff-d)}
 .plate.sole .pl-k{opacity:.85}
 .plate.verde{background:#f3f7f9;color:#0b2a3f;flex-direction:row;align-items:center;gap:16px;cursor:pointer;padding:14px 20px;box-shadow:0 12px 24px -14px rgba(0,0,0,.5);transition:transform .25s cubic-bezier(.16,1,.3,1)}
 .plate.verde:hover{transform:translateY(-2px)}
+.plate.verde .pct.lg{font-size:18px}
 .plate.verde .pct{flex:none;width:68px;height:68px;border-radius:50%;background:var(--lv-ok);color:#fff;display:grid;place-items:center;font:900 22px/1 var(--ff-d);font-variant-numeric:tabular-nums}
 .plate.verde .pl-t{font:800 19px/1.15 var(--ff-d)}
 .plate.verde .pl-k{color:#14633a}

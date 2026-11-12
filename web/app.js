@@ -48,15 +48,21 @@ function freschezza(p) {
 function badge(p, menoId) {
   if (fermo(p)) return { k: 'nd', txt: 'Dato fermo' };
   const lv = livello(p.lettura?.sovraffollamentoPct);
-  return p.id === menoId ? { k: 'ok', txt: 'Meno affollato' } : lv;
+  return menoId?.has(p.id) ? { k: 'ok', txt: 'Meno affollato' } : lv;
 }
-function menoAffollato() {
+/** Il meno affollato, in assoluto o (con `tipo`) tra adulti o pediatrici: un bambino non va dove vanno gli adulti. */
+function menoAffollato(tipo) {
   let best = null;
   for (const p of st.dati.ps) {
+    if (tipo && p.tipo !== tipo) continue;
     const s = p.lettura?.sovraffollamentoPct;
-    if (s != null && !fermo(p) && (!best || s < best.s)) best = { id: p.id, s, nome: p.nome };
+    if (s != null && !fermo(p) && (!best || s < best.s)) best = { id: p.id, s, nome: p.nome, tipo: p.tipo };
   }
   return best;
+}
+/** Id dei due «meno affollato»: il migliore tra gli adulti e il migliore tra i pediatrici. */
+function menoIds() {
+  return new Set(['adulti', 'pediatrico'].map((t) => menoAffollato(t)?.id).filter(Boolean));
 }
 
 function visibili() {
@@ -76,17 +82,18 @@ function renderStats() {
   const ps = st.dati.ps, con = ps.filter((p) => p.lettura);
   const attesa = con.reduce((s, p) => s + (p.lettura.inAttesa ?? 0), 0);
   const aff = con.filter((p) => (p.lettura.sovraffollamentoPct ?? 0) >= 120).length;
-  const meno = menoAffollato();
   const box = $('stats'); box.replaceChildren();
   const p1 = el('div', 'plate sole');
   p1.append(el('span', 'pl-k', 'In attesa adesso'), el('b', null, attesa), el('span', 'pl-t', `persone nei pronto soccorso · ${aff} presidi su ${con.length} affollati`));
   box.append(p1);
-  if (meno) {
+  for (const [tipo, etichetta] of [['adulti', 'adulti'], ['pediatrico', 'pediatrico']]) {
+    const meno = menoAffollato(tipo);
+    if (!meno) continue;
     const p2 = el('button', 'plate verde'); p2.type = 'button';
-    const t = el('div'); t.append(el('span', 'pl-k', 'Meno affollato adesso'), el('div', 'pl-t', meno.nome));
-    p2.append(el('span', 'pct', Math.round(meno.s) + '%'), t);
+    const t = el('div'); t.append(el('span', 'pl-k', `Meno affollato adesso · ${etichetta}`), el('div', 'pl-t', meno.nome));
+    p2.append(el('span', Math.round(meno.s) >= 100 ? 'pct lg' : 'pct', Math.round(meno.s) + '%'), t);
     p2.insertAdjacentHTML('beforeend', '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>');
-    p2.setAttribute('aria-label', `Apri la scheda di ${meno.nome}, il meno affollato adesso, ${Math.round(meno.s)} per cento`);
+    p2.setAttribute('aria-label', `Apri la scheda di ${meno.nome}, il meno affollato tra i pronto soccorso ${etichetta} adesso, ${Math.round(meno.s)} per cento`);
     p2.addEventListener('click', () => apriScheda(meno.id));
     box.append(p2);
   }
@@ -217,7 +224,7 @@ function renderMappa(ps, refit) {
     mappa.on('popupclose', (e) => { if (aperto === e.popup) { aperto = null; mappa.getContainer().classList.remove('pop-aperto'); } setTimeout(() => { if (!aperto) centra(); }, 60); });
   }
   strato.clearLayers(); marcatori = [];
-  const meno = menoAffollato()?.id, cc = coordsMappa(ps), punti = [];
+  const meno = menoIds(), cc = coordsMappa(ps), punti = [];
   ps.forEach((p, i) => {
     const mk = L.marker(cc[i], { icon: pin(p, meno), keyboard: true, alt: `${p.nome}: ${p.lettura?.inAttesa ?? 'nessun dato'} in attesa` , zIndexOffset: p.lettura?.inAttesa ?? 0 }).addTo(strato);
     const pop = pannello(p, meno, true), tip = pannello(p, meno, false);
@@ -344,7 +351,7 @@ const separaTipi = (ps) => [...ps.filter((p) => p.tipo !== 'pediatrico'), ...ps.
 const misti = (ps) => ps.some((p) => p.tipo === 'pediatrico') && ps.some((p) => p.tipo !== 'pediatrico');
 
 function renderLista() {
-  const ps = separaTipi(visibili()), meno = menoAffollato()?.id, box = $('lista'); box.replaceChildren();
+  const ps = separaTipi(visibili()), meno = menoIds(), box = $('lista'); box.replaceChildren();
   if (!ps.length) box.append(el('p', 'vuoto', 'Nessun pronto soccorso corrisponde alla ricerca.'));
   else if (st.vista === 'tab') box.append(tabella(ps, meno));
   else { const g = el('div', 'griglia'); ps.forEach((p, i) => { if (misti(ps) && p.tipo === 'pediatrico' && ps[i - 1].tipo !== 'pediatrico') { const h = el('h3', 'sep-tipo'); h.append(el('span', null, 'Pronto soccorso pediatrici')); g.append(h); } g.append(card(p, meno)); }); box.append(g); }
@@ -365,7 +372,7 @@ function azione(txt, href, primaria) { const a = link(txt, href); a.className = 
 function apriScheda(id, daHash) {
   const p = st.dati?.ps.find((x) => x.id === id);
   if (!p) return;
-  const l = p.lettura, meno = menoAffollato()?.id, b = badge(p, meno), corpo = $('s-corpo'), f = freschezza(p);
+  const l = p.lettura, meno = menoIds(), b = badge(p, meno), corpo = $('s-corpo'), f = freschezza(p);
   corpo.replaceChildren();
   const c = `${p.coords.lat},${p.coords.lng}`;
 
@@ -375,7 +382,7 @@ function apriScheda(id, daHash) {
   h.append(h2, x); corpo.append(h);
   const chips = el('div', 's-chips');
   chips.append(el('span', `badge ${b.k}`, b.txt), el('span', 'badge nd', p.tipo === 'adulti' ? 'Adulti' : 'Pediatrico'));
-  if (p.id === meno && b.txt !== 'Meno affollato') chips.append(el('span', 'badge ok', 'Meno affollato'));
+  if (meno.has(p.id) && b.txt !== 'Meno affollato') chips.append(el('span', 'badge ok', 'Meno affollato'));
   corpo.append(chips, el('p', 'dove', p.struttura));
   const az = el('div', 's-az');
   az.append(azione('Indicazioni', `https://www.google.com/maps/dir/?api=1&destination=${c}`, true));
@@ -467,7 +474,8 @@ function apriScheda(id, daHash) {
   if (p.sito) inf.append(info('🌐', link(p.sito.replace(/^https?:\/\/(www\.)?/, ''), p.sito)));
   inf.append(info('📄', link('Pagina ufficiale della fonte', p.fonteUrl)));
   if (p.ultimoErrore) inf.append(el('p', 'err', 'La fonte non è raggiungibile: si vede l’ultimo dato valido.'));
-  else if (fermo(p)) inf.append(el('p', 'err', 'I numeri non cambiano da ore: la fonte potrebbe essersi fermata. Non usarli per scegliere dove andare.'));
+  if (p.lettura?.sovraffollamentoCalcolato) inf.append(el('p', 'err', 'L’indice di sovraffollamento non è pubblicato dall’ospedale: lo calcoliamo noi (permanenze ÷ posti tecnici), quindi non è confrontabile con quello degli altri presidi.'));
+  if (!p.ultimoErrore && fermo(p)) inf.append(el('p', 'err', 'I numeri non cambiano da ore: la fonte potrebbe essersi fermata. Non usarli per scegliere dove andare.'));
   sx.append(inf);
   dx.append(dove);
 

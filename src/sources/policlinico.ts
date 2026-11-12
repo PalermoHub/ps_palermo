@@ -38,7 +38,8 @@ export function parsePoliclinico(principale: string, indici: string): Lettura[] 
     codici,
     pazientiTotali: inAttesa != null && inTratt != null ? inAttesa + inTratt : null,
     inAttesa,
-    // Stessa formula del repo originale: (permanenze / posti tecnici) x 100
+    // Stessa formula del repo originale: (permanenze / posti tecnici) x 100. NON pubblicato dall'ospedale.
+    sovraffollamentoCalcolato: true,
     sovraffollamentoPct: posti ? Math.round((nPerm / posti) * 10000) / 100 : null,
     postiTecnici: posti,
     permanenza: { meno24h: m24, da24a48h: m2448, oltre48h: oltre },
