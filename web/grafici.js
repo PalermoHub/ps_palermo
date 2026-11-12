@@ -17,7 +17,7 @@ $('tema').addEventListener('click', () => impostaTema(tema() === 'dark' ? 'light
 impostaTema(tema());
 $('condividi').innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/></svg>';
 $('condividi').addEventListener('click', async (e) => {
-  const b = e.currentTarget, url = location.origin + location.pathname;
+  const b = e.currentTarget, url = document.documentElement.classList.contains('embed') ? 'https://palermohub.opendatasicilia.it/ps_palermo.html#grafici' : location.origin + location.pathname;
   try { if (navigator.share) await navigator.share({ title: document.title, url }); else { await navigator.clipboard.writeText(url); b.title = 'Link copiato'; setTimeout(() => (b.title = 'Condividi'), 2000); } } catch {}
 });
 

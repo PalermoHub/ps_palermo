@@ -1,0 +1,37 @@
+/* Modalità embed: l'app dentro un iframe di una pagina che ha già header e footer.
+   Si attiva con ?embed=1 oppure automaticamente quando la pagina è in un iframe (?embed=0 la esclude). */
+html.embed body{background:transparent;padding-bottom:0}
+html.embed{scrollbar-width:none}
+html.embed ::-webkit-scrollbar{display:none}
+
+/* via ciò che la pagina ospitante già fornisce */
+.embed .top,.embed .bnav,.embed .cima,.embed .hero h1,.embed .hero .lead,
+.embed .foot > div:not(:nth-child(2)){display:none!important}
+
+/* navigazione interna minima (al posto del menu in testata) */
+.emb-nav{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 12px}
+.emb-nav a{padding:8px 16px;border-radius:50px;border:1.5px solid var(--ctl);color:var(--head);font-size:14px;font-weight:700;text-decoration:none;background:var(--white)}
+.emb-nav a:hover{background:var(--accbg)}
+.emb-nav a[aria-current=page]{background:var(--btn-bg);border-color:var(--btn-bg);color:var(--btn-fg)}
+.emb-nav a.emb-out{margin-left:auto;border-color:transparent;background:none;font-weight:600;text-decoration:underline}
+
+/* spazi compatti: il contenitore è quello della pagina ospitante */
+.embed main > .wrap,.embed footer .wrap{max-width:none;padding-inline:0}
+.embed .sez{padding-block:24px 4px}
+.embed .hero{border-radius:20px;border:0}
+.embed .hero-in{padding:20px 22px;grid-template-areas:"t s" "a a"}
+.embed .hero .live{grid-row:auto}
+.embed .hero .stats{grid-row:auto}
+.embed footer{margin-top:24px;background:none;color:var(--ink)}
+.embed .foot{padding-block:0;grid-template-columns:1fr}
+.embed footer h2{color:var(--head);font-size:16px}
+.embed footer p{font-size:13px}
+.embed footer a,.embed footer strong{color:var(--head)}.embed footer a:hover{background:var(--accbg);color:var(--head)}
+
+/* la scheda si apre in alto (l'iframe è alto quanto il contenuto, il centro sarebbe fuori vista) */
+.embed dialog{margin:12px auto auto}
+
+@media (max-width:700px){
+  .embed .hero-in{grid-template-areas:"t" "s" "a";padding:16px}
+  .embed .sez{padding-block:20px 4px}
+}

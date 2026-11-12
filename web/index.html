@@ -20,6 +20,7 @@
   <link rel="canonical" href="https://palermo-ps.coseerobe.workers.dev/">
   <link rel="manifest" href="manifest.webmanifest">
   <script>try{var t=localStorage.getItem('tema');document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch(e){}</script>
+  <script>try{var q=new URLSearchParams(location.search),e=q.get('embed'),th=q.get('tema');if(e==='1'||(e!=='0'&&self!==top))document.documentElement.classList.add('embed');if(document.documentElement.classList.contains('embed')){if(th==='light'||th==='dark')document.documentElement.dataset.theme=th;else document.documentElement.dataset.theme=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'}}catch(e){}</script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Pronto Soccorso Palermo">
   <meta property="og:locale" content="it_IT">
@@ -48,6 +49,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="embed.css">
 </head>
 <body>
   <header class="top">
@@ -162,5 +164,6 @@
   <script src="storico.js"></script>
   <script src="app.js"></script>
   <script src="cima.js"></script>
+  <script src="embed.js"></script>
 </body>
 </html>

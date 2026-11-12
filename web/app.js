@@ -137,9 +137,10 @@ function impostaTema(t, salva) {
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change', (e) => { let s = null; try { s = localStorage.getItem('tema'); } catch {} if (!s) impostaTema(e.matches ? 'dark' : 'light'); });
 $('tema')?.addEventListener('click', () => impostaTema(tema() === 'dark' ? 'light' : 'dark', true));
 impostaTema(tema());
+const BASE_CONDIVISIONE = document.documentElement.classList.contains('embed') ? 'https://palermohub.opendatasicilia.it/ps_palermo.html' : location.origin + location.pathname; // da iframe si condivide la pagina PalermoHub
 if ($('condividi')) $('condividi').innerHTML = icona('share');
 $('condividi')?.addEventListener('click', async (e) => {
-  const b = e.currentTarget, url = location.origin + location.pathname;
+  const b = e.currentTarget, url = BASE_CONDIVISIONE;
   try { if (navigator.share) await navigator.share({ title: document.title, url }); else { await navigator.clipboard.writeText(url); b.title = 'Link copiato'; setTimeout(() => (b.title = 'Condividi'), 2000); } } catch {}
 });
 
@@ -390,8 +391,10 @@ function apriScheda(id, daHash) {
   if (p.sito) az.append(azione('Sito', p.sito));
   const sh = el('button', 'btn sec', 'Condividi'); sh.type = 'button';
   sh.addEventListener('click', async () => {
-    const url = `${location.origin}${location.pathname}#ps=${encodeURIComponent(p.id)}`;
-    try { if (navigator.share) await navigator.share({ title: `Pronto soccorso ${p.nome}`, url }); else { await navigator.clipboard.writeText(url); sh.textContent = 'Link copiato'; setTimeout(() => (sh.textContent = 'Condividi'), 2000); } } catch {}
+    const url = `${BASE_CONDIVISIONE}#ps=${encodeURIComponent(p.id)}`;
+    const copia = async () => { try { await navigator.clipboard.writeText(url); sh.textContent = 'Link copiato'; setTimeout(() => (sh.textContent = 'Condividi'), 2000); } catch { prompt('Copia il link', url); } };
+    if (!navigator.share) return copia();
+    try { await navigator.share({ title: `Pronto soccorso ${p.nome}`, url }); } catch (e) { if (e.name !== 'AbortError') copia(); }
   });
   az.append(sh); corpo.append(az);
 
