@@ -52,11 +52,11 @@ export function verifica(l: Lettura): Coerenza {
     formulaIndice = a && b ? 'entrambe' : a ? 'presenti' : b ? 'permanenze' : 'nessuna';
     const num = (x: number | null) => (x == null ? 'n.d.' : `${r1(x)}%`);
     if (l.sovraffollamentoCalcolato) {
-      controlli.push({ id: 'indice', esito: 'diverso', dettaglio: `calcolato da noi (permanenze/posti = ${num(daPerm)}), non pubblicato dalla fonte; con presenti/posti sarebbe ${num(daPresenti)}` });
+      controlli.push({ id: 'indice', esito: formulaIndice === 'nessuna' ? 'diverso' : 'ok', dettaglio: `calcolato da noi (presenti/posti = ${num(daPresenti)}), non pubblicato dalla fonte; con permanenze/posti sarebbe ${num(daPerm)}` });
     } else {
       controlli.push({ id: 'indice', esito: formulaIndice === 'nessuna' ? 'diverso' : 'ok', dettaglio: `pubblicato ${ix}%; presenti/posti = ${num(daPresenti)}, permanenze/posti = ${num(daPerm)}` });
     }
   } else controlli.push({ id: 'indice', esito: 'nd', dettaglio: 'indice o posti tecnici non disponibili' });
 
-  return { formulaIndice: l.sovraffollamentoCalcolato && formulaIndice !== 'nd' ? 'permanenze' : formulaIndice, controlli };
+  return { formulaIndice, controlli };
 }

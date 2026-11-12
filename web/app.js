@@ -474,7 +474,7 @@ function apriScheda(id, daHash) {
   if (p.sito) inf.append(info('🌐', link(p.sito.replace(/^https?:\/\/(www\.)?/, ''), p.sito)));
   inf.append(info('📄', link('Pagina ufficiale della fonte', p.fonteUrl)));
   if (p.ultimoErrore) inf.append(el('p', 'err', 'La fonte non è raggiungibile: si vede l’ultimo dato valido.'));
-  if (p.lettura?.sovraffollamentoCalcolato) inf.append(el('p', 'err', 'L’indice di sovraffollamento non è pubblicato dall’ospedale: lo calcoliamo noi (permanenze ÷ posti tecnici), quindi non è confrontabile con quello degli altri presidi.'));
+  if (p.lettura?.sovraffollamentoCalcolato) inf.append(el('p', 'err', 'L’indice di sovraffollamento non è pubblicato dall’ospedale: lo calcoliamo noi con la stessa formula della maggior parte degli altri presidi (presenti ÷ posti tecnici).'));
   if (!p.ultimoErrore && fermo(p)) inf.append(el('p', 'err', 'I numeri non cambiano da ore: la fonte potrebbe essersi fermata. Non usarli per scegliere dove andare.'));
   sx.append(inf);
   dx.append(dove);

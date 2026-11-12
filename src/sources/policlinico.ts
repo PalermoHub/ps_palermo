@@ -28,19 +28,21 @@ export function parsePoliclinico(principale: string, indici: string): Lettura[] 
 
   const m24 = numero(ix?.permanenza24H), m2448 = numero(ix?.permanenza2448H), oltre = numero(ix?.permanenzaOltre24H);
   const posti = numero(ix?.postiTecniciPresidiati);
-  const nPerm = (m24 ?? 0) + (m2448 ?? 0) + (oltre ?? 0);
   const inAttesa = sommaOnesta(Object.values(codici).map((c) => c.attesa));
   const inTratt = sommaOnesta(Object.values(codici).map((c) => c.trattamento));
+
+  const totale = inAttesa != null && inTratt != null ? inAttesa + inTratt : null;
 
   return [{
     psId: 'policlinico-adulti',
     rilevataAlle: null,
     codici,
-    pazientiTotali: inAttesa != null && inTratt != null ? inAttesa + inTratt : null,
+    pazientiTotali: totale,
     inAttesa,
-    // Stessa formula del repo originale: (permanenze / posti tecnici) x 100. NON pubblicato dall'ospedale.
+    // NON pubblicato dall'ospedale: lo calcoliamo con la formula della maggior parte delle fonti (presenti / posti tecnici x 100).
+    // Il repo originale usava le permanenze (dava 152% contro il 120% di oggi): allineato il 2026-11-12 su richiesta.
     sovraffollamentoCalcolato: true,
-    sovraffollamentoPct: posti ? Math.round((nPerm / posti) * 10000) / 100 : null,
+    sovraffollamentoPct: posti && totale != null ? Math.round((totale / posti) * 10000) / 100 : null,
     postiTecnici: posti,
     permanenza: { meno24h: m24, da24a48h: m2448, oltre48h: oltre },
     tempiMediAttesaMin: Object.keys(tempi).length ? tempi : null,

@@ -104,7 +104,8 @@ describe('Policlinico', () => {
     expect(c!.inAttesa).toBe(15);
     expect(c!.postiTecnici).toBe(25);
     expect(c!.permanenza).toEqual({ meno24h: 33, da24a48h: 7, oltre48h: 8 });
-    expect(c!.sovraffollamentoPct).toBe(192); // (33+7+8)/25
+    expect(c!.pazientiTotali).toBe(40); // 15 in attesa + 25 in carico
+    expect(c!.sovraffollamentoPct).toBe(160); // presenti / posti tecnici, come Riuniti, Ingrassia, Buccheri (non le permanenze: 48/25 = 192)
   });
   it('tempi medi in minuti', () => {
     expect(c!.tempiMediAttesaMin).toEqual({ rosso: 22, arancione: 145, azzurro: 207, verde: 130, bianco: 180 });

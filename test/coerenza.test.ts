@@ -29,13 +29,13 @@ describe('formula dell\'indice: casi reali', () => {
     expect(verifica(l).formulaIndice).toBe('nessuna');
     expect(esito(l, 'indice')).toBe('diverso');
   });
-  it('Policlinico: indice calcolato da noi → sempre segnalato, con il valore alternativo (120%)', () => {
-    const l = L({ pazientiTotali: 30, postiTecnici: 25, sovraffollamentoPct: 152, sovraffollamentoCalcolato: true, permanenza: { meno24h: 21, da24a48h: 7, oltre48h: 10 } });
+  it('Policlinico: indice calcolato da noi con presenti/posti (120%); il dettaglio resta esplicito e mostra l\'alternativa (152%)', () => {
+    const l = L({ pazientiTotali: 30, postiTecnici: 25, sovraffollamentoPct: 120, sovraffollamentoCalcolato: true, permanenza: { meno24h: 21, da24a48h: 7, oltre48h: 10 } });
     const v = verifica(l);
-    expect(v.formulaIndice).toBe('permanenze');
+    expect(v.formulaIndice).toBe('presenti');
     const ix = v.controlli.find((c) => c.id === 'indice')!;
-    expect(ix.esito).toBe('diverso');
-    expect(ix.dettaglio).toMatch(/calcolato da noi.*152%.*120%/);
+    expect(ix.esito).toBe('ok');
+    expect(ix.dettaglio).toMatch(/calcolato da noi.*presenti\/posti = 120%.*permanenze\/posti sarebbe 152%/);
   });
 });
 
