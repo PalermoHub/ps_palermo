@@ -584,8 +584,11 @@ document.addEventListener('click', (e) => { if (e.target.closest('#viste')) setT
   if (!g) return;
   // embed mobile: dialog non modale, così la barra in basso (z-index alto) resta visibile e usabile
   const apri = () => { if (!g.open) { if (document.documentElement.classList.contains('embed') && matchMedia('(max-width:700px)').matches) g.show(); else g.showModal(); } g.scrollTop = 0; };
-  document.addEventListener('click', (e) => { if (e.target.closest('[data-guida]')) apri(); }); // delegato: vale anche per il pulsante creato da embed.js
+  const segna = () => document.querySelectorAll('.bnav [data-guida]').forEach((b) => b.classList.toggle('on', g.open));
+  // on/off: se la guida è aperta il pulsante la chiude (delegato: vale anche per i pulsanti creati da embed.js)
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-guida]')) { if (g.open) g.close(); else apri(); setTimeout(segna, 0); } });
+  g.addEventListener('close', segna);
   $('g-x').addEventListener('click', () => g.close());
   g.addEventListener('click', (e) => { if (e.target === g) g.close(); });
-  if (new URLSearchParams(location.search).get('guida') === '1') apri(); // arrivo dai grafici (la guida vive solo in questa pagina)
+  if (new URLSearchParams(location.search).get('guida') === '1') { apri(); setTimeout(segna, 0); } // arrivo dai grafici (la guida vive solo in questa pagina)
 })();
