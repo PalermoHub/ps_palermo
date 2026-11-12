@@ -307,7 +307,7 @@ function card(p, menoId) {
   }
   const f = freschezza(p), foot = el('div', 'card-f');
   foot.append(el('span', f.vecchio ? 'vecchio' : null, p.ultimoErrore && l ? `${f.txt} · fonte non raggiungibile` : f.txt));
-  const btn = el('button', 'btn', 'Scheda completa'); btn.type = 'button'; btn.addEventListener('click', () => apriScheda(p.id));
+  const btn = el('button', 'btn sec', 'Scheda completa'); btn.type = 'button'; btn.addEventListener('click', () => apriScheda(p.id));
   foot.append(btn); art.append(foot);
   return art;
 }
