@@ -1,0 +1,17 @@
+ps_id,rilevato_utc,in_attesa,totale,sovraff,att_rosso,att_arancione,att_azzurro,att_verde,att_bianco
+buccheri-adulti,2026-11-12T00:12:00Z,10,33,275,0,0,0,10,0
+cervello-adulti,2026-11-12T00:12:00Z,3,57,190,0,0,1,2,0
+cervello-pediatrico,2026-11-12T00:12:00Z,0,4,50,0,0,0,0,0
+civico-adulti,2026-11-12T00:12:00Z,24,72,171,0,0,16,8,
+di-cristina-pediatrico,2026-11-12T00:12:00Z,3,26,156,0,0,1,2,
+ingrassia-adulti,2026-11-12T00:12:00Z,0,20,153.85,0,0,0,0,0
+policlinico-adulti,2026-11-12T00:12:00Z,12,42,200,0,1,3,8,0
+villa-sofia-adulti,2026-11-12T00:12:00Z,19,75,250,0,8,5,5,1
+buccheri-adulti,2026-11-12T00:14:00Z,10,33,275,0,0,0,10,0
+cervello-adulti,2026-11-12T00:14:00Z,3,57,190,0,0,1,2,0
+cervello-pediatrico,2026-11-12T00:14:00Z,0,4,50,0,0,0,0,0
+civico-adulti,2026-11-12T00:14:00Z,24,72,171,0,0,16,8,
+di-cristina-pediatrico,2026-11-12T00:14:00Z,3,26,156,0,0,1,2,
+ingrassia-adulti,2026-11-12T00:14:00Z,0,20,153.85,0,0,0,0,0
+policlinico-adulti,2026-11-12T00:14:00Z,11,41,196,0,1,3,7,0
+villa-sofia-adulti,2026-11-12T00:14:00Z,19,75,250,0,8,5,5,1
