@@ -11,6 +11,18 @@
   nav.className = 'emb-nav'; nav.setAttribute('aria-label', 'Sezioni');
   nav.innerHTML = `<a href="./"${sei ? '' : ' aria-current="page"'}>Mappa e presidi</a><a href="grafici.html"${sei ? ' aria-current="page"' : ''}>Grafici</a>`
 ;
+  // condividi: porta alla pagina PalermoHub (la home, o i grafici con #grafici)
+  const cond = document.createElement('button');
+  cond.type = 'button'; cond.className = 'emb-sh'; cond.title = 'Condividi'; cond.setAttribute('aria-label', 'Condividi');
+  cond.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/></svg><span class="emb-ok" role="status"></span>';
+  const ok = cond.querySelector('.emb-ok');
+  cond.addEventListener('click', async () => {
+    const url = 'https://palermohub.opendatasicilia.it/ps_palermo.html' + (sei ? '#grafici' : '');
+    const copia = async () => { try { await navigator.clipboard.writeText(url); ok.textContent = 'Link copiato'; setTimeout(() => (ok.textContent = ''), 2000); } catch { prompt('Copia il link', url); } };
+    if (!navigator.share) return copia();
+    try { await navigator.share({ title: document.title, url }); } catch (e) { if (e.name !== 'AbortError') copia(); }
+  });
+  nav.append(cond);
   const main = document.querySelector('main');
   main.insertBefore(nav, main.firstChild);
   // il menu deve stare nello stesso contenitore del contenuto
