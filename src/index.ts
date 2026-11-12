@@ -1,5 +1,6 @@
 import { aggiorna, type Snapshot } from './aggiorna';
 import { PS } from './anagrafica';
+import { archivia, leggi, pota, type Cattura } from './grezzo';
 import { costruisciStorico, csvGiorno, salvaLetture } from './storico';
 import { FONTI } from './registry';
 
@@ -27,8 +28,14 @@ async function snapshot(env: Env): Promise<Snapshot | null> {
 }
 
 async function rinfresca(env: Env): Promise<void> {
-  const next = await aggiorna(await snapshot(env), FONTI, fetch);
+  const catture: Cattura[] = [];
+  const next = await aggiorna(await snapshot(env), FONTI, fetch, new Date(), catture);
   await env.PS_KV.put(CHIAVE, JSON.stringify(next));
+  // Come lo storico: l'archivio grezzo non deve mai rompere la pagina in tempo reale.
+  try {
+    await archivia(env.DB, catture);
+    if (new Date().getUTCMinutes() < 2) await pota(env.DB); // una volta all'ora basta
+  } catch (e) { console.error('grezzo:', e instanceof Error ? e.message : e); }
   // Lo storico non deve mai rompere la pagina in tempo reale.
   try { await salvaLetture(env.DB, next); } catch (e) { console.error('storico:', e instanceof Error ? e.message : e); }
 }
@@ -77,6 +84,17 @@ export default {
         await env.PS_KV.put(CHIAVE_STORICO, corpo, { expirationTtl: STORICO_TTL_S });
       }
       return new Response(corpo, { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=300' } });
+    }
+    if (pathname === '/api/grezzo') {
+      // Per rieseguire i parser sul passato: serve il token, come l'export CSV.
+      if (!env.EXPORT_TOKEN || req.headers.get('Authorization') !== `Bearer ${env.EXPORT_TOKEN}`) return new Response('non autorizzato', { status: 401 });
+      const id = Number(new URL(req.url).searchParams.get('id'));
+      if (Number.isInteger(id) && id > 0) {
+        const c = await leggi(env.DB, id);
+        return c?.corpo == null ? new Response('non trovato o senza corpo', { status: 404 }) : new Response(c.corpo, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Fonte': c.fonte, 'X-Chiave': c.chiave, 'X-Ts': String(c.ts), 'X-Esito': encodeURIComponent(c.esito) } });
+      }
+      const { results } = await env.DB.prepare('SELECT id, fonte, chiave, ts, hash, byte, esito FROM grezzo ORDER BY id DESC LIMIT 100').all();
+      return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
     }
     if (pathname === '/api/export.csv') {
       // Backup interno: serve il token, non è un'API pubblica.

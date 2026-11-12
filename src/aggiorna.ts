@@ -1,4 +1,5 @@
 import { PS } from './anagrafica';
+import type { Cattura } from './grezzo';
 import type { Fonte, Lettura } from './types';
 
 export interface StatoPs {
@@ -45,15 +46,35 @@ export function snapshotVuoto(): Snapshot {
  * Interroga tutte le fonti in parallelo. Una fonte che fallisce NON cancella l'ultima lettura buona:
  * si registra l'errore e il dato resta, con la sua età visibile (acquisitaAlle).
  */
-export async function aggiorna(prev: Snapshot | null, fonti: Fonte[], f: FetchFn, ora = new Date()): Promise<Snapshot> {
+export async function aggiorna(prev: Snapshot | null, fonti: Fonte[], f: FetchFn, ora = new Date(), catture?: Cattura[]): Promise<Snapshot> {
   const base = prev ?? snapshotVuoto();
   const next: Snapshot = { aggiornatoAlle: ora.toISOString(), ps: structuredClone(base.ps) };
   for (const p of PS) next.ps[p.id] ??= { lettura: null, acquisitaAlle: null, ultimoErrore: null };
 
   const esiti = await Promise.allSettled(
     fonti.map(async (fonte) => {
-      const corpi = await Promise.all(fonte.richieste.map((r) => scarica(f, r)));
-      return { fonte, letture: fonte.parse(corpi) };
+      // Ogni risposta originale va nell'archivio (se richiesto), anche quando rete o parser falliscono.
+      const mie: Cattura[] = [];
+      try {
+        const corpi = await Promise.all(fonte.richieste.map(async (r) => {
+          try {
+            const corpo = await scarica(f, r);
+            mie.push({ fonte: fonte.id, chiave: r.chiave, corpo, esito: 'ok' });
+            return corpo;
+          } catch (e) {
+            mie.push({ fonte: fonte.id, chiave: r.chiave, corpo: null, esito: `rete: ${e instanceof Error ? e.message : String(e)}` });
+            throw e;
+          }
+        }));
+        try {
+          return { fonte, letture: fonte.parse(corpi) };
+        } catch (e) {
+          for (const c of mie) c.esito = `parse: ${e instanceof Error ? e.message : String(e)}`;
+          throw e;
+        }
+      } finally {
+        catture?.push(...mie);
+      }
     }),
   );
 
