@@ -135,7 +135,9 @@ function renderCitta() {
   let area = '', pre = null;
   banda.forEach((b, i) => { if (!b) return; area += `${pre == null ? 'M' : 'L'}${x(i).toFixed(1)} ${y(b[1]).toFixed(1)}`; pre = i; });
   for (let i = banda.length - 1; i >= 0; i--) if (banda[i]) area += `L${x(i).toFixed(1)} ${y(banda[i][0]).toFixed(1)}`;
-  svg.append(S_('path', { d: area + 'Z', class: 'ln-b' }));
+  // Senza dati della settimana scorsa (archivio più giovane di 7 giorni) la banda non esiste: un `d` di solo «Z» è un errore SVG.
+  const haBanda = pre != null;
+  if (haBanda) svg.append(S_('path', { d: area + 'Z', class: 'ln-b' }));
   let d = '', gap = true;
   ora.forEach((v, i) => { if (v == null) { gap = true; return; } d += `${gap ? 'M' : 'L'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`; gap = false; });
   svg.append(S_('path', { d, class: 'ln-l' }));
@@ -143,7 +145,7 @@ function renderCitta() {
   svg.append(S_('circle', { cx: x(ult[1]), cy: y(ult[0]), r: 4, class: 'ln-p' }));
   const sopra = prima[ult[1]] != null ? Math.round(ult[0] - prima[ult[1]]) : null;
   svg.setAttribute('aria-label', `Pazienti in attesa in città, ${per === '24h' ? 'ultime 24 ore' : 'ultimi 7 giorni'}: ora ${Math.round(ult[0])}${sopra == null ? '' : `, ${sopra === 0 ? 'come' : `${Math.abs(sopra)} ${sopra > 0 ? 'in più' : 'in meno'} rispetto a`} la stessa ora della settimana scorsa`}`);
-  const leg = el('ul', 'sb-leg'); [['ln-lg', 'Questa settimana'], ['ln-bg', 'Stessa ora, settimana scorsa (min–max)']].forEach(([c, tx]) => { const li = el('li'); li.append(el('i', c), tx); leg.append(li); });
+  const leg = el('ul', 'sb-leg'); [['ln-lg', 'Questa settimana'], ...(haBanda ? [['ln-bg', 'Stessa ora, settimana scorsa (min–max)']] : [])].forEach(([c, tx]) => { const li = el('li'); li.append(el('i', c), tx); leg.append(li); });
   const nota = el('p', 'bc-nota', `Somma dei presidi che hanno una lettura; i tratti senza dati restano vuoti.${sopra == null ? '' : ` Adesso ${Math.round(ult[0])} in attesa${sopra === 0 ? ', come' : `, ${Math.abs(sopra)} ${sopra > 0 ? 'in più' : 'in meno'} di`} la stessa ora della settimana scorsa.`}`);
   // Interattivo: dito o mouse sul grafico mostrano ora, valore e confronto con la settimana scorsa.
   const cur = S_('line', { y1: T, y2: H - B, class: 'ln-c', visibility: 'hidden' }), pt = S_('circle', { r: 4.5, class: 'ln-p', visibility: 'hidden' }), pb = S_('circle', { r: 3.5, class: 'ln-pb', visibility: 'hidden' });
