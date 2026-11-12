@@ -17,6 +17,11 @@ function fmtMin(m) {
   const h = Math.floor(m / 60), r = m % 60;
   return h ? `${h} h${r ? ' ' + r + ' min' : ''}` : `${r} min`;
 }
+/** Età della lettura più recente tra tutti i presidi. Non `aggiornatoAlle` dello snapshot: avanza anche quando tutte le fonti falliscono. */
+function ultimaLettura() {
+  const ultimo = Math.max(0, ...(st.dati?.ps || []).map((p) => Date.parse(p.acquisitaAlle) || 0));
+  return ultimo ? eta(new Date(ultimo).toISOString()) : null;
+}
 function eta(iso) {
   if (!iso) return null;
   const min = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
@@ -97,8 +102,8 @@ function renderStats() {
     p2.addEventListener('click', () => apriScheda(meno.id));
     box.append(p2);
   }
-  const a = eta(st.dati.aggiornatoAlle);
-  $('sub').textContent = `Dati in tempo reale · sito aggiornato ${a ? a.txt : '—'} · ${con.length}/${ps.length} pronto soccorso con dati`;
+  const a = ultimaLettura();
+  $('sub').textContent = `Dati in tempo reale · ultimo aggiornamento ${a ? a.txt : '—'} · ${con.length}/${ps.length} pronto soccorso con dati`;
 }
 
 /* ---------- mappa ---------- */
@@ -543,14 +548,30 @@ function mostra(d) {
 // Lo storico è un di più: se manca, le schede restano senza sparkline.
 const caricaStorico = () => PS_STORICO.carica().then((d) => { st.storico = d; if (st.dati) renderLista(); }).catch(() => {});
 caricaStorico();
-fetch('/api/palermo').then((r) => r.json()).then(mostra)
-  .catch(() => { $('sub').textContent = 'Impossibile caricare i dati. Riprova tra poco.'; });
+/** Dati non aggiornati: la lettura più recente ha più di 20 minuti (o la rete non risponde). */
+const SOGLIA_OBSOLETI_MIN = 20;
+function bannerObsoleti() {
+  const b = $('obsoleti');
+  const e = ultimaLettura();
+  const vecchi = !!st.dati && (!e || e.min > SOGLIA_OBSOLETI_MIN);
+  if (!vecchi && !(st.reteKo && st.dati)) { b.hidden = true; return; }
+  const quando = e ? ` Ultimo aggiornamento: ${fmtMin(e.min)} fa.` : '';
+  b.textContent = st.reteKo
+    ? `Connessione assente: i dati mostrati potrebbero non essere aggiornati.${quando} Riproviamo in automatico.`
+    : `Dati momentaneamente non aggiornati: potrebbe esserci un problema di rete o delle fonti.${quando} Riproviamo in automatico.`;
+  b.hidden = false;
+}
+const carica = () => fetch('/api/palermo').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+carica().then((d) => { st.reteKo = false; mostra(d); bannerObsoleti(); })
+  .catch(() => { st.reteKo = true; $('sub').textContent = 'Impossibile caricare i dati. Riprova tra poco.'; });
 // Aggiorna da solo ogni 2 minuti, senza ricaricare la pagina né chiudere la scheda aperta.
-setInterval(() => fetch('/api/palermo').then((r) => r.json()).then((d) => {
+setInterval(() => carica().then((d) => {
   const aperta = $('scheda').open ? $('scheda').dataset.id : null;
-  st.dati = d; renderStats(); renderLista(); caricaStorico();
+  st.reteKo = false; st.dati = d; renderStats(); renderLista(); caricaStorico(); bannerObsoleti();
   if (aperta && $('scheda').open) { const y = $('scheda').scrollTop; apriScheda(aperta, true); $('scheda').scrollTop = y; }
-}).catch(() => {}), 120000);
+}).catch(() => { st.reteKo = true; bannerObsoleti(); }), 120000);
+// L'età avanza anche senza risposte dal server: ricontrolla ogni minuto.
+setInterval(bannerObsoleti, 60000);
 
 /* ---------- barra in basso (mobile) ---------- */
 $('bn-vicino')?.addEventListener('click', () => {
