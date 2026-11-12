@@ -603,3 +603,15 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 :root[data-theme=dark] .sb-b i.pc-2,:root[data-theme=dark] .sb-leg i.pc-2{background:#5d9bc4;color:#06141f}
 :root[data-theme=dark] .sb-b i.pc-3,:root[data-theme=dark] .sb-leg i.pc-3{background:#8aa4b8;color:#06141f}
 .sb-leg i.pc-1,.sb-leg i.pc-2,.sb-leg i.pc-3{border-color:var(--ctl)}
+
+/* ---------- salva grafico come PNG ---------- */
+.exp-r{display:flex;justify-content:flex-end;margin:6px 0 0}
+.exp-b{min-height:40px;padding:0 14px;border-radius:var(--r-btn,10px);border:1.5px solid var(--ctl);background:var(--white);color:var(--head);font:700 13px var(--ff-b);cursor:pointer}
+.exp-b:hover{background:var(--accbg)}.exp-b:disabled{opacity:.6;cursor:progress}
+.exp-out{position:fixed;left:-99999px;top:0;pointer-events:none}
+.exp{background:var(--paper);color:var(--ink);padding:24px;box-sizing:border-box;font:16px/1.55 var(--ff-b)}
+.exp-top{display:flex;align-items:center;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.exp-brand{display:flex;flex-direction:column;line-height:1.25}.exp-brand strong{font:800 18px/1.1 var(--ff-d);color:var(--head)}.exp-brand small{font-size:12px}
+.exp .sez{padding-block:20px 4px}.exp-cap{margin:0 0 12px;font-size:13px;font-weight:700;color:var(--ink2)}
+.exp-foot{margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}
+.exp-av{margin:0 0 6px;font-size:11.5px;line-height:1.45}.exp-meta{margin:0;font-size:11px;font-weight:700;color:var(--ink2)}
