@@ -30,6 +30,9 @@ html.embed body{background:transparent;padding:12px 24px 16px}
 .embed dialog{margin:12px auto auto}
 
 @media (max-width:700px){
+  .emb-nav{display:none}
+  .embed .bnav{grid-template-columns:repeat(5,1fr);padding-inline:4px}
+  .embed .bnav a,.embed .bnav button{font-size:11px}
   .embed .sez{padding-block:20px 4px}
 }
 

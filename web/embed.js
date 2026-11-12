@@ -31,6 +31,22 @@
   // il menu deve stare nello stesso contenitore del contenuto
   if (!sei) { nav.style.paddingTop = '0'; }
 
+  // mobile: la barra in basso prende Guida e Condividi (al posto di "Vicino a me"); i pulsanti in alto sono nascosti da embed.css
+  const bn = document.querySelector('.bnav');
+  if (bn) {
+    const ic = d => `<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+    bn.querySelector('#bn-vicino, a[href*="vicino"]')?.remove();
+    const bg = document.createElement('button');
+    bg.type = 'button'; bg.setAttribute('data-guida', ''); bg.setAttribute('aria-label', 'Apri la guida');
+    bg.innerHTML = ic('<circle cx="12" cy="12" r="9.5"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4.2M12 17.6v.1"/>') + '<span>Guida</span>';
+    const bc = document.createElement('button');
+    bc.type = 'button'; bc.setAttribute('aria-label', 'Condividi');
+    bc.innerHTML = ic('<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/>') + '<span>Condividi</span>';
+    bc.addEventListener('click', () => cond.click());
+    new MutationObserver(() => { bc.lastChild.textContent = ok.textContent || 'Condividi'; }).observe(ok, { childList: true, characterData: true, subtree: true });
+    bn.append(bg, bc);
+  }
+
   // link che escono dall'app: nuova scheda, mai dentro l'iframe
   document.addEventListener('click', e => {
     const a = e.target.closest && e.target.closest('a[href^="http"]');
