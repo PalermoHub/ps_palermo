@@ -63,6 +63,7 @@
       <nav aria-label="Principale">
         <a href="#mappa">Mappa</a><a href="grafici.html">Grafici</a><a href="#presidi">Presidi</a><a href="#legenda">Come leggere i dati</a><a href="#fonti">Fonti</a>
       </nav>
+      <button type="button" class="mc-b tema" id="guida-btn" data-guida title="Guida" aria-label="Apri la guida"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4.2M12 17.6v.1"/></svg></button>
       <button type="button" class="mc-b tema" id="condividi" title="Condividi" aria-label="Condividi"></button>
       <button type="button" class="mc-b mc-tema tema" id="tema" title="Tema scuro" aria-label="Tema scuro"></button>
     </div>
@@ -73,7 +74,7 @@
       <div class="wrap hero-in">
         <p class="live"><span class="dot" aria-hidden="true"></span><span id="sub">Caricamento dati…</span></p>
         <h1>Quanta gente c’è oggi nei pronto soccorso di <span class="mark">Palermo</span>?</h1>
-        <p class="lead">Pazienti in attesa, sovraffollamento e codici colore dei pronto soccorso della città, letti dai dati pubblici degli ospedali e riuniti in un’unica pagina.</p>
+        <p class="lead">Pazienti in attesa, sovraffollamento e codici colore dei pronto soccorso della città, letti dai dati pubblici degli ospedali e riuniti in un’unica pagina. <button type="button" class="lk" data-guida>Come funziona? Apri la guida</button></p>
         <div class="stats" id="stats"></div>
         <aside class="avviso" role="note">
           <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
@@ -155,6 +156,60 @@
     <a href="grafici.html" data-s="grafici"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Grafici</span></a>
     <button type="button" id="bn-vicino"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span>Vicino a me</span></button>
   </nav>
+
+  <dialog id="guida" aria-labelledby="g-titolo">
+    <div class="s-in g-in">
+      <div class="s-h"><h2 id="g-titolo">Guida: come funziona e come leggere i dati</h2><button type="button" class="s-x" id="g-x" aria-label="Chiudi la guida">×</button></div>
+      <p class="g-lead">Questa pagina mostra, quasi in tempo reale, quante persone ci sono nei pronto soccorso di Palermo. Ecco come leggerla in cinque passi.</p>
+
+      <section>
+        <h3><span>1</span>Il riepilogo in alto</h3>
+        <p>Il numero grande è il totale delle persone <strong>in attesa</strong> in tutti i pronto soccorso della città. Sotto trovi, separati per adulti e pediatrico, i presidi <strong>meno affollati adesso</strong> con la loro percentuale di sovraffollamento. Toccali per aprire la scheda.</p>
+        <figure><img src="img/guida/1-riepilogo.jpg" alt="Riquadro giallo con il totale dei pazienti in attesa e i due presidi meno affollati" loading="lazy"><figcaption>Il totale in attesa e i presidi meno affollati, adulti e pediatrico.</figcaption></figure>
+      </section>
+
+      <section>
+        <h3><span>2</span>La mappa</h3>
+        <p>Ogni pronto soccorso è un cerchio. Il <strong>numero al centro</strong> è chi è in attesa; l’<strong>anello colorato</strong> è diviso nei codici colore in proporzione ai pazienti. Tocca un cerchio per vedere un riepilogo e aprire la scheda.</p>
+        <figure><img src="img/guida/2-mappa.jpg" alt="Mappa di Palermo con i cerchi dei pronto soccorso" loading="lazy"><figcaption>Mappa con un cerchio per presidio.</figcaption></figure>
+      </section>
+
+      <section>
+        <h3><span>3</span>Le schede dei presidi</h3>
+        <p>Sotto la mappa c’è una scheda per ogni presidio. Puoi cercare per nome, filtrare adulti o pediatrico, ordinare, oppure usare <strong>Vicino a me</strong> per ordinare per distanza.</p>
+        <figure><img src="img/guida/3-card.jpg" alt="Scheda di un presidio con numeri, barra di sovraffollamento e codici colore" loading="lazy"><figcaption>Una scheda di presidio.</figcaption></figure>
+        <ul>
+          <li><strong>In attesa</strong>: registrati al triage, non ancora presi in carico.</li>
+          <li><strong>In struttura</strong>: tutti i presenti, anche quelli in osservazione o in attesa di un posto letto.</li>
+          <li><strong>Il grafico</strong> mostra come sono cambiate le persone in attesa nelle ultime 24 ore.</li>
+          <li><strong>La barra di sovraffollamento</strong> confronta i pazienti presenti con i posti disponibili. Il segno bianco è il 100%: oltre quel punto il pronto soccorso lavora sopra la sua capacità.</li>
+          <li><strong>I riquadri colorati</strong> contano le persone in attesa per ciascun codice colore.</li>
+          <li><strong>«Rilevato … fa»</strong> dice quanto è recente il dato.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3><span>4</span>La scheda completa</h3>
+        <p>Con <strong>Scheda completa</strong> si apre il dettaglio: situazione attuale, andamento nelle ultime 24 ore o 7 giorni, presenze in trattamento e osservazione, tempo di permanenza in struttura, tabella per codice colore e mappa. In alto trovi i pulsanti per le indicazioni stradali, il sito del presidio e la condivisione.</p>
+        <figure><img src="img/guida/4-scheda.jpg" alt="Scheda completa del presidio con situazione attuale, andamento e presenze" loading="lazy"><figcaption>Il dettaglio di un presidio.</figcaption></figure>
+      </section>
+
+      <section>
+        <h3><span>5</span>I codici colore</h3>
+        <p>Il triage assegna a ogni persona un colore in base alla gravità, non all’ordine di arrivo: chi ha un codice più grave passa prima.</p>
+        <figure><img src="img/guida/5-legenda.jpg" alt="Legenda dei codici colore, di in attesa e in struttura e del sovraffollamento" loading="lazy"><figcaption>Codici colore e definizioni.</figcaption></figure>
+        <ul class="g-cod">
+          <li><span class="dot c-rosso" aria-hidden="true"></span><strong>Rosso</strong> · emergenza, accesso immediato</li>
+          <li><span class="dot c-arancione" aria-hidden="true"></span><strong>Arancione</strong> · urgenza, entro pochi minuti</li>
+          <li><span class="dot c-azzurro" aria-hidden="true"></span><strong>Azzurro</strong> · urgenza differibile</li>
+          <li><span class="dot c-verde" aria-hidden="true"></span><strong>Verde</strong> · urgenza minore</li>
+          <li><span class="dot c-bianco" aria-hidden="true"></span><strong>Bianco</strong> · non urgente</li>
+        </ul>
+      </section>
+
+      <aside class="g-nota" role="note"><strong>Da ricordare.</strong> I dati sono pubblicati dagli ospedali e possono avere minuti di ritardo. Un valore alto non indica quanto aspetterai tu: dipende dal tuo codice colore. Questa pagina non sostituisce il personale sanitario. <strong>In emergenza chiama il <a href="tel:112">112</a>.</strong></aside>
+    </div>
+  </dialog>
 
   <dialog id="scheda" aria-labelledby="s-titolo">
     <div class="s-in" id="s-corpo"></div>

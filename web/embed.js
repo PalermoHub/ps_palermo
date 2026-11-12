@@ -22,7 +22,10 @@
     if (!navigator.share) return copia();
     try { await navigator.share({ title: document.title, url }); } catch (e) { if (e.name !== 'AbortError') copia(); }
   });
-  nav.append(cond);
+  const gd = document.createElement('button');
+  gd.type = 'button'; gd.className = 'emb-sh'; gd.title = 'Guida'; gd.setAttribute('aria-label', 'Apri la guida'); gd.setAttribute('data-guida', '');
+  gd.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4.2M12 17.6v.1"/></svg>';
+  nav.append(gd, cond);
   const main = document.querySelector('main');
   main.insertBefore(nav, main.firstChild);
   // il menu deve stare nello stesso contenitore del contenuto

@@ -577,3 +577,13 @@ try {
 } catch {}
 bnAggiorna();
 document.addEventListener('click', (e) => { if (e.target.closest('#viste')) setTimeout(bnAggiorna, 0); });
+
+/* ---------- guida ---------- */
+(() => {
+  const g = $('guida');
+  if (!g) return;
+  const apri = () => { if (!g.open) g.showModal(); g.scrollTop = 0; };
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-guida]')) apri(); }); // delegato: vale anche per il pulsante creato da embed.js
+  $('g-x').addEventListener('click', () => g.close());
+  g.addEventListener('click', (e) => { if (e.target === g) g.close(); });
+})();

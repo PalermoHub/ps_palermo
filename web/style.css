@@ -534,3 +534,21 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 .avviso>span{display:block}
 .avviso .call112{margin-bottom:12px}
 .pn-r .tipo{margin:0;display:inline-block}
+
+/* guida */
+.lk{background:none;border:0;padding:0;color:inherit;font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.g-in{gap:22px}
+.g-in .s-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.g-in .s-h h2{margin:0}
+.g-lead{margin:0;font-size:1.05em}
+.g-in section{display:flex;flex-direction:column;gap:10px}
+.g-in h3{display:flex;align-items:center;gap:10px;margin:0}
+.g-in h3 span{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;background:var(--btn-bg);color:var(--btn-fg);font-size:14px}
+.g-in p,.g-in ul{margin:0}
+.g-in ul{padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.g-in ul.g-cod{list-style:none;padding:0}
+.g-in ul.g-cod li{display:flex;align-items:center;gap:8px}
+.g-in figure{margin:4px 0 0;display:flex;flex-direction:column;gap:6px}
+.g-in figure img{display:block;max-width:100%;height:auto;border-radius:14px;border:1px solid var(--line);align-self:flex-start}
+.g-in figcaption{font-size:.85em;opacity:.75}
+.g-nota{padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--accbg)}
