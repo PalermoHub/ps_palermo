@@ -145,7 +145,26 @@ function renderCitta() {
   svg.setAttribute('aria-label', `Pazienti in attesa in città, ${per === '24h' ? 'ultime 24 ore' : 'ultimi 7 giorni'}: ora ${Math.round(ult[0])}${sopra == null ? '' : `, ${sopra === 0 ? 'come' : `${Math.abs(sopra)} ${sopra > 0 ? 'in più' : 'in meno'} rispetto a`} la stessa ora della settimana scorsa`}`);
   const leg = el('ul', 'sb-leg'); [['ln-lg', 'Questa settimana'], ['ln-bg', 'Stessa ora, settimana scorsa (min–max)']].forEach(([c, tx]) => { const li = el('li'); li.append(el('i', c), tx); leg.append(li); });
   const nota = el('p', 'bc-nota', `Somma dei presidi che hanno una lettura; i tratti senza dati restano vuoti.${sopra == null ? '' : ` Adesso ${Math.round(ult[0])} in attesa${sopra === 0 ? ', come' : `, ${Math.abs(sopra)} ${sopra > 0 ? 'in più' : 'in meno'} di`} la stessa ora della settimana scorsa.`}`);
-  box.append(leg, svg, nota);
+  // Interattivo: dito o mouse sul grafico mostrano ora, valore e confronto con la settimana scorsa.
+  const cur = S_('line', { y1: T, y2: H - B, class: 'ln-c', visibility: 'hidden' }), pt = S_('circle', { r: 4.5, class: 'ln-p', visibility: 'hidden' }), pb = S_('circle', { r: 3.5, class: 'ln-pb', visibility: 'hidden' });
+  svg.append(cur, pb, pt);
+  const out = el('p', 'ln-out', 'Tocca o passa il mouse sul grafico per i dettagli.'), base = out.textContent;
+  const fLungo = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', weekday: 'long', hour: '2-digit', minute: '2-digit' });
+  const muovi = (e) => {
+    const r = svg.getBoundingClientRect(); let i = Math.round(((e.clientX - r.left) / r.width * W - L) / (W - L - R) * (n - 1));
+    i = Math.max(0, Math.min(n - 1, i)); let k = 0; while (ora[i + k] == null && ora[i - k] == null && k < n) k++;
+    const j = ora[i + k] != null ? i + k : i - k; if (ora[j] == null) return;
+    cur.setAttribute('x1', x(j)); cur.setAttribute('x2', x(j)); pt.setAttribute('cx', x(j)); pt.setAttribute('cy', y(ora[j]));
+    cur.setAttribute('visibility', 'visible'); pt.setAttribute('visibility', 'visible');
+    const pr = prima[j], dd = pr == null ? null : Math.round(ora[j] - pr);
+    if (pr != null) { pb.setAttribute('cx', x(j)); pb.setAttribute('cy', y(pr)); pb.setAttribute('visibility', 'visible'); } else pb.setAttribute('visibility', 'hidden');
+    const when = new Date((t0 + j * S.passo) * 1000);
+    out.textContent = `${per === '24h' ? fmtOra.format(when) : fLungo.format(when)} · ${Math.round(ora[j])} in attesa` + (dd == null ? '' : dd === 0 ? ' · come una settimana fa' : ` · ${Math.abs(dd)} ${dd > 0 ? 'in più' : 'in meno'} di una settimana fa (${Math.round(pr)})`);
+    out.classList.add('hot');
+  };
+  const fine = () => { [cur, pt, pb].forEach((e) => e.setAttribute('visibility', 'hidden')); out.textContent = base; out.classList.remove('hot'); };
+  ['pointermove', 'pointerdown'].forEach((t) => svg.addEventListener(t, muovi)); ['pointerleave', 'pointercancel'].forEach((t) => svg.addEventListener(t, fine));
+  box.append(leg, svg, out, nota);
 }
 function periodi() {
   const c = $('citta-per'); if (!c) return; c.replaceChildren();
