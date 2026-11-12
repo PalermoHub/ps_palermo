@@ -1,10 +1,10 @@
 /* Modalità embed: l'app dentro un iframe di una pagina che ha già header e footer.
    Si attiva con ?embed=1 oppure automaticamente quando la pagina è in un iframe (?embed=0 la esclude). */
 html.embed body{background:transparent;padding:12px 24px 16px}
-@media (max-width:700px){html.embed body{padding:10px 14px 14px}}
+@media (max-width:700px){html.embed body{padding:10px 14px calc(68px + env(safe-area-inset-bottom))}}
 
 /* via ciò che la pagina ospitante già fornisce */
-.embed .top,.embed .bnav,
+.embed .top,
 .embed .foot > div:not(:nth-child(2)){display:none!important}
 
 /* navigazione interna minima (al posto del menu in testata) */
