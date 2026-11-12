@@ -515,3 +515,10 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 
 .ln-pb{fill:var(--white);stroke:var(--ctl);stroke-width:2}:root[data-theme=dark] .ln-pb{stroke:#7fc4ee}
 #citta .ln{touch-action:pan-y;cursor:crosshair}
+
+/* torna in cima */
+.cima{position:fixed;right:16px;bottom:20px;z-index:1900;width:46px;height:46px;display:grid;place-items:center;border:0;border-radius:50%;background:var(--sea);color:#fff;box-shadow:0 6px 18px -6px rgba(0,0,0,.5);cursor:pointer;opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .2s,transform .2s,visibility .2s}
+.cima.on{opacity:1;visibility:visible;transform:none}
+.cima:hover{background:var(--sea2)}
+:root[data-theme=dark] .cima{background:var(--acc);color:#0b2a3f}
+@media (max-width:700px){.cima{bottom:calc(76px + env(safe-area-inset-bottom))}}
