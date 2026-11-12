@@ -80,7 +80,7 @@ const PS_STORICO = (() => {
     const w = document.createElement('div'), out = document.createElement('p');
     out.className = 'ln-out'; const base = `Pazienti in attesa, ${per === '24h' ? 'ultime 24 ore' : 'ultimi 7 giorni'}. Tocca il grafico per i dettagli.`; out.textContent = base;
     const muovi = (e) => {
-      const r = svg.getBoundingClientRect(); let i = Math.round(((e.clientX - r.left) / r.width * W - L) / (W - L - R) * (n - 1));
+      const m = svg.getScreenCTM(); if (!m) return; const px = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()).x; let i = Math.round((px - L) / (W - L - R) * (n - 1));
       i = Math.max(0, Math.min(n - 1, i)); let k = 0; while (serie[i + k] == null && serie[i - k] == null && k < n) k++;
       const j = serie[i + k] != null ? i + k : i - k; if (serie[j] == null) return;
       cur.setAttribute('x1', x(j)); cur.setAttribute('x2', x(j)); pt.setAttribute('cx', x(j)); pt.setAttribute('cy', y(serie[j]));

@@ -151,7 +151,7 @@ function renderCitta() {
   const out = el('p', 'ln-out', 'Tocca o passa il mouse sul grafico per i dettagli.'), base = out.textContent;
   const fLungo = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', weekday: 'long', hour: '2-digit', minute: '2-digit' });
   const muovi = (e) => {
-    const r = svg.getBoundingClientRect(); let i = Math.round(((e.clientX - r.left) / r.width * W - L) / (W - L - R) * (n - 1));
+    const m = svg.getScreenCTM(); if (!m) return; const px = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()).x; let i = Math.round((px - L) / (W - L - R) * (n - 1)); // coordinate nel viewBox: tiene conto di scala e centratura (max-height)
     i = Math.max(0, Math.min(n - 1, i)); let k = 0; while (ora[i + k] == null && ora[i - k] == null && k < n) k++;
     const j = ora[i + k] != null ? i + k : i - k; if (ora[j] == null) return;
     cur.setAttribute('x1', x(j)); cur.setAttribute('x2', x(j)); pt.setAttribute('cx', x(j)); pt.setAttribute('cy', y(ora[j]));
