@@ -8,7 +8,7 @@ html.embed body{background:transparent;padding:12px 24px 16px}
 .embed .foot > div:not(:nth-child(2)){display:none!important}
 
 /* navigazione interna minima (al posto del menu in testata) */
-.emb-nav{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 12px}
+.emb-nav{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 12px 64px}
 .emb-nav a{padding:8px 16px;border-radius:50px;border:1.5px solid var(--ctl);color:var(--head);font-size:14px;font-weight:700;text-decoration:none;background:var(--white)}
 .emb-sh{position:relative;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;border:1.5px solid var(--ctl);background:var(--white);color:var(--head);cursor:pointer;padding:0}
 .emb-sh:hover{background:var(--accbg)}
