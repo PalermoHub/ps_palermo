@@ -582,7 +582,8 @@ document.addEventListener('click', (e) => { if (e.target.closest('#viste')) setT
 (() => {
   const g = $('guida');
   if (!g) return;
-  const apri = () => { if (!g.open) g.showModal(); g.scrollTop = 0; };
+  // embed mobile: dialog non modale, così la barra in basso (z-index alto) resta visibile e usabile
+  const apri = () => { if (!g.open) { if (document.documentElement.classList.contains('embed') && matchMedia('(max-width:700px)').matches) g.show(); else g.showModal(); } g.scrollTop = 0; };
   document.addEventListener('click', (e) => { if (e.target.closest('[data-guida]')) apri(); }); // delegato: vale anche per il pulsante creato da embed.js
   $('g-x').addEventListener('click', () => g.close());
   g.addEventListener('click', (e) => { if (e.target === g) g.close(); });
