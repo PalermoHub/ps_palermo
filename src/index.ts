@@ -26,13 +26,15 @@ const ETA_MAX_MS = 3 * 60_000;
 const VUOTO = { lettura: null, acquisitaAlle: null, ultimoErrore: null };
 
 async function snapshot(env: Env): Promise<Snapshot | null> {
-  return env.PS_KV.get<Snapshot>(CHIAVE, 'json');
+  const r = await env.DB.prepare('SELECT valore FROM stato WHERE chiave = ?').bind(CHIAVE).first<{ valore: string }>();
+  return r ? (JSON.parse(r.valore) as Snapshot) : null;
 }
 
 async function rinfresca(env: Env): Promise<void> {
   const catture: Cattura[] = [];
   const next = await aggiorna(await snapshot(env), FONTI, fetch, new Date(), catture);
-  await env.PS_KV.put(CHIAVE, JSON.stringify(next));
+  await env.DB.prepare('INSERT INTO stato (chiave, valore, ts) VALUES (?1, ?2, ?3) ON CONFLICT(chiave) DO UPDATE SET valore = ?2, ts = ?3')
+    .bind(CHIAVE, JSON.stringify(next), Date.now()).run();
   // Come lo storico: l'archivio grezzo non deve mai rompere la pagina in tempo reale.
   try {
     await archivia(env.DB, catture);
@@ -42,10 +44,12 @@ async function rinfresca(env: Env): Promise<void> {
   try { await salvaLetture(env.DB, next); } catch (e) { console.error('storico:', e instanceof Error ? e.message : e); }
 }
 
-/** Un solo rinfresco alla volta: KV non è atomico, ma il lock da 60s evita la maggior parte delle sovrapposizioni. */
+/** Un solo rinfresco alla volta: lock atomico su D1 (una sola istruzione), scade dopo 60s. */
 async function rinfrescaSeLibero(env: Env): Promise<void> {
-  if (await env.PS_KV.get(LOCK)) return;
-  await env.PS_KV.put(LOCK, '1', { expirationTtl: 60 });
+  const ora = Date.now();
+  const r = await env.DB.prepare("INSERT INTO stato (chiave, valore, ts) VALUES (?1, '1', ?2) ON CONFLICT(chiave) DO UPDATE SET ts = ?2 WHERE stato.ts < ?2 - 60000")
+    .bind(LOCK, ora).run();
+  if (!r.meta.changes) return;
   await rinfresca(env);
 }
 
