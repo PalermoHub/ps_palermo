@@ -2,7 +2,7 @@ const $ = (id) => document.getElementById(id);
 const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.textContent = h; return e; };
 const COD = ['rosso', 'arancione', 'azzurro', 'verde', 'bianco'];
 const ETI = { rosso: 'Rosso', arancione: 'Arancio', azzurro: 'Azzurro', verde: 'Verde', bianco: 'Bianco' };
-const st = { dati: null, storico: null, heat: null, periodo: '24h' };
+const st = { dati: null, storico: null, heat: null, periodo: '24h', modoAttesa: 'n' };
 
 /* ---------- tema ---------- */
 const tema = () => document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
@@ -53,25 +53,75 @@ function renderConfronto() {
 function renderAttesa() {
   const box = $('attesa'); if (!box) return; box.replaceChildren();
   const tot = (p) => COD.reduce((s, c) => s + (p.lettura.codici[c]?.attesa ?? 0), 0);
-  const con = st.dati.ps.filter((p) => p.lettura && COD.some((c) => p.lettura.codici[c]?.attesa != null)).map((p) => [p, tot(p)]).sort((a, b) => b[1] - a[1] || a[0].nome.localeCompare(b[0].nome, 'it'));
+  /** Rosso + arancione in attesa; null se la fonte non pubblica uno dei due (mai un 0 inventato). */
+  const alti = (p) => { const r = p.lettura.codici.rosso?.attesa, a = p.lettura.codici.arancione?.attesa; return r != null && a != null ? r + a : null; };
+  const quota = (p) => { const t = tot(p), a = alti(p); return t > 0 && a != null ? a / t : null; };
+  const q = st.modoAttesa === 'q';
+  const per = q
+    ? (a, b) => (quota(b[0]) ?? -1) - (quota(a[0]) ?? -1) || b[1] - a[1] || a[0].nome.localeCompare(b[0].nome, 'it')
+    : (a, b) => b[1] - a[1] || a[0].nome.localeCompare(b[0].nome, 'it');
+  const con = st.dati.ps.filter((p) => p.lettura && COD.some((c) => p.lettura.codici[c]?.attesa != null)).map((p) => [p, tot(p)]).sort(per);
   if (!con.length) { box.append(el('p', 'vuoto', 'Nessun dato sui pazienti in attesa disponibile al momento.')); return; }
-  const max = Math.max(1, con[0][1]);
+  const max = Math.max(1, ...con.map(([, t]) => t));
   const leg = el('ul', 'sb-leg'); COD.forEach((c) => { const li = el('li'); li.append(el('i', `c-${c}`), ETI[c]); leg.append(li); });
   const lista = el('ol', 'bc sb');
   con.forEach(([p, t]) => {
     const li = el('li'), b = el('button', 'bc-r'); b.type = 'button'; b.addEventListener('click', () => { location.href = `/#ps=${encodeURIComponent(p.id)}`; });
     const nome = el('span', 'bc-n'); nome.append(el('b', null, p.nome), p.tipo === 'pediatrico' ? el('em', null, ' pediatrico') : '');
-    const num = el('span', 'bc-v'); num.append(el('b', null, t), el('small', null, 'in attesa'));
+    const num = el('span', 'bc-v'), pc = quota(p);
+    if (q) num.append(el('b', null, pc == null ? 'n.d.' : `${Math.round(pc * 100)}%`), el('small', null, pc == null ? 'rosso e arancione non pubblicati' : `rosso e arancione · ${alti(p)} su ${t}`));
+    else num.append(el('b', null, t), el('small', null, 'in attesa'));
+    // Scala comune a tutte le barre (numero) oppure ogni barra = 100% (composizione).
+    const den = q ? Math.max(1, t) : max;
     const bar = el('span', 'bc-b sb-b'), parti = [];
     COD.forEach((c) => {
       const v = p.lettura.codici[c]?.attesa; if (!v) return;
-      const s = el('i', `c-${c}`, v / max >= 0.05 ? v : ''); s.style.width = (v / max * 100).toFixed(2) + '%'; s.title = `${ETI[c]}: ${v}`; bar.append(s); parti.push(`${ETI[c].toLowerCase()} ${v}`);
+      const s = el('i', `c-${c}`, v / den >= 0.05 ? v : ''); s.style.width = (v / den * 100).toFixed(2) + '%'; s.title = `${ETI[c]}: ${v}`; bar.append(s); parti.push(`${ETI[c].toLowerCase()} ${v}`);
     });
-    b.setAttribute('aria-label', `${p.nome}: ${t} in attesa${parti.length ? ` (${parti.join(', ')})` : ''}. Apri la scheda.`);
+    b.setAttribute('aria-label', `${p.nome}: ${t} in attesa${parti.length ? ` (${parti.join(', ')})` : ''}${q && pc != null ? `; rosso e arancione ${alti(p)} su ${t}, il ${Math.round(pc * 100)} per cento` : ''}. Apri la scheda.`);
     b.append(nome, num, bar); li.append(b); lista.append(li);
   });
   const nd = st.dati.ps.length - con.length;
-  box.append(leg, lista, el('p', 'bc-nota', `Conta solo chi è in attesa di visita, per codice colore.${nd ? ` ${nd} presidi senza dato non compaiono.` : ''}`));
+  const nota = q
+    ? 'Ogni barra vale il 100%: mostra la composizione di chi aspetta, non quanti sono. La quota di rosso e arancione dice quanto sono urgenti i casi in attesa, non quanto aspetteranno. Con pochi pazienti in attesa la quota cambia molto da un momento all\'altro.'
+    : 'Conta solo chi è in attesa di visita, per codice colore.';
+  box.append(leg, lista, el('p', 'bc-nota', `${nota}${nd ? ` ${nd} presidi senza dato non compaiono.` : ''}`));
+}
+function modiAttesa() {
+  const c = $('attesa-modo'); if (!c) return; c.replaceChildren();
+  [['n', 'Quanti'], ['q', 'Quanto gravi']].forEach(([k, t]) => { const b = el('button', 'chip', t); b.type = 'button'; b.setAttribute('aria-pressed', st.modoAttesa === k); b.addEventListener('click', () => { st.modoAttesa = k; modiAttesa(); renderAttesa(); }); c.append(b); });
+}
+
+/* ---------- permanenza: da quanto tempo sono in struttura i pazienti presenti ---------- */
+/** Una barra per presidio: meno di 24 ore / 24–48 ore / oltre 48 ore, scala comune. In ordine di quota oltre 24 ore.
+ *  Solo i presidi che pubblicano le tre fasce (mai un 0 inventato per gli altri). */
+function renderPerm() {
+  const box = $('perm'); if (!box) return; box.replaceChildren();
+  const dati = st.dati.ps.map((p) => ({ p, m: p.lettura?.permanenza })).filter(({ m }) => m && [m.meno24h, m.da24a48h, m.oltre48h].every((v) => v != null))
+    .map(({ p, m }) => { const t = m.meno24h + m.da24a48h + m.oltre48h, lungo = m.da24a48h + m.oltre48h, pres = p.lettura.pazientiTotali; return { p, m, t, lungo, q: t ? lungo / t : 0, strano: pres != null && Math.abs(t - pres) > Math.max(2, Math.round(pres * 0.1)) }; })
+    .filter((d) => d.t > 0).sort((a, b) => b.q - a.q || b.lungo - a.lungo || a.p.nome.localeCompare(b.p.nome, 'it'));
+  if (!dati.length) { box.append(el('p', 'vuoto', 'Nessun presidio pubblica la permanenza al momento.')); return; }
+  const max = Math.max(...dati.map((d) => d.t));
+  const FASCE = [['pm-1', 'Meno di 24 ore', 'meno24h'], ['pm-2', '24–48 ore', 'da24a48h'], ['pm-3', 'Oltre 48 ore', 'oltre48h']];
+  const leg = el('ul', 'sb-leg'); FASCE.forEach(([c, t]) => { const li = el('li'); li.append(el('i', c), t); leg.append(li); });
+  const lista = el('ol', 'bc sb');
+  dati.forEach((d) => {
+    const li = el('li'), b = el('button', 'bc-r'); b.type = 'button'; b.addEventListener('click', () => { location.href = `/#ps=${encodeURIComponent(d.p.id)}`; });
+    const nome = el('span', 'bc-n'); nome.append(el('b', null, d.p.nome), d.p.tipo === 'pediatrico' ? el('em', null, ' pediatrico') : '');
+    const num = el('span', 'bc-v'); num.append(el('b', null, `${Math.round(d.q * 100)}%`), el('small', null, `${d.lungo} su ${d.t} oltre 24 ore${d.strano ? '*' : ''}`));
+    const bar = el('span', 'bc-b sb-b');
+    FASCE.forEach(([c, t, k]) => { const v = d.m[k]; if (!v) return; const s = el('i', c, v / max >= 0.05 ? v : ''); s.style.width = (v / max * 100).toFixed(2) + '%'; s.title = `${t}: ${v}`; bar.append(s); });
+    b.setAttribute('aria-label', `${d.p.nome}: ${d.t} pazienti per fascia di permanenza. Meno di 24 ore ${d.m.meno24h}, 24–48 ore ${d.m.da24a48h}, oltre 48 ore ${d.m.oltre48h}; oltre 24 ore il ${Math.round(d.q * 100)} per cento${d.strano ? ', ma la somma non coincide con i presenti pubblicati' : ''}. Apri la scheda.`);
+    b.append(nome, num, bar); li.append(b); lista.append(li);
+  });
+  const senza = st.dati.ps.filter((p) => !dati.some((d) => d.p.id === p.id)).map((p) => p.nome);
+  const riuniti = dati.some((d) => ['villa-sofia-adulti', 'cervello-adulti', 'cervello-pediatrico'].includes(d.p.id));
+  const note = [
+    `Le fasce sommano i pazienti presenti: la percentuale è la quota di chi resta da più di 24 ore.${senza.length ? ` ${senza.join(' e ')} ${senza.length > 1 ? 'non pubblicano' : 'non pubblica'} la permanenza e non compar${senza.length > 1 ? 'iono' : 'e'}.` : ''}`,
+    riuniti && 'Gli Ospedali Riuniti pubblicano le tre fasce come «indici K1, K2, K3»: le leggiamo come meno di 24 ore, 24–48 ore, oltre 48 ore, nello stesso ordine delle altre fonti.',
+    dati.some((d) => d.strano) && '* La somma delle tre fasce differisce dai presenti pubblicati dalla stessa fonte: i numeri sono quelli dell\'ospedale, ma vanno letti con cautela.',
+  ].filter(Boolean);
+  box.append(leg, lista, ...note.map((t) => el('p', 'bc-nota', t)));
 }
 
 /* ---------- dumbbell: in attesa vs in struttura ---------- */
@@ -257,10 +307,10 @@ function renderSalute() {
 const caricaSalute = () => fetch('/api/salute').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => { st.salute = d; renderSalute(); }).catch(() => { st.salute = null; renderSalute(); });
 
 /* ---------- avvio ---------- */
-const carica = () => fetch('/api/palermo').then((r) => r.json()).then((d) => { st.dati = d; renderConfronto(); renderAttesa(); renderDumbbell(); renderHeat(); $('sub').textContent = `Dati in tempo reale · ${d.ps.filter((p) => p.lettura).length}/${d.ps.length} pronto soccorso con dati`; });
+const carica = () => fetch('/api/palermo').then((r) => r.json()).then((d) => { st.dati = d; renderConfronto(); renderAttesa(); renderDumbbell(); renderPerm(); renderHeat(); $('sub').textContent = `Dati in tempo reale · ${d.ps.filter((p) => p.lettura).length}/${d.ps.length} pronto soccorso con dati`; });
 carica().catch(() => { $('sub').textContent = 'Impossibile caricare i dati. Riprova tra poco.'; });
 setInterval(() => carica().catch(() => {}), 120000);
-periodi();
+periodi(); modiAttesa();
 const caricaStorico = () => PS_STORICO.carica().then((d) => { st.storico = d; renderCitta(); }).catch(() => renderCitta());
 const caricaHeat = () => PS_STORICO.caricaHeat().then((d) => { st.heat = d; renderHeat(); }).catch(() => renderHeat());
 caricaStorico(); caricaHeat(); renderSalute(); caricaSalute();

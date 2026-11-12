@@ -585,3 +585,12 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 .g-in figure img{display:block;max-width:100%;height:auto;border-radius:14px;border:1px solid var(--line);align-self:flex-start}
 .g-in figcaption{font-size:.85em;opacity:.75}
 .g-nota{padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--accbg)}
+
+/* permanenza: tre fasce su una rampa blu, più scura = più a lungo (il colore dei codici triage resta ai codici) */
+.sb-b i.pm-1,.sb-leg i.pm-1{background:#b9d2e6;color:#0b2a3f}
+.sb-b i.pm-2,.sb-leg i.pm-2{background:#2e6c9c;color:#fff}
+.sb-b i.pm-3,.sb-leg i.pm-3{background:#0b2a3f;color:#fff}
+:root[data-theme=dark] .sb-b i.pm-1,:root[data-theme=dark] .sb-leg i.pm-1{background:#28485f;color:#dbe6ec}
+:root[data-theme=dark] .sb-b i.pm-2,:root[data-theme=dark] .sb-leg i.pm-2{background:#5d9bc4;color:#06141f}
+:root[data-theme=dark] .sb-b i.pm-3,:root[data-theme=dark] .sb-leg i.pm-3{background:#dff0fb;color:#06141f}
+.sb-leg i.pm-1,.sb-leg i.pm-2,.sb-leg i.pm-3{border-color:var(--ctl)}

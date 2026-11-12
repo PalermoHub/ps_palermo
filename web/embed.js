@@ -9,7 +9,7 @@
   const sei = /grafici/.test(location.pathname);
   const nav = document.createElement('nav');
   nav.className = 'emb-nav'; nav.setAttribute('aria-label', 'Sezioni');
-  nav.innerHTML = `<a href="./"${sei ? '' : ' aria-current="page"'}>Mappa e presidi</a><a href="grafici.html"${sei ? ' aria-current="page"' : ''}>Grafici</a>`
+  nav.innerHTML = `<a href="./"${sei ? '' : ' aria-current="page"'}>Mappa e presidi</a><a href="grafici.html"${sei ? ' aria-current="page"' : ''}>Analisi</a>`
 ;
   // condividi: porta alla pagina PalermoHub (la home, o i grafici con #grafici)
   const cond = document.createElement('button');
@@ -26,7 +26,7 @@
   gd.type = 'button'; gd.className = 'emb-sh'; gd.title = 'Guida'; gd.setAttribute('aria-label', 'Apri la guida'); gd.setAttribute('data-guida', '');
   gd.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4.2M12 17.6v.1"/></svg>';
   // tema: il pulsante dell'intestazione è nascosto in embed, quindi lo si comanda da qui (la logica resta quella dell'app).
-  // Segue `data-theme` anche quando a cambiarlo è la pagina ospitante. La scelta vale per la sessione: i link Mappa/Grafici ricaricano l'iframe.
+  // Segue `data-theme` anche quando a cambiarlo è la pagina ospitante. La scelta vale per la sessione: i link Mappa/Analisi ricaricano l'iframe.
   const ICT = { luna: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>', sole: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>' };
   const svgT = (d, n) => `<svg viewBox="0 0 24 24" width="${n}" height="${n}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const scuro = () => H.dataset.theme === 'dark';
