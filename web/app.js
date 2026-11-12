@@ -297,7 +297,10 @@ function card(p, menoId) {
     const num = el('div', 'num'), a = el('div'), t = el('div');
     a.append(el('b', null, nd(l.inAttesa)), el('small', null, 'in attesa'));
     t.append(el('b', null, nd(l.pazientiTotali)), el('small', null, 'in struttura'));
-    num.append(a, t); art.append(num, barra(l));
+    num.append(a, t); art.append(num);
+    const cap = el('small', null, 'Pazienti in attesa, ultime 24 ore'), sp = PS_STORICO.spark(st.storico?.spark.ps[p.id], st.storico?.spark.da, st.storico?.passo, cap);
+    if (sp) { const w = el('div', 'spk-w'); w.append(sp, cap); art.append(w); }
+    art.append(barra(l));
     const g = el('div', 'cod'); COD.forEach((c) => g.append(chip(l, c))); art.append(g);
     const tm = tempiTesto(l);
     if (tm) { const pp = el('p', 'tempi'); pp.append(el('strong', null, 'Attesa media: '), tm); art.append(pp); }
@@ -395,6 +398,21 @@ function apriScheda(id, daHash) {
     if (l.sovraffollamentoPct != null) cur.append(barra(l));
   }
   corpo.append(cur);
+
+  // Andamento nel tempo (da D1): ultime 24 ore o 7 giorni, interattivo.
+  const S = st.storico;
+  if (S && (S.ps7?.[p.id] || S.spark.ps[p.id])) {
+    const sez = el('section', 's-box'), cg = el('div', 'chip-g'), sl = el('div');
+    sez.append(el('h3', null, 'Andamento'), cg, sl);
+    const mostraPer = (per) => {
+      cg.replaceChildren(); sl.replaceChildren();
+      [['24h', 'Ultime 24 ore'], ['7g', '7 giorni']].forEach(([k, t]) => { const b = el('button', 'chip', t); b.type = 'button'; b.setAttribute('aria-pressed', per === k); b.addEventListener('click', () => mostraPer(k)); cg.append(b); });
+      const tutti = S.ps7?.[p.id], ser = per === '24h' ? (S.spark.ps[p.id] ?? tutti?.slice(-48)) : tutti, da = per === '24h' ? S.spark.da : S.citta.da;
+      const g = ser && PS_STORICO.linea(ser, da, S.passo, per);
+      sl.append(g || el('p', 'vuoto', 'Storico in raccolta: il grafico compare dopo qualche ora di dati.'));
+    };
+    mostraPer('24h'); sx.append(sez);
+  }
 
   // Colonna sinistra: tabella per codice colore e mappa.
   if (l) {
@@ -503,12 +521,15 @@ function mostra(d) {
   const m = location.hash.match(/^#ps=(.+)$/);
   if (m && !$('scheda').open) apriScheda(decodeURIComponent(m[1]), true);
 }
+// Lo storico è un di più: se manca, le schede restano senza sparkline.
+const caricaStorico = () => PS_STORICO.carica().then((d) => { st.storico = d; if (st.dati) renderLista(); }).catch(() => {});
+caricaStorico();
 fetch('/api/palermo').then((r) => r.json()).then(mostra)
   .catch(() => { $('sub').textContent = 'Impossibile caricare i dati. Riprova tra poco.'; });
 // Aggiorna da solo ogni 2 minuti, senza ricaricare la pagina né chiudere la scheda aperta.
 setInterval(() => fetch('/api/palermo').then((r) => r.json()).then((d) => {
   const aperta = $('scheda').open ? $('scheda').dataset.id : null;
-  st.dati = d; renderStats(); renderLista();
+  st.dati = d; renderStats(); renderLista(); caricaStorico();
   if (aperta && $('scheda').open) { const y = $('scheda').scrollTop; apriScheda(aperta, true); $('scheda').scrollTop = y; }
 }).catch(() => {}), 120000);
 

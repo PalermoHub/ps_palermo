@@ -1,0 +1,44 @@
+name: Backup storico dati
+
+# Ogni notte copia lo storico (D1) in dati/storico/AAAA/AAAA-MM-GG.csv (backup) e ricalcola dati/storico/heatmap.json,
+# che il sito legge da raw.githubusercontent.com per la heatmap.
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+    inputs:
+      giorno:
+        description: 'Giorno da salvare (YYYY-MM-DD, ora di Palermo). Vuoto = ieri.'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      EXPORT_TOKEN: ${{ secrets.EXPORT_TOKEN }}
+      SITO: ${{ vars.SITO_URL || 'https://palermo-ps.coseerobe.workers.dev' }}
+    steps:
+      - name: Token mancante
+        if: ${{ env.EXPORT_TOKEN == '' }}
+        run: echo "::error::Imposta il secret EXPORT_TOKEN (lo stesso del Worker)." && exit 1
+      - uses: actions/checkout@v4
+      - name: Scarica il CSV del giorno
+        run: |
+          GIORNO="${{ github.event.inputs.giorno }}"
+          [ -z "$GIORNO" ] && GIORNO=$(TZ=Europe/Rome date -d yesterday +%F)
+          mkdir -p "dati/storico/${GIORNO:0:4}"
+          curl -fsS -H "Authorization: Bearer $EXPORT_TOKEN" "$SITO/api/export.csv?day=$GIORNO" -o "dati/storico/${GIORNO:0:4}/$GIORNO.csv"
+          echo "righe: $(($(wc -l < dati/storico/${GIORNO:0:4}/$GIORNO.csv) - 1))"
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Ricalcola la heatmap dai CSV
+        run: node scripts/heatmap.mjs
+      - name: Commit
+        run: |
+          git config user.name "backup-storico"
+          git config user.email "actions@users.noreply.github.com"
+          git add dati/storico
+          git diff --cached --quiet || (git commit -m "Backup storico $(date -u +%F)" && git push)

@@ -24,3 +24,10 @@ id = "7da51ffb54f741789be80b9baf7d96e9"
 [[services]]
 binding = "SELF"
 service = "palermo-ps"
+
+# Storico delle letture (grafici e archivio CSV). Migrazioni: npx wrangler d1 migrations apply palermo-ps-storico --remote
+[[d1_databases]]
+binding = "DB"
+database_name = "palermo-ps-storico"
+database_id = "63189855-2210-4d8c-9f41-1e7f63d0d75d"
+migrations_dir = "migrations"

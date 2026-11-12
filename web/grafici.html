@@ -62,6 +62,20 @@
   </header>
 
   <main id="top">
+    <section id="citta-sez" class="wrap sez">
+      <h2 class="sez-h">Palermo nelle ultime ore</h2>
+      <p class="sez-s">Pazienti in attesa di visita in tutti i pronto soccorso insieme. La banda grigia è lo stesso momento della settimana scorsa: mostra se oggi è più o meno carico del solito.</p>
+      <div class="chip-g" id="citta-per" role="group" aria-label="Periodo"></div>
+      <div id="citta"></div>
+    </section>
+
+    <section id="heat-sez" class="wrap sez">
+      <h2 class="sez-h">Quando c'è meno gente</h2>
+      <p class="sez-s">Mediana dei pazienti in attesa per giorno della settimana e ora, sulle ultime otto settimane. Colore più scuro = di solito più persone in attesa. È un quadro di come vanno le cose in media: non prevede l'attesa di chi arriva, che dipende dalla gravità e da quello che succede in quel momento.</p>
+      <label class="hm-sel">Presidio <select id="heat-ps"></select></label>
+      <div id="heat"></div>
+    </section>
+
     <section id="attesa-sez" class="wrap sez">
       <p class="sez-s"><span id="sub">Caricamento dati…</span></p>
       <h1 class="sez-h">Chi aspetta di più</h1>
@@ -96,6 +110,7 @@
     <a href="/?vicino=1#presidi"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span>Vicino a me</span></a>
   </nav>
 
+  <script src="storico.js"></script>
   <script src="grafici.js"></script>
 </body>
 </html>
