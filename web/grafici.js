@@ -92,6 +92,40 @@ function modiAttesa() {
   [['n', 'Quanti'], ['q', 'Quanto gravi']].forEach(([k, t]) => { const b = el('button', 'chip', t); b.type = 'button'; b.setAttribute('aria-pressed', st.modoAttesa === k); b.addEventListener('click', () => { st.modoAttesa = k; modiAttesa(); renderAttesa(); }); c.append(b); });
 }
 
+/* ---------- percorso del paziente: in attesa → in trattamento → in osservazione ---------- */
+/** Una barra per presidio con i pazienti presenti divisi per fase, scala comune. Solo chi pubblica almeno attesa e trattamento;
+ *  l'osservazione compare dove la fonte la pubblica (mai un 0 inventato). Ordine: quota ancora in attesa di visita. */
+function renderPercorso() {
+  const box = $('percorso'); if (!box) return; box.replaceChildren();
+  /** Somma per fase sui codici; null se la fonte non pubblica la fase o la pubblica solo in parte. */
+  const fase = (l, k) => { const cod = COD.filter((c) => l.codici[c]); const v = cod.map((c) => l.codici[c][k]); return cod.length && v.every((x) => x != null) ? v.reduce((a, b) => a + b, 0) : null; };
+  const dati = st.dati.ps.filter((p) => p.lettura).map((p) => ({ p, a: fase(p.lettura, 'attesa'), t: fase(p.lettura, 'trattamento'), o: fase(p.lettura, 'osservazione') }))
+    .filter((d) => d.a != null && d.t != null).map((d) => ({ ...d, tot: d.a + d.t + (d.o ?? 0) })).filter((d) => d.tot > 0)
+    .map((d) => ({ ...d, q: d.a / d.tot })).sort((x, y) => y.q - x.q || y.tot - x.tot || x.p.nome.localeCompare(y.p.nome, 'it'));
+  if (!dati.length) { box.append(el('p', 'vuoto', 'Nessun presidio pubblica la divisione dei pazienti per fase al momento.')); return; }
+  const max = Math.max(...dati.map((d) => d.tot));
+  const FASI = [['pc-1', 'In attesa di visita', 'a'], ['pc-2', 'In trattamento', 't'], ['pc-3', 'In osservazione', 'o']];
+  const leg = el('ul', 'sb-leg'); FASI.forEach(([c, t]) => { const li = el('li'); li.append(el('i', c), t); leg.append(li); });
+  const lista = el('ol', 'bc sb');
+  dati.forEach((d) => {
+    const li = el('li'), b = el('button', 'bc-r'); b.type = 'button'; b.addEventListener('click', () => { location.href = `/#ps=${encodeURIComponent(d.p.id)}`; });
+    const nome = el('span', 'bc-n'); nome.append(el('b', null, d.p.nome), d.p.tipo === 'pediatrico' ? el('em', null, ' pediatrico') : '');
+    const num = el('span', 'bc-v'); num.append(el('b', null, `${Math.round(d.q * 100)}%`), el('small', null, `${d.a} su ${d.tot} ancora in attesa`));
+    const bar = el('span', 'bc-b sb-b');
+    FASI.forEach(([c, t, k]) => { const v = d[k]; if (!v) return; const s = el('i', c, v / max >= 0.05 ? v : ''); s.style.width = (v / max * 100).toFixed(2) + '%'; s.title = `${t}: ${v}`; bar.append(s); });
+    b.setAttribute('aria-label', `${d.p.nome}: ${d.tot} pazienti presenti. ${d.a} in attesa di visita, ${d.t} in trattamento${d.o != null ? `, ${d.o} in osservazione` : ''}; ancora in attesa il ${Math.round(d.q * 100)} per cento. Apri la scheda.`);
+    b.append(nome, num, bar); li.append(b); lista.append(li);
+  });
+  const fuori = st.dati.ps.filter((p) => !dati.some((d) => d.p.id === p.id)).map((p) => p.nome);
+  const senzaOss = dati.filter((d) => d.o == null).map((d) => d.p.nome);
+  const note = [
+    `La barra somma le fasi che la fonte pubblica: dove manca l'osservazione, il totale è attesa più trattamento.${fuori.length ? ` ${fuori.length > 1 ? `${fuori.slice(0, -1).join(', ')} e ${fuori.at(-1)}` : fuori[0]} pubblica${fuori.length > 1 ? 'no' : ''} solo gli in attesa e non compar${fuori.length > 1 ? 'iono' : 'e'}.` : ''}`,
+    senzaOss.length && `${senzaOss.join(' e ')} non pubblica${senzaOss.length > 1 ? 'no' : ''} gli in osservazione.`,
+    dati.some((d) => d.p.id === 'policlinico-adulti') && 'Il Policlinico pubblica i «pazienti in carico»: li leggiamo come in trattamento.',
+  ].filter(Boolean);
+  box.append(leg, lista, ...note.map((t) => el('p', 'bc-nota', t)));
+}
+
 /* ---------- permanenza: da quanto tempo sono in struttura i pazienti presenti ---------- */
 /** Una barra per presidio: meno di 24 ore / 24–48 ore / oltre 48 ore, scala comune. In ordine di quota oltre 24 ore.
  *  Solo i presidi che pubblicano le tre fasce (mai un 0 inventato per gli altri). */
@@ -307,7 +341,7 @@ function renderSalute() {
 const caricaSalute = () => fetch('/api/salute').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => { st.salute = d; renderSalute(); }).catch(() => { st.salute = null; renderSalute(); });
 
 /* ---------- avvio ---------- */
-const carica = () => fetch('/api/palermo').then((r) => r.json()).then((d) => { st.dati = d; renderConfronto(); renderAttesa(); renderDumbbell(); renderPerm(); renderHeat(); $('sub').textContent = `Dati in tempo reale · ${d.ps.filter((p) => p.lettura).length}/${d.ps.length} pronto soccorso con dati`; });
+const carica = () => fetch('/api/palermo').then((r) => r.json()).then((d) => { st.dati = d; renderConfronto(); renderAttesa(); renderDumbbell(); renderPercorso(); renderPerm(); renderHeat(); $('sub').textContent = `Dati in tempo reale · ${d.ps.filter((p) => p.lettura).length}/${d.ps.length} pronto soccorso con dati`; });
 carica().catch(() => { $('sub').textContent = 'Impossibile caricare i dati. Riprova tra poco.'; });
 setInterval(() => carica().catch(() => {}), 120000);
 periodi(); modiAttesa();

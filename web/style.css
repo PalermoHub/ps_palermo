@@ -594,3 +594,11 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 :root[data-theme=dark] .sb-b i.pm-2,:root[data-theme=dark] .sb-leg i.pm-2{background:#5d9bc4;color:#06141f}
 :root[data-theme=dark] .sb-b i.pm-3,:root[data-theme=dark] .sb-leg i.pm-3{background:#dff0fb;color:#06141f}
 .sb-leg i.pm-1,.sb-leg i.pm-2,.sb-leg i.pm-3{border-color:var(--ctl)}
+
+/* percorso del paziente: giallo = ancora in attesa (come il riquadro «in attesa adesso»), blu = in trattamento, grigio chiaro = osservazione */
+.sb-b i.pc-1,.sb-leg i.pc-1{background:var(--acc);color:#0b2a3f}
+.sb-b i.pc-2,.sb-leg i.pc-2{background:#0b3a5a;color:#fff}
+.sb-b i.pc-3,.sb-leg i.pc-3{background:#b4c5d1;color:#0b2a3f}
+:root[data-theme=dark] .sb-b i.pc-2,:root[data-theme=dark] .sb-leg i.pc-2{background:#5d9bc4;color:#06141f}
+:root[data-theme=dark] .sb-b i.pc-3,:root[data-theme=dark] .sb-leg i.pc-3{background:#8aa4b8;color:#06141f}
+.sb-leg i.pc-1,.sb-leg i.pc-2,.sb-leg i.pc-3{border-color:var(--ctl)}
