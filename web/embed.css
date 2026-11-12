@@ -1,6 +1,7 @@
 /* Modalità embed: l'app dentro un iframe di una pagina che ha già header e footer.
    Si attiva con ?embed=1 oppure automaticamente quando la pagina è in un iframe (?embed=0 la esclude). */
-html.embed body{background:transparent;padding-bottom:0}
+html.embed body{background:transparent;padding:12px 24px 16px}
+@media (max-width:700px){html.embed body{padding:10px 14px 14px}}
 html.embed{scrollbar-width:none}
 html.embed ::-webkit-scrollbar{display:none}
 
@@ -13,7 +14,6 @@ html.embed ::-webkit-scrollbar{display:none}
 .emb-nav a{padding:8px 16px;border-radius:50px;border:1.5px solid var(--ctl);color:var(--head);font-size:14px;font-weight:700;text-decoration:none;background:var(--white)}
 .emb-nav a:hover{background:var(--accbg)}
 .emb-nav a[aria-current=page]{background:var(--btn-bg);border-color:var(--btn-bg);color:var(--btn-fg)}
-.emb-nav a.emb-out{margin-left:auto;border-color:transparent;background:none;font-weight:600;text-decoration:underline}
 
 /* spazi compatti: il contenitore è quello della pagina ospitante */
 .embed main > .wrap,.embed footer .wrap{max-width:none;padding-inline:0}

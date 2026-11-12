@@ -10,7 +10,7 @@
   const nav = document.createElement('nav');
   nav.className = 'emb-nav'; nav.setAttribute('aria-label', 'Sezioni');
   nav.innerHTML = `<a href="./"${sei ? '' : ' aria-current="page"'}>Mappa e presidi</a><a href="grafici.html"${sei ? ' aria-current="page"' : ''}>Grafici</a>`
-    + `<a class="emb-out" href="https://palermo-ps.coseerobe.workers.dev/" target="_blank" rel="noopener">Apri a schermo intero</a>`;
+;
   const main = document.querySelector('main');
   main.insertBefore(nav, main.firstChild);
   // il menu deve stare nello stesso contenitore del contenuto
