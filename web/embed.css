@@ -2,11 +2,9 @@
    Si attiva con ?embed=1 oppure automaticamente quando la pagina è in un iframe (?embed=0 la esclude). */
 html.embed body{background:transparent;padding:12px 24px 16px}
 @media (max-width:700px){html.embed body{padding:10px 14px 14px}}
-html.embed{scrollbar-width:none}
-html.embed ::-webkit-scrollbar{display:none}
 
 /* via ciò che la pagina ospitante già fornisce */
-.embed .top,.embed .bnav,.embed .cima,
+.embed .top,.embed .bnav,
 .embed .foot > div:not(:nth-child(2)){display:none!important}
 
 /* navigazione interna minima (al posto del menu in testata) */
