@@ -586,4 +586,5 @@ document.addEventListener('click', (e) => { if (e.target.closest('#viste')) setT
   document.addEventListener('click', (e) => { if (e.target.closest('[data-guida]')) apri(); }); // delegato: vale anche per il pulsante creato da embed.js
   $('g-x').addEventListener('click', () => g.close());
   g.addEventListener('click', (e) => { if (e.target === g) g.close(); });
+  if (new URLSearchParams(location.search).get('guida') === '1') apri(); // arrivo dai grafici (la guida vive solo in questa pagina)
 })();

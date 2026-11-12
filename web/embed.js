@@ -47,6 +47,9 @@
     bn.append(bg, bc);
   }
 
+  // la guida (dialog) esiste solo nella home: dai grafici si passa lì con ?guida=1
+  if (!document.getElementById('guida')) document.addEventListener('click', e => { if (e.target.closest('[data-guida]')) location.href = './?guida=1'; });
+
   // link che escono dall'app: nuova scheda, mai dentro l'iframe
   document.addEventListener('click', e => {
     const a = e.target.closest && e.target.closest('a[href^="http"]');
