@@ -556,4 +556,5 @@ try {
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { sezVista = e.target.id; bnAggiorna(); } }), { rootMargin: '-45% 0px -50% 0px' });
   ['mappa', 'presidi'].forEach((id) => $(id) && io.observe($(id)));
 } catch {}
+bnAggiorna();
 document.addEventListener('click', (e) => { if (e.target.closest('#viste')) setTimeout(bnAggiorna, 0); });
