@@ -87,10 +87,12 @@ export default {
       });
     }
     if (pathname === '/api/storico') {
-      let corpo = await env.PS_KV.get(CHIAVE_STORICO);
+      // Cache in D1 (non in KV: il limite di scritture giornaliero di KV è già stato superato una volta).
+      const c = await env.DB.prepare('SELECT valore, ts FROM stato WHERE chiave = ?').bind(CHIAVE_STORICO).first<{ valore: string; ts: number }>();
+      let corpo = c && Date.now() - c.ts < STORICO_TTL_S * 1000 ? c.valore : null;
       if (!corpo) {
         corpo = JSON.stringify(await costruisciStorico(env.DB));
-        await env.PS_KV.put(CHIAVE_STORICO, corpo, { expirationTtl: STORICO_TTL_S });
+        await env.DB.prepare('INSERT INTO stato (chiave, valore, ts) VALUES (?1, ?2, ?3) ON CONFLICT(chiave) DO UPDATE SET valore = ?2, ts = ?3').bind(CHIAVE_STORICO, corpo, Date.now()).run();
       }
       return new Response(corpo, { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=300' } });
     }
