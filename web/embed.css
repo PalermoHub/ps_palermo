@@ -34,7 +34,7 @@ html.embed body{background:transparent;padding:12px 24px 16px}
   .embed .bnav{grid-template-columns:repeat(5,1fr);padding-inline:4px}
   .embed .bnav a,.embed .bnav button{font-size:11px}
   .embed .sez{padding-block:20px 4px}
-  .embed dialog[open]:not(:modal){position:fixed;inset:8px 8px 84px;margin:0;width:auto;max-width:none;max-height:none;overflow:auto;z-index:1500}
+  .embed dialog[open]:not(:modal){position:fixed;inset:8px 8px 84px;margin:0;width:auto;height:auto;max-width:none;max-height:none;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;z-index:1500}
 }
 
 /* "Torna in cima" più in alto: in basso a destra la pagina ospitante ha già un suo pulsante */
