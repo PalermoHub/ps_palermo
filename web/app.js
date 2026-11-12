@@ -564,6 +564,10 @@ let sezVista = /^#(presidi)$/.test(location.hash) || /[?&](vista|vicino)=/.test(
 function bnAggiorna() {
   bnMappa?.classList.toggle('on', sezVista === 'mappa');
   bnVoci.forEach((b) => b.classList.toggle('on', st.vista === b.dataset.v && sezVista === 'presidi' && b.dataset.v === 'tab'));
+  // guida aperta (embed mobile, non modale): è l'unica voce attiva
+  const gOn = !!$('guida')?.open;
+  if (gOn) document.querySelectorAll('.bnav .on').forEach((b) => b.classList.remove('on'));
+  document.querySelectorAll('.bnav [data-guida]').forEach((b) => b.classList.toggle('on', gOn));
 }
 bnVoci.forEach((b) => b.addEventListener('click', () => {
   // on/off: se già attiva torna alle schede, altrimenti attiva la tabella
@@ -584,10 +588,12 @@ document.addEventListener('click', (e) => { if (e.target.closest('#viste')) setT
   if (!g) return;
   // embed mobile: dialog non modale, così la barra in basso (z-index alto) resta visibile e usabile
   const apri = () => { if (!g.open) { if (document.documentElement.classList.contains('embed') && matchMedia('(max-width:700px)').matches) g.show(); else g.showModal(); } g.scrollTop = 0; };
-  const segna = () => document.querySelectorAll('.bnav [data-guida]').forEach((b) => b.classList.toggle('on', g.open));
+  const segna = bnAggiorna;
   // on/off: se la guida è aperta il pulsante la chiude (delegato: vale anche per i pulsanti creati da embed.js)
   document.addEventListener('click', (e) => { if (e.target.closest('[data-guida]')) { if (g.open) g.close(); else apri(); setTimeout(segna, 0); } });
   g.addEventListener('close', segna);
+  // toccare un'altra voce della barra chiude la guida
+  document.addEventListener('click', (e) => { const b = e.target.closest('.bnav a, .bnav button'); if (b && !b.hasAttribute('data-guida') && g.open) g.close(); }, true);
   $('g-x').addEventListener('click', () => g.close());
   g.addEventListener('click', (e) => { if (e.target === g) g.close(); });
   if (new URLSearchParams(location.search).get('guida') === '1') { apri(); setTimeout(segna, 0); } // arrivo dai grafici (la guida vive solo in questa pagina)
