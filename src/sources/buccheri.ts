@@ -19,6 +19,9 @@ export function parseBuccheri(json: string): Lettura[] {
     codici[nome] = conteggi({ attesa: a, trattamento: t, totale: a != null && t != null ? a + t : null });
   }
 
+  const inAttesa = numero(String(att.totalePazienti ?? ''));
+  const inTratt = numero(String(tr.totalePazienti ?? ''));
+
   const [g, m, a] = String(d.data ?? '').split('/').map(Number);
   const [hh, mi, ss] = String(d.ora ?? '').split(':').map(Number);
   const rilevataAlle = g && m && a && hh != null && mi != null ? romaIso(a, m, g, hh, mi, ss ?? 0) : null;
@@ -27,8 +30,8 @@ export function parseBuccheri(json: string): Lettura[] {
     psId: 'buccheri-adulti',
     rilevataAlle,
     codici,
-    pazientiTotali: numero(String((att.totalePazienti ?? 0) + (tr.totalePazienti ?? 0))),
-    inAttesa: numero(String(att.totalePazienti ?? '')),
+    pazientiTotali: inAttesa != null && inTratt != null ? inAttesa + inTratt : null,
+    inAttesa,
     sovraffollamentoPct: numero(d.indicatoreSovraffollamento?.valore),
     // La formula è testo: "b (n° posti letto presidiati in PS) = 13"
     postiTecnici: numero(String(d.indicatoreSovraffollamento?.formula ?? '').match(/posti letto presidiati in PS\)\s*=\s*(\d+)/i)?.[1]),

@@ -72,6 +72,14 @@ export function conteggi(p: Partial<ConteggiCodice> = {}): ConteggiCodice {
   return { attesa: null, trattamento: null, osservazione: null, totale: null, ...p };
 }
 
+/** Somma solo se TUTTI i valori ci sono: un dato mancante dà null, mai un totale parziale o uno 0 inventato. */
+export function sommaOnesta(v: readonly (number | null | undefined)[]): number | null {
+  if (v.length === 0) return null;
+  let s = 0;
+  for (const x of v) { if (x == null) return null; s += x; }
+  return s;
+}
+
 export const CODICE_DA_NOME: Record<string, Codice> = {
   rosso: 'rosso', arancione: 'arancione', azzurro: 'azzurro', verde: 'verde', bianco: 'bianco',
 };

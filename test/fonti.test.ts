@@ -110,3 +110,20 @@ describe('Policlinico', () => {
     expect(c!.tempiMediAttesaMin).toEqual({ rosso: 22, arancione: 145, azzurro: 207, verde: 130, bianco: 180 });
   });
 });
+
+describe('dato mancante non diventa zero', () => {
+  it('Buccheri: totalePazienti assente -> null, non 0', () => {
+    const j = JSON.parse(fx('buccheri.json'));
+    delete j.pazientiInAttesa.totalePazienti;
+    const [b] = parseBuccheri(JSON.stringify(j));
+    expect(b!.inAttesa).toBeNull();
+    expect(b!.pazientiTotali).toBeNull();
+  });
+  it('Policlinico: «in carico» assente per un codice -> totale null, non parziale', () => {
+    const j = JSON.parse(fx('policlinico.json'));
+    delete j.pazientiInCarico['Rosso (1)'];
+    const [p] = parsePoliclinico(JSON.stringify(j), fx('policlinico-indici.json'));
+    expect(p!.pazientiTotali).toBeNull();
+    expect(p!.inAttesa).not.toBeNull(); // le attese restano complete
+  });
+});

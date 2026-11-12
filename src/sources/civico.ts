@@ -1,6 +1,6 @@
 import { parse } from 'node-html-parser';
 import type { Codice, Fonte, Lettura } from '../types';
-import { CODICE_DA_NOME, conteggi, dataOraNumerica, numero, testo } from '../util';
+import { CODICE_DA_NOME, conteggi, dataOraNumerica, numero, sommaOnesta, testo } from '../util';
 
 const URL = 'https://www.arnascivico.it/index.php?option=com_content&view=article&id=3415&catid=24&Itemid=139';
 
@@ -45,7 +45,7 @@ export function parseCivico(html: string): Lettura[] {
       rilevataAlle,
       codici,
       pazientiTotali: estrai(/Totale pazienti al P\.S\.[^:]*:\s*(\d+)/i),
-      inAttesa: Object.values(codici).reduce((s, c) => s + (c.attesa ?? 0), 0),
+      inAttesa: sommaOnesta(Object.values(codici).map((c) => c.attesa)),
       sovraffollamentoPct: estrai(/Indice Sovraffollamento:\s*([\d.,]+)\s*%/i),
       postiTecnici: estrai(/posti tecnici presidiati[^:]*:\s*(\d+)/i),
       permanenza: {

@@ -1,5 +1,5 @@
 import type { Codice, Fonte, Lettura } from '../types';
-import { conteggi, durataMin, numero } from '../util';
+import { conteggi, durataMin, numero, sommaOnesta } from '../util';
 
 const API = 'https://www.policlinico.pa.it/o/PoliclinicoPaRestBuilder/v1.0';
 const HEADERS = { Referer: 'https://www.policlinico.pa.it/web/guest', Origin: 'https://www.policlinico.pa.it' };
@@ -29,14 +29,14 @@ export function parsePoliclinico(principale: string, indici: string): Lettura[] 
   const m24 = numero(ix?.permanenza24H), m2448 = numero(ix?.permanenza2448H), oltre = numero(ix?.permanenzaOltre24H);
   const posti = numero(ix?.postiTecniciPresidiati);
   const nPerm = (m24 ?? 0) + (m2448 ?? 0) + (oltre ?? 0);
-  const inAttesa = Object.values(codici).reduce((s, c) => s + (c.attesa ?? 0), 0);
-  const inTratt = Object.values(codici).reduce((s, c) => s + (c.trattamento ?? 0), 0);
+  const inAttesa = sommaOnesta(Object.values(codici).map((c) => c.attesa));
+  const inTratt = sommaOnesta(Object.values(codici).map((c) => c.trattamento));
 
   return [{
     psId: 'policlinico-adulti',
     rilevataAlle: null,
     codici,
-    pazientiTotali: inAttesa + inTratt,
+    pazientiTotali: inAttesa != null && inTratt != null ? inAttesa + inTratt : null,
     inAttesa,
     // Stessa formula del repo originale: (permanenze / posti tecnici) x 100
     sovraffollamentoPct: posti ? Math.round((nPerm / posti) * 10000) / 100 : null,

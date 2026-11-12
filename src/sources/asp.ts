@@ -1,6 +1,6 @@
 import { parse } from 'node-html-parser';
 import type { Fonte, Lettura } from '../types';
-import { CODICE_DA_NOME, conteggi, dataOraNumerica, numero, testo } from '../util';
+import { CODICE_DA_NOME, conteggi, dataOraNumerica, numero, sommaOnesta, testo } from '../util';
 
 const URL = 'https://www.asppalermo.org/attese_ps/index_mod2.php';
 const SOLO_PALERMO_CITTA: Record<string, string> = { 'PRONTO SOCCORSO - INGRASSIA DI PALERMO': 'ingrassia-adulti' };
@@ -38,7 +38,7 @@ export function parseAsp(html: string): Lettura[] {
       rilevataAlle: dataOraNumerica(info.match(/Aggiornato al:\s*([\d/]+\s*-\s*[\d:]+)/i)?.[1] ?? ''),
       codici,
       pazientiTotali: numero(testo(blocco.querySelector('tbody tr:last-child th')?.text).match(/Totale n\.\s*(\d+)/i)?.[1]),
-      inAttesa: attesa.reduce<number>((s, v) => s + (v ?? 0), 0),
+      inAttesa: sommaOnesta(attesa),
       sovraffollamentoPct: numero(info.match(/Indice di Sovraffollamento:\s*([\d.,]+)/i)?.[1]),
       postiTecnici: numero(info.match(/Posti tecnici presidiati:\s*(\d+)/i)?.[1]),
       permanenza: null,

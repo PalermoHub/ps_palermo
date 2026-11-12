@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dataOraMeseEsteso, dataOraNumerica, durataMin, numero, romaIso } from '../src/util';
+import { dataOraMeseEsteso, dataOraNumerica, durataMin, numero, romaIso, sommaOnesta } from '../src/util';
 
 describe('util', () => {
   it('numero', () => {
@@ -23,5 +23,12 @@ describe('util', () => {
     expect(dataOraNumerica('11/11/2026 19:24:34')).toBe('2026-11-11T19:24:34+01:00');
     expect(dataOraMeseEsteso('11 Novembre 2026 19:16')).toBe('2026-11-11T19:16:00+01:00');
     expect(dataOraMeseEsteso('boh')).toBeNull();
+  });
+  it('sommaOnesta: un dato mancante rende la somma «non disponibile», mai un totale parziale', () => {
+    expect(sommaOnesta([1, 2, 3])).toBe(6);
+    expect(sommaOnesta([0, 0])).toBe(0);
+    expect(sommaOnesta([1, null, 3])).toBeNull();
+    expect(sommaOnesta([null, null])).toBeNull();
+    expect(sommaOnesta([])).toBeNull();
   });
 });
