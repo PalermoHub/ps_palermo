@@ -199,7 +199,7 @@ function pannello(p, meno, completo) {
   h.append(ic, el('h3', null, p.nome)); box.append(h);
   const riga = (k, v, cl) => { const r = el('div', 'pn-r'), s = el('span', null, k), d = el('b', cl || null); typeof v === 'string' ? (d.textContent = v) : d.append(v); r.append(s, d); return r; };
   const body = el('div', 'pn-b');
-  body.append(riga('In attesa', nd(l?.inAttesa), 'pn-big'), riga('Stato', el('em', `pn-st lv-${b.k}`, b.txt)));
+  body.append(riga('Tipo', tipoTag(p)), riga('In attesa', nd(l?.inAttesa), 'pn-big'), riga('Stato', el('em', `pn-st lv-${b.k}`, b.txt)));
   if (l) {
     if (completo) COD.forEach((c) => { const v = l.codici[c]?.attesa, q = el('i', `pn-q c-${c}`); body.append(riga(ETI[c], (() => { const w = el('span', 'pn-n'); w.append(q, document.createTextNode(nd(v))); return w; })())); });
     else { const g = el('div', 'pn-g'); COD.forEach((c) => { const v = l.codici[c]?.attesa, q = el('span', `pn-c c-${c}`, nd(v)); q.title = ETI[c]; g.append(q); }); body.append(g); }

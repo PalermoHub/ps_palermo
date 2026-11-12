@@ -533,3 +533,4 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 .avviso{background:none;border:0;padding:0;border-radius:0}
 .avviso>span{display:block}
 .avviso .call112{margin-bottom:12px}
+.pn-r .tipo{margin:0;display:inline-block}
