@@ -5,7 +5,7 @@ html.embed{scrollbar-width:none}
 html.embed ::-webkit-scrollbar{display:none}
 
 /* via ciò che la pagina ospitante già fornisce */
-.embed .top,.embed .bnav,.embed .cima,.embed .hero h1,.embed .hero .lead,
+.embed .top,.embed .bnav,.embed .cima,
 .embed .foot > div:not(:nth-child(2)){display:none!important}
 
 /* navigazione interna minima (al posto del menu in testata) */
@@ -19,9 +19,6 @@ html.embed ::-webkit-scrollbar{display:none}
 .embed main > .wrap,.embed footer .wrap{max-width:none;padding-inline:0}
 .embed .sez{padding-block:24px 4px}
 .embed .hero{border-radius:20px;border:0}
-.embed .hero-in{padding:20px 22px;grid-template-areas:"t s" "a a"}
-.embed .hero .live{grid-row:auto}
-.embed .hero .stats{grid-row:auto}
 .embed footer{margin-top:24px;background:none;color:var(--ink)}
 .embed .foot{padding-block:0;grid-template-columns:1fr}
 .embed footer h2{color:var(--head);font-size:16px}
@@ -32,6 +29,5 @@ html.embed ::-webkit-scrollbar{display:none}
 .embed dialog{margin:12px auto auto}
 
 @media (max-width:700px){
-  .embed .hero-in{grid-template-areas:"t" "s" "a";padding:16px}
   .embed .sez{padding-block:20px 4px}
 }
