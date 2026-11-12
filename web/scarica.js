@@ -58,7 +58,10 @@
       b.addEventListener('click', () => scarica(x, b));
       li.append(t, b); ul.append(li);
     });
-    box.append(ul, el('p', 'bc-nota', `Colonne: ${st.indice.colonne.replaceAll(',', ', ')}. Orari in UTC. Un campo vuoto vuol dire che la fonte non pubblica quel dato.`));
+    const doc = el('button', 'exp-b', 'Descrizione delle colonne (CSV)'); doc.type = 'button';
+    doc.addEventListener('click', () => scarica({ file: 'descrizione-colonne.csv' }, doc));
+    const rigaDoc = el('div', 'exp-r'); rigaDoc.append(doc);
+    box.append(ul, rigaDoc, el('p', 'bc-nota', `Colonne: ${st.indice.colonne.replaceAll(',', ', ')}. Orari in UTC. Un campo vuoto vuol dire che la fonte non pubblica quel dato. Cosa significa ogni colonna e a cosa serve è nel file di descrizione.`));
   }
   function periodi() {
     const c = $('scarica-per'); if (!c) return; c.replaceChildren();
