@@ -448,7 +448,7 @@ function apriScheda(id, daHash) {
   sh.classList.add('s-sh'); az.append(sh); h.insertBefore(chips, x); corpo.append(az);
 
   const griglia = el('div', 's-grid'), dx = el('div', 's-col');
-  let andamento = null, codBox = null;
+  let andamento = null, codBox = null, presBox = null;
 
   // Fascia in alto: i numeri che contano, con il termometro del sovraffollamento.
   const cur = el('section', 's-hero'), top = el('div', 's-top');
@@ -528,7 +528,7 @@ function apriScheda(id, daHash) {
     const perm = l.permanenza, tm = l.tempiMediAttesaMin;
     const pres = el('section', 's-box'); pres.append(el('h3', null, 'Presenze'));
     righe(pres, [['In trattamento', somma(l, 'trattamento')], ['In osservazione', somma(l, 'osservazione')], ['Posti tecnici presidiati', l.postiTecnici]]);
-    if (pres.children.length > 1) dx.append(pres);
+    if (pres.children.length > 1) presBox = pres;
     const tiles = (tit, voci, cls) => {
       const v = voci.filter(([, x]) => x != null); if (!v.length) return;
       const bx = el('section', 's-box s-fisso'); bx.append(el('h3', null, tit));
@@ -544,9 +544,12 @@ function apriScheda(id, daHash) {
   if (p.lettura?.sovraffollamentoCalcolato) note.append(el('p', 'err', 'L’indice di sovraffollamento non è pubblicato dall’ospedale: lo calcoliamo noi con la stessa formula della maggior parte degli altri presidi (presenti ÷ posti tecnici).'));
   if (!p.ultimoErrore && fermo(p)) note.append(el('p', 'err', 'I numeri non cambiano da ore: la fonte potrebbe essersi fermata. Non usarli per scegliere dove andare.'));
   if (note.children.length) cur.after(note);
-  // Colonne: codici colore | presenze e tempi | andamento + mappa. Su schermi larghi stanno su un'unica riga, così la scheda entra in un monitor.
-  const dir = el('div', 's-col'); if (andamento) { andamento.classList.add('s-fisso'); dir.append(andamento); } dir.append(dove);
-  const pezzi = [codBox, dx.children.length ? dx : null, dir].filter(Boolean);
+  // Ordine per importanza, in lettura da sinistra a destra e dall'alto: 1 codici colore, 2 andamento, 3 presenze, 4 tempi, 5 mappa.
+  const colB = el('div', 's-col'), colC = el('div', 's-col');
+  [andamento, ...dx.children].forEach((x) => x && colB.append(x));
+  if (presBox) { presBox.classList.add('s-fisso'); colC.append(presBox); }
+  colC.append(dove);
+  const pezzi = [codBox, colB.children.length ? colB : null, colC].filter(Boolean);
   griglia.dataset.n = pezzi.length;
   griglia.append(...pezzi); corpo.append(griglia);
   const nota = el('div', 's-avviso');
