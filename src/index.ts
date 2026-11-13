@@ -6,6 +6,7 @@ import { archivia, leggi, pota, type Cattura } from './grezzo';
 import { costruisciSalute } from './salute';
 import { costruisciStorico, csvGiorno, salvaLetture } from './storico';
 import { FONTI } from './registry';
+import { conteggiDownload, contaDownload, fileValido } from './download';
 import { API_SOLO_SITO, corsPer, dalSito } from './origine';
 
 interface Env {
@@ -71,6 +72,18 @@ const gestore = {
     if (API_SOLO_SITO.has(pathname)) {
       const { success } = await env.LIMITE.limit({ key: req.headers.get('CF-Connecting-IP') ?? 'anonimo' });
       if (!success) return new Response('troppe richieste, riprova tra poco', { status: 429, headers: { 'Retry-After': '60', 'Cache-Control': 'no-store' } });
+    }
+    if (pathname === '/api/dl') {
+      if (req.method !== 'POST') return new Response('metodo non consentito', { status: 405, headers: { Allow: 'POST' } });
+      const file = new URL(req.url).searchParams.get('file') ?? '';
+      if (!fileValido(file)) return new Response('file non valido', { status: 400, headers: { 'Cache-Control': 'no-store' } });
+      await contaDownload(env.DB, file);
+      return new Response(null, { status: 204 });
+    }
+    if (pathname === '/api/dl-stat') {
+      // Statistiche per il gestore: serve il token, come l'export CSV.
+      if (!env.EXPORT_TOKEN || req.headers.get('Authorization') !== `Bearer ${env.EXPORT_TOKEN}`) return new Response('non autorizzato', { status: 401 });
+      return new Response(JSON.stringify(await conteggiDownload(env.DB)), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
     }
     if (pathname === '/api/refresh') {
       // Pubblico ma innocuo: rinfresca solo se lo snapshot ha più di 270s (il cron arriva ogni 300s), quindi chi lo chiama non può moltiplicare le letture.

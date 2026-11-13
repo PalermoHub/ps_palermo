@@ -29,6 +29,7 @@
       const url = URL.createObjectURL(await r.blob()), a = document.createElement('a');
       a.href = url; a.download = `ps-palermo-${x.file.split('/').pop()}`; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000);
       b.textContent = 'Scaricato';
+      fetch(`/api/dl?file=${encodeURIComponent(x.file)}`, { method: 'POST', keepalive: true }).catch(() => {}); // solo conteggio: se fallisce non cambia nulla
     } catch { b.textContent = 'Non riesco a scaricare'; }
     setTimeout(() => { b.textContent = t; b.disabled = false; }, 2500);
   }
