@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Informativa sulla privacy del sito Pronto Soccorso Palermo: cosa si salva nel browser, la posizione e i servizi di terzi.">
+  <meta name="author" content="#opendatasicilia">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0b3a5a" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#06141f" media="(prefers-color-scheme: dark)">
+  <script>try{var t=localStorage.getItem('tema');document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch(e){}</script>
+  <script>try{var q=new URLSearchParams(location.search),e=q.get('embed'),th=q.get('tema');if(e==='1'||(e!=='0'&&self!==top))document.documentElement.classList.add('embed');if(document.documentElement.classList.contains('embed')){if(th==='light'||th==='dark')document.documentElement.dataset.theme=th;else{var s=null;try{s=sessionStorage.getItem('tema-embed')}catch(e){}document.documentElement.dataset.theme=s==='light'||s==='dark'?s:(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}}}catch(e){}</script>
+  <title>Privacy · Pronto Soccorso Palermo</title>
+  <link rel="canonical" href="https://palermo-ps.coseerobe.workers.dev/privacy.html">
+  <link rel="icon" href="img/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="embed.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="/">
+        <span class="logo"><img src="img/opendatasicilia.png" alt="" width="40" height="44"></span>
+        <span class="brand-t"><strong>Pronto Soccorso <span class="acc">Palermo</span></strong><small>un progetto di #opendatasicilia</small></span>
+      </a>
+      <nav aria-label="Principale"><a href="/#mappa">Mappa</a><a href="grafici.html">Analisi</a></nav>
+    </div>
+  </header>
+  <main id="top">
+    <section class="wrap sez" style="max-width:46rem">
+      <h1 class="sez-h">Privacy</h1>
+      <p class="sez-s">Ultimo aggiornamento: 13 novembre 2026. Questa pagina dice, in breve, che cosa succede ai tuoi dati quando usi il sito.</p>
+
+      <h2>Chi siamo</h2>
+      <p>Il sito è un progetto civico di <a href="https://opendatasicilia.it">OpenDataSicilia</a>, che ne è il titolare. Non è un servizio ufficiale delle aziende sanitarie. Il codice è pubblico: <a href="https://github.com/PalermoHub/ps_palermo">github.com/PalermoHub/ps_palermo</a>.</p>
+
+      <h2>Che cosa non facciamo</h2>
+      <p>Non c'è registrazione, non ci sono cookie, non usiamo strumenti di analisi o di pubblicità e non ti profiliamo. I dati che mostriamo sono quelli pubblicati dagli ospedali, in forma aggregata: numeri di pazienti, non informazioni su persone.</p>
+
+      <h2>Che cosa resta nel tuo browser</h2>
+      <p>Solo la preferenza per il tema chiaro o scuro (<code>localStorage</code>, e <code>sessionStorage</code> quando il sito è incorporato in un'altra pagina). Resta sul tuo dispositivo, non ci viene inviata e puoi cancellarla dalle impostazioni del browser.</p>
+
+      <h2>La tua posizione</h2>
+      <p>Viene richiesta solo se premi «La mia posizione» o «Vicino a me», e solo dopo il tuo consenso nel browser. Serve a calcolare la distanza dai pronto soccorso e viene elaborata nel tuo dispositivo: non la inviamo ai nostri server. Quando la mappa si sposta sulla tua zona, il fornitore delle mappe riceve la richiesta delle tessere di quella zona, come per ogni mappa online.</p>
+
+      <h2>Che cosa riceve il server</h2>
+      <p>Il sito è ospitato su Cloudflare. Come ogni servizio web, il server riceve l'indirizzo IP e i dati tecnici di ogni richiesta (browser, pagina richiesta). Li usiamo solo per far funzionare il sito e per limitare gli abusi (un tetto di richieste al minuto per indirizzo): non li salviamo nei nostri archivi e non li colleghiamo a nessuna persona. Cloudflare, come fornitore, può trattarli secondo la propria informativa.</p>
+      <p>Quando scarichi un file CSV dalla sezione «Scarica i dati» contiamo soltanto quante volte è stato scaricato ciascun file: nessun dato personale.</p>
+
+      <h2>Servizi di terzi che il browser contatta</h2>
+      <p>Per alcune funzioni la tua pagina carica risorse da altri fornitori, che ricevono il tuo indirizzo IP e i dati tecnici della richiesta:</p>
+      <ul>
+        <li><strong>OpenFreeMap</strong> e <strong>OpenStreetMap</strong>: le mappe.</li>
+        <li><strong>cdnjs (Cloudflare)</strong> e <strong>jsDelivr</strong>: le librerie della mappa e, solo se esporti un grafico in immagine, quella per creare il PNG.</li>
+        <li><strong>GitHub</strong> (<code>raw.githubusercontent.com</code>): i file CSV dello storico e i dati della mappa di calore.</li>
+        <li><strong>Google Maps</strong>: solo se clicchi un link per le indicazioni o per aprire la mappa; da quel momento valgono le regole di Google.</li>
+      </ul>
+      <p>I caratteri tipografici sono ospitati dal nostro sito, senza richieste a Google Fonts.</p>
+
+      <h2>I tuoi diritti</h2>
+      <p>Poiché non conserviamo dati che ti identifichino, di norma non c'è nulla da accedere, correggere o cancellare. Per qualsiasi richiesta o dubbio apri una segnalazione su <a href="https://github.com/PalermoHub/ps_palermo/issues">GitHub</a> o scrivi a <a href="https://opendatasicilia.it">OpenDataSicilia</a>. Hai sempre diritto di rivolgerti al <a href="https://www.garanteprivacy.it">Garante per la protezione dei dati personali</a>.</p>
+
+      <h2>Avvertenza</h2>
+      <p>Il sito non è un servizio di emergenza e non sostituisce le indicazioni del personale sanitario. In caso di emergenza chiama il <a href="tel:112"><strong>112</strong></a>.</p>
+    </section>
+  </main>
+  <footer id="fonti">
+    <div class="wrap foot">
+      <div class="foot-b"><span class="logo"><img src="img/opendatasicilia.png" alt="Logo opendatasicilia" width="48" height="52"></span>
+        <p>Un progetto civico di <a href="https://opendatasicilia.it">opendatasicilia</a>. Non è un servizio ufficiale e non sostituisce le indicazioni del personale sanitario.</p></div>
+      <div><p>© 2026 OpenDataSicilia. Dati elaborati: <a href="https://creativecommons.org/licenses/by/4.0/deed.it" rel="license">CC BY 4.0</a> · codice: <a href="https://github.com/PalermoHub/ps_palermo/blob/main/LICENSE">MIT</a>.</p></div>
+    </div>
+  </footer>
+  <script src="embed.js"></script>
+</body>
+</html>
