@@ -489,6 +489,12 @@ function apriScheda(id, daHash) {
       [['24h', 'Ultime 24 ore'], ['7g', '7 giorni']].forEach(([k, t]) => { const b = el('button', 'chip', t); b.type = 'button'; b.setAttribute('aria-pressed', per === k); b.addEventListener('click', () => mostraPer(k)); cg.append(b); });
       const tutti = S.ps7?.[p.id], ser = per === '24h' ? (S.spark.ps[p.id] ?? tutti?.slice(-48)) : tutti, da = per === '24h' ? S.spark.da : S.citta.da;
       const g = ser && PS_STORICO.linea(ser, da, S.passo, per);
+      if (g) {
+        const zb = el('button', 'chip ln-z'); zb.type = 'button'; zb.title = 'Ingrandisci il grafico'; zb.setAttribute('aria-label', 'Ingrandisci il grafico');
+        zb.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+        zb.addEventListener('click', () => ingrandisci(p, ser, da, S.passo, per));
+        cg.append(zb);
+      }
       sl.append(g || el('p', 'vuoto', 'Storico in raccolta: il grafico compare dopo qualche ora di dati.'));
     };
     mostraPer('24h'); andamento = sez;
@@ -575,6 +581,23 @@ function apriScheda(id, daHash) {
     L.marker([p.coords.lat, p.coords.lng], { title: p.nome }).addTo(miniMappa);
   } else mm.append(el('p', 'nomap', 'Mappa non disponibile.'));
   dlg.scrollTop = 0;
+}
+
+/** Grafico dell'andamento ingrandito in un popup (dialog modale sopra la scheda). */
+function ingrandisci(p, ser, da, passo, per) {
+  let dlg = $('zoom');
+  if (!dlg) {
+    dlg = el('dialog', 'zoom'); dlg.id = 'zoom'; dlg.setAttribute('aria-labelledby', 'z-titolo');
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    document.body.append(dlg);
+  }
+  const h = el('div', 'z-h'), t = el('h3', null, `${p.nome} · Andamento, ${per === '24h' ? 'ultime 24 ore' : '7 giorni'}`); t.id = 'z-titolo';
+  const x = el('button', 's-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Chiudi il grafico ingrandito'); x.addEventListener('click', () => dlg.close());
+  h.append(t, x);
+  const g = PS_STORICO.linea(ser, da, passo, per, 330);
+  const inn = el('div', 'z-in'); inn.append(h); if (g) inn.append(g);
+  dlg.replaceChildren(inn);
+  if (!dlg.open) dlg.showModal();
 }
 
 $('scheda').addEventListener('close', () => {

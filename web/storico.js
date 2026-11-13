@@ -48,10 +48,10 @@ const PS_STORICO = (() => {
     return svg;
   }
   /** Grafico a linea interattivo di una serie (24h o 7g): asse, area, e al tocco/mouse ora e valore. */
-  function linea(serie, da, passo, per) {
+  function linea(serie, da, passo, per, H = 220) {
     const n = serie.length, v = valide(serie);
     if (v.length < 6) return null;
-    const W = 640, H = 220, L = 32, R = 10, T = 12, B = 26, max = Math.max(4, Math.ceil(Math.max(...v) / 4) * 4);
+    const W = 640, L = 32, R = 10, T = 12, B = 26, max = Math.max(4, Math.ceil(Math.max(...v) / 4) * 4);
     const x = (i) => L + (i / (n - 1)) * (W - L - R), y = (val) => T + (1 - val / max) * (H - T - B);
     const fOra = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' });
     const fGg = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', weekday: 'short' });
