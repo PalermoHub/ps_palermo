@@ -80,6 +80,12 @@ const gestore = {
       await contaDownload(env.DB, file);
       return new Response(null, { status: 204 });
     }
+    if (pathname === '/api/dl-conteggi') {
+      // Pubblico (solo dal sito): serve ai contatori visibili accanto ai file. Niente date, solo il numero per file.
+      const m: Record<string, number> = {};
+      for (const r of await conteggiDownload(env.DB)) m[r.file] = r.n;
+      return new Response(JSON.stringify(m), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=60' } });
+    }
     if (pathname === '/api/dl-stat') {
       // Statistiche per il gestore: serve il token, come l'export CSV.
       if (!env.EXPORT_TOKEN || req.headers.get('Authorization') !== `Bearer ${env.EXPORT_TOKEN}`) return new Response('non autorizzato', { status: 401 });

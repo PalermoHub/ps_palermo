@@ -1,5 +1,5 @@
 /** Endpoint pubblici letti dal sito stesso: li serviamo solo a richieste che arrivano dal sito (stessa origine). */
-export const API_SOLO_SITO = new Set(['/api/palermo', '/api/storico', '/api/salute', '/api/dl']);
+export const API_SOLO_SITO = new Set(['/api/palermo', '/api/storico', '/api/salute', '/api/dl', '/api/dl-conteggi']);
 
 /** Altri siti autorizzati a leggere le API dal browser (solo origine: schema + host, senza slash finale). */
 export const ORIGINI_AMMESSE = new Set(['https://palermohub.opendatasicilia.it', 'https://siciliahub.github.io']);

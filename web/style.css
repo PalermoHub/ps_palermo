@@ -606,6 +606,7 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 
 /* ---------- salva grafico come PNG ---------- */
 .exp-r{display:flex;justify-content:flex-end;margin:6px 0 0}
+.dl-n{align-self:center;margin-right:10px;font-size:12.5px}
 .exp-b{min-height:40px;padding:0 14px;border-radius:var(--r-btn,10px);border:1.5px solid var(--ctl);background:var(--white);color:var(--head);font:700 13px var(--ff-b);cursor:pointer}
 .exp-b:hover{background:var(--accbg)}.exp-b:disabled{opacity:.6;cursor:progress}
 .exp-out{position:fixed;left:-99999px;top:0;pointer-events:none}

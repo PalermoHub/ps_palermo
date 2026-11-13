@@ -4,7 +4,7 @@
   const $ = (id) => document.getElementById(id);
   const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.textContent = h; return e; };
   const BASE = 'https://raw.githubusercontent.com/PalermoHub/ps_palermo/main/dati/storico/';
-  const st = { indice: undefined, per: 'giorni', sel: {} };
+  const st = { conta: {}, indice: undefined, per: 'giorni', sel: {} };
   const num = new Intl.NumberFormat('it-IT');
   const fGiorno = new Intl.DateTimeFormat('it-IT', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
   const fBreve = new Intl.DateTimeFormat('it-IT', { timeZone: 'UTC', day: 'numeric', month: 'short' });
@@ -29,11 +29,14 @@
       const url = URL.createObjectURL(await r.blob()), a = document.createElement('a');
       a.href = url; a.download = `ps-palermo-${x.file.split('/').pop()}`; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000);
       b.textContent = 'Scaricato';
+      st.conta[x.file] = (st.conta[x.file] ?? 0) + 1;
       fetch(`/api/dl?file=${encodeURIComponent(x.file)}`, { method: 'POST', keepalive: true }).catch(() => {}); // solo conteggio: se fallisce non cambia nulla
     } catch { b.textContent = 'Non riesco a scaricare'; }
-    setTimeout(() => { b.textContent = t; b.disabled = false; }, 2500);
+    setTimeout(() => { b.textContent = t; b.disabled = false; render(); }, 2500); // render: aggiorna il contatore
   }
 
+  /** " · 12 download" (vuoto se nessuno): il conteggio viene dal Worker, che conta i download fatti da qui. */
+  const testoConta = (f) => { const n = st.conta[f]; return n ? ` · ${num.format(n)} download` : ''; };
   function render() {
     const box = $('scarica'); if (!box) return; box.replaceChildren(); $('scarica-per')?.querySelector('.dl-sel')?.remove();
     if (st.indice === undefined) { box.append(el('p', 'vuoto', 'Caricamento…')); return; }
@@ -53,7 +56,7 @@
     const ul = el('ul', 'dl');
     elenco.filter((x) => gruppo[st.per](x) === scelta).forEach((x) => {
       const li = el('li'), t = el('div', 'dl-t');
-      t.append(el('b', null, etichetta[st.per](x)), el('small', null, `${num.format(x.righe)} righe${x.byte ? ` · ${kb(x.byte)}` : ''}${st.per !== 'giorni' ? ` · ${x.giorni} giorni con dati` : ''}`));
+      t.append(el('b', null, etichetta[st.per](x)), el('small', null, `${num.format(x.righe)} righe${x.byte ? ` · ${kb(x.byte)}` : ''}${st.per !== 'giorni' ? ` · ${x.giorni} giorni con dati` : ''}${testoConta(x.file)}`));
       const b = el('button', 'exp-b', 'Scarica CSV'); b.type = 'button';
       b.setAttribute('aria-label', `Scarica il CSV: ${etichetta[st.per](x)}`);
       b.addEventListener('click', () => scarica(x, b));
@@ -62,6 +65,7 @@
     const doc = el('button', 'exp-b', 'Descrizione delle colonne (CSV)'); doc.type = 'button';
     doc.addEventListener('click', () => scarica({ file: 'descrizione-colonne.csv' }, doc));
     const rigaDoc = el('div', 'exp-r'); rigaDoc.append(doc);
+    const nDoc = testoConta('descrizione-colonne.csv'); if (nDoc) rigaDoc.append(el('small', 'dl-n', nDoc.slice(3)));
     box.append(ul, rigaDoc, el('p', 'bc-nota', `Colonne: ${st.indice.colonne.replaceAll(',', ', ')}. Orari in UTC. Un campo vuoto vuol dire che la fonte non pubblica quel dato. Cosa significa ogni colonna e a cosa serve è nel file di descrizione.`));
   }
   function periodi() {
@@ -69,5 +73,6 @@
     PERIODI.forEach(([k, t]) => { const b = el('button', 'chip', t); b.type = 'button'; b.setAttribute('aria-pressed', st.per === k); b.addEventListener('click', () => { st.per = k; periodi(); render(); }); c.append(b); });
   }
   periodi(); render();
+  fetch('/api/dl-conteggi').then((r) => (r.ok ? r.json() : {})).then((c) => { st.conta = { ...st.conta, ...c }; }).catch(() => {}).finally(render);
   fetch(BASE + 'indice.json').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((i) => { st.indice = i; }).catch(() => { st.indice = null; }).finally(render);
 })();
