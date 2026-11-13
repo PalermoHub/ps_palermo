@@ -129,9 +129,14 @@ const IC = {
   full: '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>', esci: '<path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/>',
   share: '<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/>',
   luna: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
+  pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+  tel: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"/>',
+  doc: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+  rotta: '<path d="m3 11 18-8-8 18-2-8z"/>',
   sole: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>',
 };
-const icona = (k) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
+const icona = (k, d = 20) => `<svg viewBox="0 0 24 24" width="${d}" height="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
 const STILI = { light: 'https://tiles.openfreemap.org/styles/positron', dark: 'https://tiles.openfreemap.org/styles/dark' };
 const ATTR = '© <a href="https://openfreemap.org">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/">OpenMapTiles</a> dati <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 const basi = [];
@@ -403,9 +408,11 @@ const somma = (l, k) => { const v = COD.map((c) => l.codici[c]?.[k]).filter((x) 
 function righe(box, voci) {
   voci.filter(([, v]) => v != null).forEach(([lab, v]) => { const r = el('div', 's-r'); r.append(el('span', null, lab), el('b', null, v)); box.append(r); });
 }
-function info(icona, nodo) { const r = el('div', 's-i'); r.append(el('span', 's-ic', icona), nodo); return r; }
+function info(k, nodo) { const r = el('div', 's-i'); const i = el('span', 's-ic'); i.innerHTML = icona(k, 18); r.append(i, nodo); return r; }
+/** Testo del pulsante preceduto da un'icona SVG; `testo()` lo aggiorna senza perdere l'icona. */
+function conIcona(b, k, txt) { b.innerHTML = icona(k, 16); const t = el('span', null, txt); b.append(t); b.testo = (v) => { t.textContent = v; }; return b; }
 function link(txt, href) { const a = el('a', null, txt); a.href = href; if (href.startsWith('http')) { a.target = '_blank'; a.rel = 'noopener'; } return a; }
-function azione(txt, href, primaria) { const a = link(txt, href); a.className = 'btn' + (primaria ? '' : ' sec'); return a; }
+function azione(txt, href, primaria, k) { const a = conIcona(link('', href), k, txt); a.className = 'btn' + (primaria ? '' : ' sec'); return a; }
 
 function apriScheda(id, daHash) {
   const p = st.dati?.ps.find((x) => x.id === id);
@@ -423,13 +430,13 @@ function apriScheda(id, daHash) {
   if (meno.has(p.id) && b.txt !== 'Meno affollato') chips.append(el('span', 'badge ok', 'Meno affollato'));
   corpo.append(chips, el('p', 'dove', p.struttura));
   const az = el('div', 's-az');
-  az.append(azione('Indicazioni', `https://www.google.com/maps/dir/?api=1&destination=${c}`, true));
-  if (p.telefono) az.append(azione('Chiama', `tel:${p.telefono.replace(/\s/g, '')}`));
-  if (p.sito) az.append(azione('Sito', p.sito));
-  const sh = el('button', 'btn sec', 'Condividi'); sh.type = 'button';
+  az.append(azione('Indicazioni', `https://www.google.com/maps/dir/?api=1&destination=${c}`, true, 'rotta'));
+  if (p.telefono) az.append(azione('Chiama', `tel:${p.telefono.replace(/\s/g, '')}`, false, 'tel'));
+  if (p.sito) az.append(azione('Sito', p.sito, false, 'web'));
+  const sh = conIcona(el('button', 'btn sec'), 'share', 'Condividi'); sh.type = 'button';
   sh.addEventListener('click', async () => {
     const url = `${BASE_CONDIVISIONE}#ps=${encodeURIComponent(p.id)}`;
-    const copia = async () => { try { await navigator.clipboard.writeText(url); sh.textContent = 'Link copiato'; setTimeout(() => (sh.textContent = 'Condividi'), 2000); } catch { prompt('Copia il link', url); } };
+    const copia = async () => { try { await navigator.clipboard.writeText(url); sh.testo('Link copiato'); setTimeout(() => sh.testo('Condividi'), 2000); } catch { prompt('Copia il link', url); } };
     if (!navigator.share) return copia();
     try { await navigator.share({ title: `Pronto soccorso ${p.nome}`, url }); } catch (e) { if (e.name !== 'AbortError') copia(); }
   });
@@ -527,10 +534,10 @@ function apriScheda(id, daHash) {
     if (tm) tiles('Attesa media', COD.filter((cd) => tm[cd] != null).map((cd) => [cd === 'arancione' ? 'Arancione' : ETI[cd], fmtMin(tm[cd]), cd === 'bianco' ? 'var(--ctl)' : `var(--${cd})`]), 'col');
   }
   const inf = el('section', 's-box'); inf.append(el('h3', null, 'Informazioni'));
-  inf.append(info('📍', link(p.indirizzo, `https://www.google.com/maps/search/?api=1&query=${c}`)));
-  if (p.telefono) inf.append(info('📞', link(p.telefono, `tel:${p.telefono.replace(/\s/g, '')}`)));
-  if (p.sito) inf.append(info('🌐', link(p.sito.replace(/^https?:\/\/(www\.)?/, ''), p.sito)));
-  inf.append(info('📄', link('Pagina ufficiale della fonte', p.fonteUrl)));
+  inf.append(info('pin', link(p.indirizzo, `https://www.google.com/maps/search/?api=1&query=${c}`)));
+  if (p.telefono) inf.append(info('tel', link(p.telefono, `tel:${p.telefono.replace(/\s/g, '')}`)));
+  if (p.sito) inf.append(info('web', link(p.sito.replace(/^https?:\/\/(www\.)?/, ''), p.sito)));
+  inf.append(info('doc', link('Pagina ufficiale della fonte', p.fonteUrl)));
   if (p.ultimoErrore) inf.append(el('p', 'err', 'La fonte non è raggiungibile: si vede l’ultimo dato valido.'));
   if (p.lettura?.sovraffollamentoCalcolato) inf.append(el('p', 'err', 'L’indice di sovraffollamento non è pubblicato dall’ospedale: lo calcoliamo noi con la stessa formula della maggior parte degli altri presidi (presenti ÷ posti tecnici).'));
   if (!p.ultimoErrore && fermo(p)) inf.append(el('p', 'err', 'I numeri non cambiano da ore: la fonte potrebbe essersi fermata. Non usarli per scegliere dove andare.'));

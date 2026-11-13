@@ -677,3 +677,6 @@ main > .wrap.priv{max-width:46rem}
 .embed main > .wrap.priv{max-width:46rem;margin-inline:0}
 .priv h2{font-size:clamp(20px,2.4vw,26px);margin-top:28px}
 .priv ul{padding-left:20px}
+
+.btn{gap:7px;display:inline-flex;align-items:center;justify-content:center}.btn svg{flex:none}
+.s-ic{display:inline-flex;flex:none;margin-top:1px;color:var(--head)}
