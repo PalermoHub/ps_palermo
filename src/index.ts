@@ -165,9 +165,12 @@ export default {
   scheduled: gestore.scheduled,
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const res = await gestore.fetch(req, env, ctx);
-    const cors = API_SOLO_SITO.has(new URL(req.url).pathname) ? corsPer(req) : {};
-    if (!Object.keys(cors).length) return res;
+    const { pathname } = new URL(req.url);
+    const cors = API_SOLO_SITO.has(pathname) ? corsPer(req) : {};
+    // Gli asset statici prendono le intestazioni di sicurezza da web/_headers; le risposte di /api/* le aggiungiamo qui.
+    if (!pathname.startsWith('/api/') && !Object.keys(cors).length) return res;
     const out = new Response(res.body, res);
+    if (pathname.startsWith('/api/')) out.headers.set('X-Content-Type-Options', 'nosniff');
     for (const [k, v] of Object.entries(cors)) out.headers.set(k, v);
     return out;
   },
