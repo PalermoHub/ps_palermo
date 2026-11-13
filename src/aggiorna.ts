@@ -21,7 +21,7 @@ export interface Snapshot {
 export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
 
 const TIMEOUT_MS = 20_000;
-const UA = 'palermo-ps/0.1 (monitor pubblico tempi di attesa)';
+const UA = 'palermo-ps/0.1 (monitor pubblico tempi di attesa; +https://github.com/PalermoHub/ps_palermo)';
 
 async function scarica(f: FetchFn, r: Fonte['richieste'][number]): Promise<string> {
   const t0 = Date.now();
