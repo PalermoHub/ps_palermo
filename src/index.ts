@@ -10,6 +10,8 @@ import { API_SOLO_SITO, dalSito } from './origine';
 
 interface Env {
   DB: D1Database;
+  /** Rate limit per IP sugli endpoint pubblici (wrangler.toml, [[ratelimits]]). */
+  LIMITE: RateLimit;
   /** Secret (wrangler secret put EXPORT_TOKEN): protegge l'export CSV usato dal backup su GitHub. */
   EXPORT_TOKEN?: string;
   ASSETS: Fetcher;
@@ -66,6 +68,10 @@ export default {
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const { pathname } = new URL(req.url);
     if (API_SOLO_SITO.has(pathname) && !dalSito(req)) return new Response('accesso consentito solo dal sito', { status: 403, headers: { 'Cache-Control': 'no-store' } });
+    if (API_SOLO_SITO.has(pathname)) {
+      const { success } = await env.LIMITE.limit({ key: req.headers.get('CF-Connecting-IP') ?? 'anonimo' });
+      if (!success) return new Response('troppe richieste, riprova tra poco', { status: 429, headers: { 'Retry-After': '60', 'Cache-Control': 'no-store' } });
+    }
     if (pathname === '/api/refresh') {
       // Pubblico ma innocuo: rinfresca solo se lo snapshot ha più di 270s (il cron arriva ogni 300s), quindi chi lo chiama non può moltiplicare le letture.
       const snap = await snapshot(env);

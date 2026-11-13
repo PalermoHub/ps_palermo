@@ -26,3 +26,11 @@ binding = "DB"
 database_name = "palermo-ps-storico"
 database_id = "63189855-2210-4d8c-9f41-1e7f63d0d75d"
 migrations_dir = "migrations"
+
+# Limite per IP sugli endpoint pubblici (30 richieste/min); il contatore è per sede Cloudflare, quindi è un freno e non un tetto esatto.
+[[ratelimits]]
+name = "LIMITE"
+namespace_id = "1001"
+  [ratelimits.simple]
+  limit = 30
+  period = 60
