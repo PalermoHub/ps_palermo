@@ -48,6 +48,3 @@ Se l'Action non parte, il deploy si fa a mano con `npm run deploy`.
 Copyright © 2026 OpenDataSicilia.
 - **Codice** (`src/`, `web/`, `scripts/`, `test/`): [MIT](LICENSE).
 - **Dati** (`dati/`): [CC BY 4.0](dati/LICENZA.md), da citare come «Pronto Soccorso Palermo (#opendatasicilia), CC BY 4.0». I numeri di partenza restano degli enti che li pubblicano.
-
-## Da fare
-Lista unica e aggiornata in [`docs/da-fare.md`](docs/da-fare.md) (priorità, cose da sapere prima di ripartire).
