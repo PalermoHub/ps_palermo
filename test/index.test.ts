@@ -116,6 +116,13 @@ describe('rinfresco e cron', () => {
     await chiama(env, '/api/refresh');
     expect(chiamateFonti).toBe(dopoPrima);
   });
+  it('/api/refresh: oltre il limite per IP risponde 429 senza leggere le fonti', async () => {
+    const env = ambiente({}, false);
+    const r = await chiama(env, '/api/refresh', { headers: { 'CF-Connecting-IP': '203.0.113.9' } });
+    expect(r.status).toBe(429);
+    expect(chiamateFonti).toBe(0);
+    expect((env as { LIMITE: { limit: ReturnType<typeof vi.fn> } }).LIMITE.limit).toHaveBeenCalledWith({ key: 'refresh:203.0.113.9' });
+  });
   it('il rinfresco salva lo storico: una riga per presidio in `letture`', async () => {
     const env = ambiente() as { DB: D1Database };
     await chiama(env as never, '/api/refresh');

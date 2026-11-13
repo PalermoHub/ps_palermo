@@ -73,6 +73,11 @@ const gestore = {
       const { success } = await env.LIMITE.limit({ key: req.headers.get('CF-Connecting-IP') ?? 'anonimo' });
       if (!success) return new Response('troppe richieste, riprova tra poco', { status: 429, headers: { 'Retry-After': '60', 'Cache-Control': 'no-store' } });
     }
+    if (pathname === '/api/refresh') {
+      // Niente controllo d'origine (il cron arriva da SELF), ma lo stesso freno per IP: chi martella non consuma letture D1. Il cron non ha IP esterno e usa la chiave 'anonimo'.
+      const { success } = await env.LIMITE.limit({ key: `refresh:${req.headers.get('CF-Connecting-IP') ?? 'anonimo'}` });
+      if (!success) return new Response('troppe richieste, riprova tra poco', { status: 429, headers: { 'Retry-After': '60', 'Cache-Control': 'no-store' } });
+    }
     if (pathname === '/api/dl') {
       if (req.method !== 'POST') return new Response('metodo non consentito', { status: 405, headers: { Allow: 'POST' } });
       const file = new URL(req.url).searchParams.get('file') ?? '';
