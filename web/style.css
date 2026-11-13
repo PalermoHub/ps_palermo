@@ -166,6 +166,11 @@ table{width:100%;min-width:760px;border-collapse:collapse;font-size:14px}
 th,td{padding:12px 8px;text-align:right;font-variant-numeric:tabular-nums}
 thead th{font-size:12px;font-weight:700;color:var(--ink2)}
 tbody tr{border-top:1px solid var(--soft)}
+.srt{background:none;border:0;padding:4px 2px;margin:-4px -2px;font:inherit;color:inherit;cursor:pointer;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
+.srt:hover{color:var(--head);text-decoration:underline;text-underline-offset:3px}
+.srt:focus-visible{outline:2px solid var(--head);outline-offset:2px}
+.srt .fr{font-size:9px}
+th[aria-sort=ascending] .srt,th[aria-sort=descending] .srt{color:var(--head)}
 tbody tr:hover{background:var(--accbg)}
 th:first-child,td:first-child{text-align:left;padding-left:14px}
 td:last-child,th:last-child{padding-right:14px}

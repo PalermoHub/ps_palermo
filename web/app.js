@@ -3,7 +3,7 @@ const ETI = { rosso: 'Rosso', arancione: 'Arancio', azzurro: 'Azzurro', verde: '
 const ORDINI = [['attesa', 'Più in attesa'], ['sov', 'Meno affollati'], ['nome', 'Nome']];
 const FILTRI = [['tutti', 'Tutti'], ['adulti', 'Adulti'], ['pediatrico', 'Pediatrici']];
 
-const st = { dati: null, filtro: 'tutti', ordine: 'attesa', vista: new URLSearchParams(location.search).get('vista') === 'tab' ? 'tab' : 'card', q: '', pos: null };
+const st = { dati: null, filtro: 'tutti', ordine: 'attesa', vista: new URLSearchParams(location.search).get('vista') === 'tab' ? 'tab' : 'card', q: '', pos: null, col: null, dir: 1 };
 /** Riquadro della provincia di Palermo [sud-ovest, nord-est]: la mappa non può uscirne. */
 const PROVINCIA = [[37.6, 12.85], [38.3, 14.1]];
 let puntiMappa = [], mappa = null, strato = null, marcatori = [], miniMappa = null, ultimiIds = '';
@@ -76,7 +76,15 @@ function visibili() {
   const att = (p) => p.lettura?.inAttesa ?? -1;
   const sov = (p) => p.lettura?.sovraffollamentoPct ?? Infinity;
   if (st.pos) ps.sort((a, b) => km(st.pos, a.coords) - km(st.pos, b.coords));
-  else if (st.ordine === 'attesa') ps.sort((a, b) => att(b) - att(a));
+  else if (st.col) {
+    // Colonna della tabella: i valori assenti vanno sempre in fondo, qualunque sia il verso.
+    const val = (p) => st.col === 'nome' ? p.nome : st.col === 'sov' ? p.lettura?.sovraffollamentoPct : st.col === 'attesa' ? p.lettura?.inAttesa : p.lettura?.codici[st.col]?.attesa;
+    ps.sort((a, b) => {
+      const x = val(a), y = val(b);
+      if (x == null || y == null) return (x == null) - (y == null);
+      return st.dir * (typeof x === 'string' ? x.localeCompare(y) : x - y) || a.nome.localeCompare(b.nome);
+    });
+  } else if (st.ordine === 'attesa') ps.sort((a, b) => att(b) - att(a));
   else if (st.ordine === 'sov') ps.sort((a, b) => sov(a) - sov(b));
   else ps.sort((a, b) => a.nome.localeCompare(b.nome));
   return ps;
@@ -341,7 +349,18 @@ function tabella(ps, menoId) {
   const w = el('div', 'tw'), t = el('table');
   t.append(el('caption', 'vh', 'Pronto soccorso di Palermo: pazienti in attesa per codice colore'));
   const hr = el('tr');
-  ['Presidio', 'Sovraff.', 'Rosso', 'Arancio', 'Azzurro', 'Verde', 'Bianco', 'In attesa'].forEach((h) => { const th = el('th', null, h); th.scope = 'col'; hr.append(th); });
+  [['nome', 'Presidio'], ['sov', 'Sovraff.'], ['rosso', 'Rosso'], ['arancione', 'Arancio'], ['azzurro', 'Azzurro'], ['verde', 'Verde'], ['bianco', 'Bianco'], ['attesa', 'In attesa']].forEach(([k, h]) => {
+    const th = el('th'), on = st.col === k, b = el('button', 'srt', h);
+    th.scope = 'col'; b.type = 'button'; b.dataset.col = k;
+    th.setAttribute('aria-sort', on ? (st.dir > 0 ? 'ascending' : 'descending') : 'none');
+    if (on) b.append(el('span', 'fr', st.dir > 0 ? '▲' : '▼'));
+    b.addEventListener('click', () => {
+      st.dir = on ? -st.dir : (k === 'nome' ? 1 : -1); st.col = k; st.ordine = null; st.pos = null;
+      $('vicino').setAttribute('aria-pressed', 'false'); controlli(); renderLista();
+      $('lista').querySelector(`th button[data-col="${k}"]`)?.focus();
+    });
+    th.append(b); hr.append(th);
+  });
   const th = el('thead'); th.append(hr); t.append(th);
   const tb = el('tbody');
   for (const [i, p] of ps.entries()) {
@@ -545,7 +564,7 @@ function toggles(cont, voci, chiave, cls, conta) {
     const b = el('button', cls); b.type = 'button'; b.setAttribute('aria-pressed', String(st[chiave] === id));
     b.append(lab);
     if (conta) b.append(' ', el('small', null, String(st.dati.ps.filter((p) => id === 'tutti' || p.tipo === id).length)));
-    b.addEventListener('click', () => { st[chiave] = id; if (chiave === 'ordine') { st.pos = null; $('vicino').setAttribute('aria-pressed', 'false'); } controlli(); renderLista(); });
+    b.addEventListener('click', () => { st[chiave] = id; if (chiave === 'ordine') { st.col = null; st.pos = null; $('vicino').setAttribute('aria-pressed', 'false'); } controlli(); renderLista(); });
     box.append(b);
   }
 }
