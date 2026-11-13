@@ -10,7 +10,7 @@
   const nav = document.createElement('nav');
   nav.className = 'emb-nav'; nav.setAttribute('aria-label', 'Sezioni');
   nav.innerHTML = `<a href="./"${sei ? '' : ' aria-current="page"'}>Mappa e presidi</a><a href="grafici.html"${sei ? ' aria-current="page"' : ''}>Analisi</a>`
-;
+    + `<a class="emb-ico" href="grafici.html#scarica-sez" title="Scarica i dati" aria-label="Scarica i dati"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14"/></svg></a>`;
   // condividi: porta alla pagina PalermoHub (la home, o i grafici con #grafici)
   const cond = document.createElement('button');
   cond.type = 'button'; cond.className = 'emb-sh'; cond.title = 'Condividi'; cond.setAttribute('aria-label', 'Condividi');
