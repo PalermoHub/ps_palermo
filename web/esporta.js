@@ -81,7 +81,7 @@
   Object.entries(GRAFICI).forEach(([id, cfg]) => {
     const sez = $(id); if (!sez) return;
     const riga = el('div', 'exp-r'), b = el('button', 'exp-b', 'Salva come immagine PNG'); b.type = 'button';
-    b.setAttribute('aria-label', `Salva il grafico «${sez.querySelector('h1,h2')?.textContent ?? ''}» come immagine PNG`);
+    b.setAttribute('aria-label', `Salva come immagine PNG: grafico «${sez.querySelector('h1,h2')?.textContent ?? ''}»`);
     b.addEventListener('click', () => esporta(sez, cfg, b));
     riga.append(b); sez.append(riga);
   });

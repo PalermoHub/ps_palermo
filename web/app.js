@@ -234,6 +234,11 @@ function renderMappa(ps, refit) {
   if (!mappa) {
     mappa = L.map(m, { zoomControl: false, scrollWheelZoom: false, maxBounds: PROVINCIA, maxBoundsViscosity: 1, zoomSnap: 0.5 }).setView([38.12, 13.36], 12);
     mappa.setMinZoom(mappa.getBoundsZoom(PROVINCIA));
+    // Leaflet chiude il popup con Esc solo se il focus è sul contenitore della mappa, non su un marker o dentro il popup (WCAG 2.1.1/1.4.13).
+    m.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || !mappa._popup) return;
+      const sorgente = mappa._popup._source; mappa.closePopup(); sorgente?.getElement()?.focus(); e.stopPropagation();
+    });
     aggiungiBase(mappa);
     strato = L.layerGroup().addTo(mappa);
     mappa.on('zoomend', distanzia);
@@ -247,6 +252,8 @@ function renderMappa(ps, refit) {
   const meno = menoIds(), cc = coordsMappa(ps), punti = [];
   ps.forEach((p, i) => {
     const mk = L.marker(cc[i], { icon: pin(p, meno), keyboard: true, alt: `${p.nome}: ${p.lettura?.inAttesa ?? 'nessun dato'} in attesa` , zIndexOffset: p.lettura?.inAttesa ?? 0 }).addTo(strato);
+    // `alt` di Leaflet vale solo per le icone <img>: con divIcon il marker (role=button) avrebbe come nome solo il numero.
+    mk.getElement()?.setAttribute('aria-label', `${p.nome}: ${p.lettura?.inAttesa ?? 'nessun dato'} in attesa. Apri i dettagli`);
     const pop = pannello(p, meno, true), tip = pannello(p, meno, false);
     pop.querySelector('button').addEventListener('click', () => apriScheda(p.id));
     mk.bindPopup(pop, { minWidth: 232, maxWidth: 232, offset: [130, -26], className: 'ps-pop', autoPanPaddingTopLeft: [20, 20], autoPanPaddingBottomRight: [20, 100] });
