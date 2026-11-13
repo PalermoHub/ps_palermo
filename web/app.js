@@ -353,7 +353,7 @@ function tabella(ps, menoId) {
     const th = el('th'), on = st.col === k, b = el('button', 'srt', h);
     th.scope = 'col'; b.type = 'button'; b.dataset.col = k;
     th.setAttribute('aria-sort', on ? (st.dir > 0 ? 'ascending' : 'descending') : 'none');
-    if (on) b.append(el('span', 'fr', st.dir > 0 ? '▲' : '▼'));
+    const fr = el('span', on ? 'fr' : 'fr off', on ? (st.dir > 0 ? '▲' : '▼') : '⇅'); fr.setAttribute('aria-hidden', 'true'); b.append(fr);
     b.addEventListener('click', () => {
       st.dir = on ? -st.dir : (k === 'nome' ? 1 : -1); st.col = k; st.ordine = null; st.pos = null;
       $('vicino').setAttribute('aria-pressed', 'false'); controlli(); renderLista();

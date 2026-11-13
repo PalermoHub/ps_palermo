@@ -169,7 +169,7 @@ tbody tr{border-top:1px solid var(--soft)}
 .srt{background:none;border:0;padding:4px 2px;margin:-4px -2px;font:inherit;color:inherit;cursor:pointer;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
 .srt:hover{color:var(--head);text-decoration:underline;text-underline-offset:3px}
 .srt:focus-visible{outline:2px solid var(--head);outline-offset:2px}
-.srt .fr{font-size:9px}
+.srt .fr{font-size:10px;line-height:1}.srt .fr.off{font-size:12px;color:var(--ink2)}.srt:hover .fr.off{color:var(--head)}
 th[aria-sort=ascending] .srt,th[aria-sort=descending] .srt{color:var(--head)}
 tbody tr:hover{background:var(--accbg)}
 th:first-child,td:first-child{text-align:left;padding-left:14px}
