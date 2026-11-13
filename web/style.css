@@ -670,3 +670,9 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 #scarica-per{flex-wrap:nowrap;align-items:center}
 #scarica-per .dl-sel{flex:1 1 0;min-width:0;max-width:220px;min-height:40px;border-radius:10px;border:1.5px solid var(--ctl);background:var(--white);color:var(--head);font:600 13px var(--ff-b);padding:0 8px;text-transform:capitalize}
 @media(max-width:600px){#scarica-per{gap:6px}#scarica-per .chip{padding:0 10px}#scarica-per .dl-sel{min-height:34px;font-size:12.5px}}
+
+/* Pagina privacy: colonna di lettura stretta (in embed allineata a sinistra come le altre pagine) */
+main > .wrap.priv{max-width:46rem}
+.embed main > .wrap.priv{max-width:46rem;margin-inline:0}
+.priv h2{font-size:clamp(20px,2.4vw,26px);margin-top:28px}
+.priv ul{padding-left:20px}
