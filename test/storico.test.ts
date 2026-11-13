@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { aggiorna, type FetchFn } from '../src/aggiorna';
 import { FONTI } from '../src/registry';
-import { COLONNE, csvGiorno, salvaLetture, valoriLettura } from '../src/storico';
+import { COLONNE, costruisciStorico, csvGiorno, salvaLetture, valoriLettura } from '../src/storico';
 import { d1Finto } from './d1';
 import { fx } from './fx';
 
@@ -47,5 +47,56 @@ describe('storico: colonne estese', () => {
     const l = (await aggiorna(null, FONTI, rete, ORA)).ps['policlinico-adulti']!.lettura!;
     expect(COLONNE.slice(10)).toHaveLength(valoriLettura(l).slice(8).length);
     expect(COLONNE[10]).toBe('posti');
+  });
+});
+
+describe('costruisciStorico', () => {
+  const adesso = Date.parse('2026-11-12T12:10:00Z');
+  const ts = (iso: string) => Date.parse(iso) / 1000;
+  const riga = (d: D1Database, ps: string, iso: string, attesa: number | null) =>
+    d.prepare('INSERT INTO letture (ps_id, ts, in_attesa) VALUES (?,?,?)').bind(ps, ts(iso), attesa).run();
+
+  it('senza dati: serie vuote ma con la forma giusta (48 punti nelle 24 ore, 336 in 7 giorni)', async () => {
+    const s = await costruisciStorico(d1Finto(MIGR), adesso);
+    expect(s.passo).toBe(1800);
+    expect(s.citta.ora).toHaveLength(336);
+    expect(s.citta.prima).toHaveLength(336);
+    expect(s.citta.ora.every((v) => v === null)).toBe(true);
+    expect(s.spark.ps).toEqual({});
+  });
+  it('media dei valori nella mezz\'ora e arrotondamento a un decimale', async () => {
+    const d = d1Finto(MIGR);
+    await riga(d, 'ingrassia-adulti', '2026-11-12T11:35:00Z', 5);
+    await riga(d, 'ingrassia-adulti', '2026-11-12T11:40:00Z', 6);
+    await riga(d, 'ingrassia-adulti', '2026-11-12T11:45:00Z', 8);
+    const s = await costruisciStorico(d, adesso);
+    const sp = s.spark.ps['ingrassia-adulti']!;
+    expect(sp).toHaveLength(48);
+    expect(sp.filter((v) => v != null)).toEqual([6.3]); // (5+6+8)/3 = 6,33
+  });
+  it('i NULL non contano come zero (la fonte non pubblica il dato)', async () => {
+    const d = d1Finto(MIGR);
+    await riga(d, 'ingrassia-adulti', '2026-11-12T11:35:00Z', null);
+    const s = await costruisciStorico(d, adesso);
+    expect(s.spark.ps['ingrassia-adulti']).toBeUndefined();
+  });
+  it('totale città: nessun punto se risponde meno della metà dei presidi, un punto se ne rispondono almeno 4 su 8', async () => {
+    const d = d1Finto(MIGR);
+    const ids = ['villa-sofia-adulti', 'cervello-adulti', 'cervello-pediatrico', 'civico-adulti', 'di-cristina-pediatrico', 'policlinico-adulti', 'ingrassia-adulti', 'buccheri-adulti'];
+    for (const id of ids.slice(0, 3)) await riga(d, id, '2026-11-12T11:35:00Z', 10);
+    for (const id of ids.slice(0, 4)) await riga(d, id, '2026-11-12T10:05:00Z', 10);
+    const s = await costruisciStorico(d, adesso);
+    const punti = s.citta.ora.filter((v) => v != null);
+    expect(punti).toEqual([40]); // 11:30–12:00 ha solo 3 presidi: scartato; 10:00–10:30 ne ha 4
+  });
+  it('csvGiorno: rifiuta date non valide e usa il giorno di Palermo (ora legale)', async () => {
+    const d = d1Finto(MIGR);
+    expect(await csvGiorno(d, '12/11/2026')).toBeNull();
+    // 22:30 UTC del 12/11 = 23:30 a Roma (CET): è ancora il 12; 23:30 UTC = 00:30 del 13
+    await riga(d, 'ingrassia-adulti', '2026-11-12T22:30:00Z', 1);
+    await riga(d, 'ingrassia-adulti', '2026-11-12T23:30:00Z', 2);
+    const c = (await csvGiorno(d, '2026-11-12'))!.trim().split('\n');
+    expect(c).toHaveLength(2);
+    expect(c[1]).toContain('2026-11-12T22:30:00Z');
   });
 });

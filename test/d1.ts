@@ -13,7 +13,7 @@ export function d1Finto(migrazioni: string[]): D1Database {
     bind: (...a: unknown[]) => prepara(sql, a),
     all: async () => ({ results: db.prepare(sql).all(...(args.map(conv) as never[])) }),
     first: async () => db.prepare(sql).get(...(args.map(conv) as never[])) ?? null,
-    run: async () => { db.prepare(sql).run(...(args.map(conv) as never[])); return {}; },
+    run: async () => { const r = db.prepare(sql).run(...(args.map(conv) as never[])); return { meta: { changes: Number(r.changes) } }; },
   });
   return {
     prepare: (sql: string) => prepara(sql),
