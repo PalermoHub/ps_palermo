@@ -331,6 +331,15 @@ function tempiTesto(l) {
 /** Pillola che distingue i presidi per adulti da quelli pediatrici. */
 function tipoTag(p) { const ped = p.tipo === 'pediatrico'; return el('span', `tipo t-${ped ? 'ped' : 'ad'}`, ped ? 'Pediatrico' : 'Adulti'); }
 
+/** Pillola di tendenza rispetto a un'ora fa (scheda e card in home); `tn` viene da PS_STORICO.tendenza. */
+function trendPill(tn, px) {
+  const t = el('p', `s-trend ${tn.verso}`), ico = el('span');
+  ico.innerHTML = icona(tn.verso, px); ico.setAttribute('aria-hidden', 'true');
+  const num = tn.delta > 0 ? `+${tn.delta}` : `−${Math.abs(tn.delta)}`;
+  t.append(ico, { su: `In salita: ${num} rispetto a un'ora fa`, giu: `In calo: ${num} rispetto a un'ora fa`, stabile: "Stabile rispetto a un'ora fa" }[tn.verso]);
+  return t;
+}
+
 function card(p, menoId) {
   const l = p.lettura, b = badge(p, menoId), art = el('article', 'card lv-' + b.k);
   const head = el('div', 'card-h'), tit = el('div');
@@ -344,6 +353,8 @@ function card(p, menoId) {
     a.append(el('b', null, nd(l.inAttesa)), el('small', null, 'in attesa'));
     t.append(el('b', null, nd(l.pazientiTotali)), el('small', null, 'in struttura'));
     num.append(a, t); art.append(num);
+    const tn = !freschezza(p).vecchio && st.storico && PS_STORICO.tendenza(st.storico.spark.ps[p.id], st.storico.spark.da, st.storico.passo, l.inAttesa);
+    if (tn) art.append(trendPill(tn, 13));
     const cap = el('small', null, 'Pazienti in attesa, ultime 24 ore'), sp = PS_STORICO.spark(st.storico?.spark.ps[p.id], st.storico?.spark.da, st.storico?.passo, cap);
     if (sp) { const w = el('div', 'spk-w'); w.append(sp, cap); art.append(w); }
     art.append(barra(l));
@@ -462,13 +473,7 @@ function apriScheda(id, daHash) {
     cur.append(big);
     // Tendenza: solo con lettura fresca e con un termine di confronto reale nello storico.
     const tn = !f.vecchio && st.storico && PS_STORICO.tendenza(st.storico.spark.ps[p.id], st.storico.spark.da, st.storico.passo, l.inAttesa);
-    if (tn) {
-      const t = el('p', `s-trend ${tn.verso}`);
-      const ico = el('span'); ico.innerHTML = icona(tn.verso, 16); ico.setAttribute('aria-hidden', 'true');
-      const num = tn.delta > 0 ? `+${tn.delta}` : `−${Math.abs(tn.delta)}`;
-      t.append(ico, { su: `In salita: ${num} rispetto a un'ora fa`, giu: `In calo: ${num} rispetto a un'ora fa`, stabile: "Stabile rispetto a un'ora fa" }[tn.verso]);
-      cur.append(t);
-    }
+    if (tn) cur.append(trendPill(tn, 16));
     if (l.sovraffollamentoPct != null) cur.append(barra(l));
   }
   corpo.append(cur);
