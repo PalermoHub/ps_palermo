@@ -8,7 +8,6 @@ import { costruisciStorico, csvGiorno, salvaLetture } from './storico';
 import { FONTI } from './registry';
 
 interface Env {
-  PS_KV: KVNamespace;
   DB: D1Database;
   /** Secret (wrangler secret put EXPORT_TOKEN): protegge l'export CSV usato dal backup su GitHub. */
   EXPORT_TOKEN?: string;
@@ -20,7 +19,7 @@ interface Env {
 const CHIAVE = 'palermo:snapshot';
 const LOCK = 'palermo:lock';
 const CHIAVE_STORICO = 'palermo:storico:v1';
-/** Il calcolo dello storico legge settimane di righe: lo teniamo in KV e lo rifacciamo al massimo ogni 10 minuti. */
+/** Il calcolo dello storico legge settimane di righe: lo teniamo in D1 e lo rifacciamo al massimo ogni 10 minuti. */
 const STORICO_TTL_S = 600;
 const CHIAVE_SALUTE = 'palermo:salute:v1';
 const SALUTE_TTL_S = 300;
