@@ -4,7 +4,7 @@ Tempi di attesa dei Pronto Soccorso di **Palermo città**, letti dalle fonti pub
 Stato: **scheletro** (parser testati su risposte reali, Worker con cron, nessun frontend, nessun archivio storico).
 
 ## Come funziona
-Un **Cloudflare Worker** (stesso approccio del digital twin di Palermo) con cron ogni 2 minuti interroga 5 fonti, normalizza in `Lettura` (`src/types.ts`) e salva uno snapshot in KV. Lo stesso Worker serve `GET /api/palermo` e il sito statico in `web/`. Se una fonte cade resta l'ultima lettura buona con `acquisitaAlle` e `ultimoErrore`: un dato vecchio non passa mai per fresco.
+Un **Cloudflare Worker** (stesso approccio del digital twin di Palermo) con cron ogni 5 minuti interroga 5 fonti, normalizza in `Lettura` (`src/types.ts`) e salva uno snapshot in KV. Lo stesso Worker serve `GET /api/palermo` e il sito statico in `web/`. Se una fonte cade resta l'ultima lettura buona con `acquisitaAlle` e `ultimoErrore`: un dato vecchio non passa mai per fresco.
 
 | Fonte | Formato | PS | File |
 |---|---|---|---|

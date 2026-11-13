@@ -594,12 +594,12 @@ function bannerObsoleti() {
 const carica = () => fetch('/api/palermo').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
 carica().then((d) => { st.reteKo = false; mostra(d); bannerObsoleti(); })
   .catch(() => { st.reteKo = true; $('sub').textContent = 'Impossibile caricare i dati. Riprova tra poco.'; });
-// Aggiorna da solo ogni 2 minuti, senza ricaricare la pagina né chiudere la scheda aperta.
+// Aggiorna da solo ogni 5 minuti (come il cron del server), senza ricaricare la pagina né chiudere la scheda aperta.
 setInterval(() => carica().then((d) => {
   const aperta = $('scheda').open ? $('scheda').dataset.id : null;
   st.reteKo = false; st.dati = d; renderStats(); renderLista(); caricaStorico(); bannerObsoleti();
   if (aperta && $('scheda').open) { const y = $('scheda').scrollTop; apriScheda(aperta, true); $('scheda').scrollTop = y; }
-}).catch(() => { st.reteKo = true; bannerObsoleti(); }), 120000);
+}).catch(() => { st.reteKo = true; bannerObsoleti(); }), 300000);
 // L'età avanza anche senza risposte dal server: ricontrolla ogni minuto.
 setInterval(bannerObsoleti, 60000);
 

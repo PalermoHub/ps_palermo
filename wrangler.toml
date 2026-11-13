@@ -13,7 +13,7 @@ run_worker_first = ["/api/*"]
 region = "aws:eu-south-1"
 
 [triggers]
-crons = ["*/2 * * * *"]
+crons = ["*/5 * * * *"]
 
 # Namespace creato con: npx wrangler kv namespace create PS_KV
 [[kv_namespaces]]

@@ -343,7 +343,7 @@ const caricaSalute = () => fetch('/api/salute').then((r) => { if (!r.ok) throw n
 /* ---------- avvio ---------- */
 const carica = () => fetch('/api/palermo').then((r) => r.json()).then((d) => { st.dati = d; renderConfronto(); renderAttesa(); renderDumbbell(); renderPercorso(); renderPerm(); renderHeat(); $('sub').textContent = `Dati in tempo reale · ${d.ps.filter((p) => p.lettura).length}/${d.ps.length} pronto soccorso con dati`; });
 carica().catch(() => { $('sub').textContent = 'Impossibile caricare i dati. Riprova tra poco.'; });
-setInterval(() => carica().catch(() => {}), 120000);
+setInterval(() => carica().catch(() => {}), 300000);
 periodi(); modiAttesa();
 const caricaStorico = () => PS_STORICO.carica().then((d) => { st.storico = d; renderCitta(); }).catch(() => renderCitta());
 const caricaHeat = () => PS_STORICO.caricaHeat().then((d) => { st.heat = d; renderHeat(); }).catch(() => renderHeat());

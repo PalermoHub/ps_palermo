@@ -9,7 +9,7 @@ import type { Lettura } from './types';
 export const SOGLIA_SOSPETTO_MIN = 120;
 export const SOGLIA_CONGELATO_MIN = 240;
 /** Nostra lettura più vecchia di così senza errori = il cron ritarda o non gira. */
-export const SOGLIA_NOSTRA_ETA_MIN = 10;
+export const SOGLIA_NOSTRA_ETA_MIN = 15;
 /** Orario dichiarato dalla fonte più vecchio, al momento in cui l'abbiamo letto, di così. */
 export const SOGLIA_ETA_FONTE_MIN = 30;
 

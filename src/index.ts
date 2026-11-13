@@ -25,7 +25,7 @@ const STORICO_TTL_S = 600;
 const CHIAVE_SALUTE = 'palermo:salute:v1';
 const SALUTE_TTL_S = 300;
 /** Oltre questa età l'API avvia un rinfresco in background (rete di sicurezza se il cron ritarda). */
-const ETA_MAX_MS = 3 * 60_000;
+const ETA_MAX_MS = 8 * 60_000;
 const VUOTO = { lettura: null, acquisitaAlle: null, ultimoErrore: null };
 
 async function snapshot(env: Env): Promise<Snapshot | null> {
@@ -57,7 +57,7 @@ async function rinfrescaSeLibero(env: Env): Promise<void> {
 }
 
 export default {
-  // Cron (wrangler.toml): ogni 2 minuti legge le fonti e salva lo snapshot.
+  // Cron (wrangler.toml): ogni 5 minuti legge le fonti e salva lo snapshot.
   async scheduled(_c: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     // Lo scraping deve partire da una richiesta, non dal cron: solo le richieste rispettano il placement.
     ctx.waitUntil(env.SELF.fetch('https://self.internal/api/refresh').then(() => undefined));
@@ -66,9 +66,9 @@ export default {
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const { pathname } = new URL(req.url);
     if (pathname === '/api/refresh') {
-      // Pubblico ma innocuo: rinfresca solo se lo snapshot ha più di 90s (il cron arriva ogni 120s), quindi chi lo chiama non può moltiplicare le letture.
+      // Pubblico ma innocuo: rinfresca solo se lo snapshot ha più di 270s (il cron arriva ogni 300s), quindi chi lo chiama non può moltiplicare le letture.
       const snap = await snapshot(env);
-      if (!snap || Date.now() - Date.parse(snap.aggiornatoAlle) > 90_000) await rinfrescaSeLibero(env);
+      if (!snap || Date.now() - Date.parse(snap.aggiornatoAlle) > 270_000) await rinfrescaSeLibero(env);
       return new Response('ok');
     }
     if (pathname === '/api/palermo') {

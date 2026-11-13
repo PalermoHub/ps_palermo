@@ -54,9 +54,9 @@ describe('valuta: soglie e priorità', () => {
     expect(valuta({ lettura: null, acquisitaAlle: null, ultimoErrore: null }, T(0)).stato).toBe('assente');
     expect(valuta(base({ ultimoErrore: 'riuniti: HTTP 522', invariataDal: T(-999).toISOString() }), T(5))).toMatchObject({ stato: 'errore', motivo: 'riuniti: HTTP 522' });
   });
-  it('nostra lettura vecchia di oltre 10 min senza errori -> vecchio (cron in ritardo)', () => {
-    expect(valuta(base(), T(11)).stato).toBe('vecchio');
-    expect(valuta(base(), T(10)).stato).toBe('ok');
+  it('nostra lettura vecchia di oltre 15 min senza errori -> vecchio (cron in ritardo)', () => {
+    expect(valuta(base(), T(16)).stato).toBe('vecchio');
+    expect(valuta(base(), T(15)).stato).toBe('ok');
   });
   it('orario della fonte indietro di oltre 30 min rispetto alla lettura -> vecchio; senza orario non si inventa nulla', () => {
     const s = base({ rilevataAlle: T(-31).toISOString() });
