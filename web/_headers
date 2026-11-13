@@ -5,4 +5,4 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-EPWqhGqiPOI4GBQ5uHaBuza2vEPxsO4DUFEWvjosRUo=' 'sha256-IAnitVbX4vMnNVkhy7tTdgv+bkmyj/t1+j/ctRTahvI=' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://tile.openstreetmap.org https://tiles.openfreemap.org; connect-src 'self' https://tiles.openfreemap.org https://raw.githubusercontent.com; worker-src blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-EPWqhGqiPOI4GBQ5uHaBuza2vEPxsO4DUFEWvjosRUo=' 'sha256-IAnitVbX4vMnNVkhy7tTdgv+bkmyj/t1+j/ctRTahvI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org https://tiles.openfreemap.org; connect-src 'self' https://tiles.openfreemap.org https://raw.githubusercontent.com; worker-src blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'

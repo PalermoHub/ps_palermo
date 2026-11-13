@@ -25,7 +25,7 @@ Regola dei dati: se la fonte non pubblica un valore è `null`, mai `0` inventato
 ## Sito (`web/`)
 - `index.html`: mappa Leaflet, schede per presidio, filtro adulti/pediatrico, riepilogo, pulsante 112 e disclaimer «non sostituisce il 118».
 - `grafici.html`: analisi (presenti nelle ultime ore, fasce con meno gente, chi aspetta di più, permanenza, sovraffollamento, affidabilità dei dati), esportazione dei grafici in PNG e sezione **Scarica i dati** (CSV di giorni, settimane e mesi).
-- `privacy.html`: informativa (cosa resta nel browser, posizione, servizi di terzi). I font (Archivo, Figtree) sono in `web/fonts/`, senza richieste a Google Fonts. Restano esterni solo le librerie su cdnjs/jsDelivr, le mappe (OpenFreeMap/OSM) e i CSV su GitHub: se ne cambi uno, aggiorna l'informativa.
+- `privacy.html`: informativa (cosa resta nel browser, posizione, servizi di terzi). I font (Archivo, Figtree) sono in `web/fonts/`, senza richieste a Google Fonts. Anche le librerie (Leaflet, MapLibre, html2canvas) sono locali, in `web/vendor/` (licenze in `web/vendor/LICENZE.md`). Restano esterni solo le mappe (OpenFreeMap/OSM) e i CSV su GitHub: se ne cambi uno, aggiorna l'informativa.
 - Modalità embed per le pagine PalermoHub: vedi `docs/embed.md`.
 
 ## Storico e archivio CSV

@@ -22,7 +22,7 @@
   let h2c = null;
   const carica = () => h2c || (h2c = new Promise((ok, ko) => {
     if (window.html2canvas) return ok(window.html2canvas);
-    const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    const s = document.createElement('script'); s.src = 'vendor/html2canvas/html2canvas.min.js';
     s.onload = () => ok(window.html2canvas); s.onerror = () => { h2c = null; ko(new Error('html2canvas non caricato')); };
     document.head.append(s);
   }));
