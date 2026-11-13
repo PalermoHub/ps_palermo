@@ -36,6 +36,7 @@ h1,h2,h3{color:var(--head);margin:0;font-family:var(--ff-d)}
 .top nav{margin-left:auto;display:flex;flex-wrap:wrap;gap:4px}
 .top nav a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:10px 12px;border-radius:50px}
 .top nav a:hover{background:rgba(255,255,255,.14);color:#fff}
+.top nav a.nav-ico{display:inline-flex;align-items:center;padding:10px}
 
 /* hero: etichetta da cassetta d'agrumi su fondo mare */
 .hero{background:var(--sea);color:#e6eff5;position:relative;overflow:hidden;border-top:1px solid rgba(255,255,255,.12)}
