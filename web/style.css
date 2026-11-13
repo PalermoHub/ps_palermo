@@ -208,7 +208,7 @@ tbody tr{border-top:1px solid var(--soft)}
 .srt{background:none;border:0;padding:4px 2px;margin:-4px -2px;font:inherit;color:inherit;cursor:pointer;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
 .srt:hover{color:var(--head);text-decoration:underline;text-underline-offset:3px}
 .srt:focus-visible{outline:2px solid var(--head);outline-offset:2px}
-.srt .fr{font-size:10px;line-height:1}.srt .fr.off{font-size:12px;color:var(--ink2)}.srt:hover .fr.off{color:var(--head)}
+.srt .fr{display:inline-flex;line-height:1}.srt .fr.off{color:var(--ink2)}.srt:hover .fr.off{color:var(--head)}
 th[aria-sort=ascending] .srt,th[aria-sort=descending] .srt{color:var(--head)}
 tbody tr:hover{background:var(--accbg)}
 th:first-child,td:first-child{text-align:left;padding-left:14px}
@@ -329,7 +329,7 @@ header .tema{margin-left:-8px;border-color:rgba(255,255,255,.35);background:tran
 .s-hero .s-big b{font:900 64px/.9 var(--ff-d);font-stretch:80%;letter-spacing:-.03em}
 /* tendenza (freccia + testo: il colore non è l'unico segnale) */
 .s-trend{margin:0 0 14px;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;line-height:1.3;padding:6px 14px;border-radius:50px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff}
-.s-trend span{font-size:16px;line-height:1}
+.s-trend span{display:inline-flex;line-height:1}
 .s-trend.su{background:var(--acc);border-color:var(--acc);color:#0b2a3f}
 .s-trend.giu{background:#dff3e7;border-color:#dff3e7;color:#14633a}
 /* quota di gravità nella scheda */
@@ -497,7 +497,8 @@ h3.sep-tipo,.sep-in{display:flex;align-items:center;gap:12px;font:800 12px/1 var
 h3.sep-tipo{grid-column:1/-1;margin:22px 0 4px}
 h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:"";flex:1;height:0;border-top:2px dashed #0b5ea8;opacity:.45}
 .sep-tipo span,.sep-in span{background:#0b5ea8;padding:7px 14px 7px 12px;border-radius:50px;white-space:nowrap;box-shadow:0 2px 6px rgba(11,94,168,.3)}
-.sep-tipo span::before,.sep-in span::before{content:"✚";margin-right:7px;font-size:11px}
+.sep-tipo span::before,.sep-in span::before{content:"";display:inline-block;width:11px;height:11px;margin-right:7px;background:currentColor;-webkit-mask:var(--croce) center/contain no-repeat;mask:var(--croce) center/contain no-repeat}
+:root{--croce:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 2h6v7h7v6h-7v7H9v-7H2V9h7z'/%3E%3C/svg%3E")}
 #lista tr.sep-tipo{background:none;box-shadow:none;border:0;padding:0}
 #lista tr.sep-tipo th{padding:18px 20px 10px;border:0;background:var(--soft)}
 @media(max-width:700px){#lista tr.sep-tipo{display:block;margin:10px 0 2px;background:none}#lista tr.sep-tipo th{display:block;background:none;padding:6px 2px}}

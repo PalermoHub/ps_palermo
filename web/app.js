@@ -133,6 +133,8 @@ const IC = {
   tel: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
   web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"/>',
   doc: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+  su: '<path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/>', giu: '<path d="M12 5v14M5.5 12.5 12 19l6.5-6.5"/>', stabile: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  ordina: '<path d="M8 19V5M3.5 9.5 8 5l4.5 4.5M16 5v14M11.5 14.5 16 19l4.5-4.5"/>',
   rotta: '<path d="m3 11 18-8-8 18-2-8z"/>',
   sole: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>',
 };
@@ -364,7 +366,7 @@ function tabella(ps, menoId) {
     const th = el('th'), on = st.col === k, b = el('button', 'srt', h);
     th.scope = 'col'; b.type = 'button'; b.dataset.col = k;
     th.setAttribute('aria-sort', on ? (st.dir > 0 ? 'ascending' : 'descending') : 'none');
-    const fr = el('span', on ? 'fr' : 'fr off', on ? (st.dir > 0 ? '▲' : '▼') : '⇅'); fr.setAttribute('aria-hidden', 'true'); b.append(fr);
+    const fr = el('span', on ? 'fr' : 'fr off'); fr.innerHTML = icona(on ? (st.dir > 0 ? 'su' : 'giu') : 'ordina', on ? 12 : 14); fr.setAttribute('aria-hidden', 'true'); b.append(fr);
     b.addEventListener('click', () => {
       st.dir = on ? -st.dir : (k === 'nome' ? 1 : -1); st.col = k; st.ordine = null; st.pos = null;
       $('vicino').setAttribute('aria-pressed', 'false'); controlli(); renderLista();
@@ -458,7 +460,7 @@ function apriScheda(id, daHash) {
     const tn = !f.vecchio && st.storico && PS_STORICO.tendenza(st.storico.spark.ps[p.id], st.storico.spark.da, st.storico.passo, l.inAttesa);
     if (tn) {
       const t = el('p', `s-trend ${tn.verso}`);
-      const ico = el('span', null, { su: '↑', giu: '↓', stabile: '→' }[tn.verso]); ico.setAttribute('aria-hidden', 'true');
+      const ico = el('span'); ico.innerHTML = icona(tn.verso, 16); ico.setAttribute('aria-hidden', 'true');
       const num = tn.delta > 0 ? `+${tn.delta}` : `−${Math.abs(tn.delta)}`;
       t.append(ico, { su: `In salita: ${num} rispetto a un'ora fa`, giu: `In calo: ${num} rispetto a un'ora fa`, stabile: "Stabile rispetto a un'ora fa" }[tn.verso]);
       cur.append(t);
