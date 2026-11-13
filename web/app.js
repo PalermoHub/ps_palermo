@@ -356,15 +356,15 @@ function card(p, menoId) {
   const sub = el('p', null, `${p.struttura}${st.pos ? ` · ${km(st.pos, p.coords).toFixed(1)} km` : ''}`); sub.title = sub.textContent;
   tit.append(el('h3', null, p.nome), sub);
   tit.prepend(tipoTag(p)); head.append(tit);
-  head.append(el('span', `badge ${b.k}`, b.txt)); art.append(head);
+  const dx = el('div', 'card-r'), f = freschezza(p);
+  dx.append(el('span', `badge ${b.k}`, b.txt), el('small', f.vecchio ? 'vecchio' : null, p.ultimoErrore && l ? `${f.txt} · fonte non raggiungibile` : f.txt));
+  head.append(dx); art.append(head);
   if (!l) { art.append(el('p', 'err', 'Dati non disponibili al momento.')); }
   else {
     const num = el('div', 'num'), a = el('div'), t = el('div');
     a.append(el('b', null, nd(l.inAttesa)), el('small', null, 'in attesa'));
     t.append(el('b', null, nd(l.pazientiTotali)), el('small', null, 'in struttura'));
     num.append(a, t); art.append(num);
-    const tn = !freschezza(p).vecchio && st.storico && PS_STORICO.tendenza(st.storico.spark.ps[p.id], st.storico.spark.da, st.storico.passo, l.inAttesa);
-    if (tn) a.lastChild.append(trendMini(tn));
     const cap = el('small', null, 'Pazienti in attesa, ultime 24 ore'), sp = PS_STORICO.spark(st.storico?.spark.ps[p.id], st.storico?.spark.da, st.storico?.passo, cap);
     if (sp) { const w = el('div', 'spk-w'); w.append(sp, cap); art.append(w); }
     art.append(barra(l));
@@ -372,9 +372,10 @@ function card(p, menoId) {
     const tm = tempiTesto(l);
     if (tm) { const pp = el('p', 'tempi'); pp.append(el('strong', null, 'Attesa media: '), tm); art.append(pp); }
   }
-  const f = freschezza(p), foot = el('div', 'card-f');
-  foot.append(el('span', f.vecchio ? 'vecchio' : null, p.ultimoErrore && l ? `${f.txt} · fonte non raggiungibile` : f.txt));
-  const btn = el('button', 'btn sec', 'Scheda completa'); btn.type = 'button'; btn.addEventListener('click', () => apriScheda(p.id));
+  const foot = el('div', 'card-f');
+  const tn = l && !f.vecchio && st.storico && PS_STORICO.tendenza(st.storico.spark.ps[p.id], st.storico.spark.da, st.storico.passo, l.inAttesa);
+  if (tn) foot.append(trendMini(tn));
+  const btn = el('button', 'btn sec', 'Scheda'); btn.type = 'button'; btn.title = 'Scheda di dettaglio della struttura'; btn.addEventListener('click', () => apriScheda(p.id));
   foot.append(btn); art.append(foot);
   return art;
 }
