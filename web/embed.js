@@ -87,6 +87,7 @@
   new ResizeObserver(altezza).observe(document.body);
   addEventListener('load', altezza);
   addEventListener('message', e => {
+    if (e.source !== parent) return; // solo dal genitore (l'origine non è nota: embed su siti terzi)
     const d = e.data;
     if (d && d.source === 'ps-palermo' && d.type === 'tema' && (d.value === 'light' || d.value === 'dark')) H.dataset.theme = d.value;
     if (d && d.source === 'ps-palermo' && d.type === 'rimisura') { ult = 0; altezza(); }
