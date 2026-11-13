@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { aggiorna, type FetchFn } from '../src/aggiorna';
 import { FONTI } from '../src/registry';
-import { csvGiorno, salvaLetture, valoriLettura } from '../src/storico';
+import { COLONNE, csvGiorno, salvaLetture, valoriLettura } from '../src/storico';
 import { d1Finto } from './d1';
 import { fx } from './fx';
 
@@ -41,5 +41,11 @@ describe('storico: colonne estese', () => {
     expect(csv.length).toBe(9);
     expect(csv.slice(1).every((r) => r.split(',').length === n)).toBe(true);
     expect(csv[0]).toContain('perm_oltre48h');
+  });
+
+  it('le colonne aggiunte (da indice 10) e i valori (da indice 8) combaciano: lo usa scripts/backfill-letture.ts', async () => {
+    const l = (await aggiorna(null, FONTI, rete, ORA)).ps['policlinico-adulti']!.lettura!;
+    expect(COLONNE.slice(10)).toHaveLength(valoriLettura(l).slice(8).length);
+    expect(COLONNE[10]).toBe('posti');
   });
 });

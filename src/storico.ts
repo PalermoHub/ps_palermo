@@ -3,7 +3,7 @@ import type { Snapshot } from './aggiorna';
 import { CODICI, type Lettura } from './types';
 
 const TZ = 'Europe/Rome';
-const COLONNE = [
+export const COLONNE = [
   'ps_id', 'ts', 'in_attesa', 'totale', 'sovraff', ...CODICI.map((c) => `att_${c}`),
   // Aggiunte con la migrazione 0005: in coda, così i CSV già pubblicati restano validi (righe più corte = NULL).
   'posti', 'perm_meno24h', 'perm_24_48h', 'perm_oltre48h',
