@@ -1,9 +1,24 @@
 import { PS } from './anagrafica';
 import type { Snapshot } from './aggiorna';
-import { CODICI } from './types';
+import { CODICI, type Lettura } from './types';
 
 const TZ = 'Europe/Rome';
-const COLONNE = ['ps_id', 'ts', 'in_attesa', 'totale', 'sovraff', ...CODICI.map((c) => `att_${c}`)] as const;
+const COLONNE = [
+  'ps_id', 'ts', 'in_attesa', 'totale', 'sovraff', ...CODICI.map((c) => `att_${c}`),
+  // Aggiunte con la migrazione 0005: in coda, così i CSV già pubblicati restano validi (righe più corte = NULL).
+  'posti', 'perm_meno24h', 'perm_24_48h', 'perm_oltre48h',
+  ...(['tot', 'tratt', 'oss', 'tm'] as const).flatMap((p) => CODICI.map((c) => `${p}_${c}`)),
+] as const;
+
+/** Valori nello stesso ordine di COLONNE (dopo ps_id e ts). */
+export function valoriLettura(l: Lettura): (number | null)[] {
+  const c = (k: 'totale' | 'trattamento' | 'osservazione') => CODICI.map((x) => l.codici[x]?.[k] ?? null);
+  return [
+    l.inAttesa, l.pazientiTotali, l.sovraffollamentoPct, ...CODICI.map((x) => l.codici[x]?.attesa ?? null),
+    l.postiTecnici, l.permanenza?.meno24h ?? null, l.permanenza?.da24a48h ?? null, l.permanenza?.oltre48h ?? null,
+    ...c('totale'), ...c('trattamento'), ...c('osservazione'), ...CODICI.map((x) => l.tempiMediAttesaMin?.[x] ?? null),
+  ];
+}
 
 /** Salva una riga per ogni presidio letto in QUESTO giro (acquisitaAlle == ora): le letture vecchie non si duplicano. */
 export async function salvaLetture(db: D1Database, snap: Snapshot): Promise<void> {
@@ -13,7 +28,7 @@ export async function salvaLetture(db: D1Database, snap: Snapshot): Promise<void
     const s = snap.ps[p.id];
     if (!s?.lettura || s.acquisitaAlle !== snap.aggiornatoAlle) return [];
     const l = s.lettura;
-    return [stmt.bind(p.id, ts, l.inAttesa, l.pazientiTotali, l.sovraffollamentoPct, ...CODICI.map((c) => l.codici[c]?.attesa ?? null))];
+    return [stmt.bind(p.id, ts, ...valoriLettura(l))];
   });
   if (righe.length) await db.batch(righe);
 }

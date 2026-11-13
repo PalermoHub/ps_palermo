@@ -16,6 +16,11 @@ for (const f of giorni) {
 }
 if (!letti.length) { console.log('nessun giorno con dati'); process.exit(0); }
 const ultimo = letti.at(-1).id;
+// Le colonne nuove si aggiungono in coda (migrazione 0005): i giorni vecchi hanno meno colonne. Si usa l'intestazione più larga
+// e le righe corte si completano con campi vuoti (= dato non disponibile), così ogni file aggregato ha righe di larghezza uguale.
+const testa = letti.map((g) => g.testa).reduce((a, b) => (b.split(',').length > a.split(',').length ? b : a));
+const larghezza = testa.split(',').length;
+for (const g of letti) g.righe = g.righe.map((r) => { const n = r.split(',').length; return n < larghezza ? r + ','.repeat(larghezza - n) : r; });
 
 const giornoUtc = (id) => new Date(`${id}T00:00:00Z`);
 const iso = (d) => d.toISOString().slice(0, 10);
@@ -45,7 +50,7 @@ function scrivi(sottocartella, gruppi) {
   for (const g of gruppi) {
     if (g.a > ultimo) continue; // periodo ancora aperto
     const file = `${sottocartella}/${g.chiave}.csv`, righe = g.giorni.flatMap((x) => x.righe);
-    writeFileSync(`${DIR}/${file}`, [g.giorni[0].testa, ...righe].join('\n') + '\n');
+    writeFileSync(`${DIR}/${file}`, [testa, ...righe].join('\n') + '\n');
     out.push({ id: g.chiave, da: g.da, a: g.a, giorni: g.giorni.length, righe: righe.length, byte: statSync(`${DIR}/${file}`).size, file });
   }
   return out;
@@ -54,7 +59,7 @@ function scrivi(sottocartella, gruppi) {
 const sett = scrivi('settimane', raggruppa(settimana)), mesi = scrivi('mesi', raggruppa(mese));
 const indice = {
   generatoAlle: new Date().toISOString(),
-  colonne: letti[0].testa,
+  colonne: testa,
   giorni: letti.map((g) => ({ id: g.id, righe: g.righe.length, file: `${g.id.slice(0, 4)}/${g.id}.csv` })).reverse(),
   settimane: sett.reverse(),
   mesi: mesi.reverse(),

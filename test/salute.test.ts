@@ -3,7 +3,7 @@ import type { Snapshot } from '../src/aggiorna';
 import { costruisciSalute, FINESTRE } from '../src/salute';
 import { d1Finto } from './d1';
 
-const MIGRAZIONI = ['0001_letture.sql', '0002_grezzo.sql', '0003_stato.sql'];
+const MIGRAZIONI = ['0001_letture.sql', '0002_grezzo.sql', '0003_stato.sql', '0004_download.sql', '0005_letture_estese.sql'];
 // 12:10 del 12/11: l'ultima finestra è 12:00-12:30, la prima (indice 0) parte alle 12:30 dell'11/11.
 const ADESSO = Date.parse('2026-11-12T12:10:00Z');
 const t = (iso: string) => Date.parse(iso) / 1000;
