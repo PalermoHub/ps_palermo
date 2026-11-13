@@ -113,7 +113,6 @@ function renderStats() {
     const t = el('div'); t.append(el('span', 'pl-k', `Meno affollato adesso · ${etichetta}`), el('div', 'pl-t', meno.nome));
     p2.append(el('span', Math.round(meno.s) >= 100 ? 'pct lg' : 'pct', Math.round(meno.s) + '%'), t);
     p2.insertAdjacentHTML('beforeend', '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>');
-    p2.setAttribute('aria-label', `Apri la scheda di ${meno.nome}, il meno affollato tra i pronto soccorso ${etichetta} adesso, ${Math.round(meno.s)} per cento`);
     p2.addEventListener('click', () => apriScheda(meno.id));
     box.append(p2);
   }
@@ -533,7 +532,7 @@ function apriScheda(id, daHash) {
 
   griglia.append(sx, dx); corpo.append(griglia);
   const nota = el('div', 's-avviso');
-  const c112 = el('a', 'call112', 'In emergenza chiama il 112'); c112.href = 'tel:112'; c112.setAttribute('aria-label', 'Chiama il 112, numero unico di emergenza');
+  const c112 = el('a', 'call112', 'In emergenza chiama il 112'); c112.href = 'tel:112'; c112.setAttribute('aria-label', 'In emergenza chiama il 112, numero unico di emergenza');
   nota.append(c112, el('p', null, 'I dati sono pubblicati dal pronto soccorso e potrebbero non essere sempre accurati o aggiornati.'));
   corpo.append(nota);
 
