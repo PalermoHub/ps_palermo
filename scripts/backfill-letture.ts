@@ -53,9 +53,10 @@ for (const r of righe) {
   if (scelte.some((s) => !s)) { senzaCattura++; continue; }
   const k = scelte.map((s) => s!.id).join('+');
   if (!cache.has(k)) {
+    // Gli errori di rete/token fermano lo script; solo un parser che fallisce su una cattura vecchia viene tollerato.
+    const testi = await Promise.all(scelte.map((s) => corpo(s!.id)));
     try {
-      const l = fonte.parse(await Promise.all(scelte.map((s) => corpo(s!.id))));
-      cache.set(k, new Map(l.map((x) => [x.psId, x])));
+      cache.set(k, new Map(fonte.parse(testi).map((x) => [x.psId, x])));
     } catch { cache.set(k, new Map()); }
   }
   const l = cache.get(k)!.get(String(r.ps_id));
