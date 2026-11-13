@@ -43,6 +43,10 @@ Regola dei dati: se la fonte non pubblica un valore è `null`, mai `0` inventato
 Secret nel repo: `CLOUDFLARE_API_TOKEN` (template "Edit Cloudflare Workers"), `CLOUDFLARE_ACCOUNT_ID`, `EXPORT_TOKEN` (stesso del Worker, per il backup notturno).
 Se l'Action non parte, il deploy si fa a mano con `npm run deploy`.
 
+## Licenze
+- **Codice** (`src/`, `web/`, `scripts/`, `test/`): [MIT](LICENSE).
+- **Dati** (`dati/`): [CC BY 4.0](dati/LICENZA.md), da citare come «Pronto Soccorso Palermo (#opendatasicilia), CC BY 4.0». I numeri di partenza restano degli enti che li pubblicano.
+
 ## Altra documentazione
 `docs/`: `da-fare.md` (attività aperte), `audit-fonti.md`, `analisi-dati-e-grafici.md`, `diagnosi-dati-non-aggiornati.md`, `embed.md`, `backup-grezzo.md`.
 
@@ -51,5 +55,5 @@ Se l'Action non parte, il deploy si fa a mano con `npm run deploy`.
 2. Verificare "Policlinico: `pazientiInCarico` = in trattamento" (assunzione, vedi commento in `policlinico.ts`).
 3. Rilevazione Policlinico senza orario: mostrare solo la nostra ora di lettura.
 4. Sezione PPI statica (Albanese, Casa del Sole) con orari da confermare con l'ASP.
-5. Licenza: i repo originali non ne hanno una, qui nessun codice copiato (solo fonti pubbliche e anagrafica da ricontrollare); manca anche la licenza per il CSV di descrizione colonne.
+5. ~~Licenza~~ fatta: codice MIT, dati CC BY 4.0 (vedi sezione Licenze). Resta da chiarire con le fonti le loro condizioni d'uso.
 6. Verificare ToS/robots delle fonti e fissare un `User-Agent` con contatto.
