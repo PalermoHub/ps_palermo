@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "web/index.html"
+        ],
+        "createdAt": "2026-11-13T10:46:58.515Z",
+        "reason": "falso positivo: padding dell'hero in .hero-in/.wrap nel CSS esterno; scansione renderizzata su localhost = 0 problemi (verificato in sessione)"
+      }
+    ]
+  }
+}
