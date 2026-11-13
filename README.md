@@ -53,9 +53,4 @@ Copyright © 2026 OpenDataSicilia.
 `docs/`: `da-fare.md` (attività aperte), `audit-fonti.md`, `analisi-dati-e-grafici.md`, `diagnosi-dati-non-aggiornati.md`, `embed.md`, `backup-grezzo.md`.
 
 ## Da fare
-1. Numeri di telefono dei presidi (`telefono` in `src/anagrafica.ts`, solo valori verificati): abilitano il pulsante «Chiama».
-2. Verificare "Policlinico: `pazientiInCarico` = in trattamento" (assunzione, vedi commento in `policlinico.ts`).
-3. Rilevazione Policlinico senza orario: mostrare solo la nostra ora di lettura.
-4. Sezione PPI statica (Albanese, Casa del Sole) con orari da confermare con l'ASP.
-5. ~~Licenza~~ fatta: codice MIT, dati CC BY 4.0 (vedi sezione Licenze). Resta da chiarire con le fonti le loro condizioni d'uso.
-6. Verificare ToS/robots delle fonti e fissare un `User-Agent` con contatto.
+Lista unica e aggiornata in [`docs/da-fare.md`](docs/da-fare.md) (priorità, cose da sapere prima di ripartire).
