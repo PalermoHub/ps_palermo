@@ -1,7 +1,7 @@
 import type { Ps } from './types';
 
 // Dati anagrafici ripresi dal config di prontosoccorso_api (da ricontrollare prima della pubblicazione).
-// telefono: numeri del pronto soccorso copiati dalle pagine contatti ufficiali (novembre 2026: ospedaliriunitipalermo.it/lazienda-ospedaliera/contatti-e-numeri-utili, arnascivico.it/index.php/contatti, ospedalebuccherilaferla.it/contatti, urp.policlinico.pa.it/numeri-utili-policlinico-palermo: la pagina dà per il PS 091 6556001 e 091 6556031, ma il link del primo punta al numero della Farmacia, quindi uso il secondo). Manca l'Ingrassia: nessun numero PS ufficiale trovato.
+// telefono: numeri del pronto soccorso copiati dalle pagine contatti ufficiali (novembre 2026: ospedaliriunitipalermo.it/lazienda-ospedaliera/contatti-e-numeri-utili, arnascivico.it/index.php/contatti, ospedalebuccherilaferla.it/contatti, urp.policlinico.pa.it/numeri-utili-policlinico-palermo: la pagina dà per il PS 091 6556001 e 091 6556031, ma il link del primo punta al numero della Farmacia, quindi uso il secondo). Ingrassia: 091 7033669 indicato dal titolare del progetto (compare anche nella guida servizi ASP del 2018; il sito ASP attuale ha solo il centralino 091 7031111).
 export const PS: Ps[] = [
   { id: 'villa-sofia-adulti', nome: 'Villa Sofia', struttura: 'Ospedali Riuniti Villa Sofia-Cervello', tipo: 'adulti',
     indirizzo: 'Piazza Salerno 1, 90146 Palermo', coords: { lat: 38.155978, lng: 13.337607 },
@@ -29,6 +29,7 @@ export const PS: Ps[] = [
     fonteUrl: 'https://www.policlinico.pa.it/web/guest', sito: 'https://www.policlinico.pa.it' },
   { id: 'ingrassia-adulti', nome: 'Ingrassia', struttura: 'ASP Palermo', tipo: 'adulti',
     indirizzo: 'Corso Calatafimi 1002, 90131 Palermo', coords: { lat: 38.0932568, lng: 13.3099573 },
+    telefono: '091 703 3669',
     fonteUrl: 'https://www.asppalermo.org/attese_ps/index_mod2.php', sito: 'https://www.asppalermo.org' },
   { id: 'buccheri-adulti', nome: 'Buccheri La Ferla', struttura: 'Fatebenefratelli', tipo: 'adulti',
     indirizzo: 'Via Messina Marine 197, 90123 Palermo', coords: { lat: 38.1058898, lng: 13.3859316 },
