@@ -6,7 +6,7 @@ import { archivia, leggi, pota, type Cattura } from './grezzo';
 import { costruisciSalute } from './salute';
 import { costruisciStorico, csvGiorno, salvaLetture } from './storico';
 import { FONTI } from './registry';
-import { API_SOLO_SITO, dalSito } from './origine';
+import { API_SOLO_SITO, corsPer, dalSito } from './origine';
 
 interface Env {
   DB: D1Database;
@@ -58,7 +58,7 @@ async function rinfrescaSeLibero(env: Env): Promise<void> {
   await rinfresca(env);
 }
 
-export default {
+const gestore = {
   // Cron (wrangler.toml): ogni 5 minuti legge le fonti e salva lo snapshot.
   async scheduled(_c: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     // Lo scraping deve partire da una richiesta, non dal cron: solo le richieste rispettano il placement.
@@ -134,5 +134,17 @@ export default {
       return csv == null ? new Response('parametro day (YYYY-MM-DD) mancante o non valido', { status: 400 }) : new Response(csv, { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Cache-Control': 'no-store' } });
     }
     return env.ASSETS.fetch(req);
+  },
+};
+
+export default {
+  scheduled: gestore.scheduled,
+  async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const res = await gestore.fetch(req, env, ctx);
+    const cors = API_SOLO_SITO.has(new URL(req.url).pathname) ? corsPer(req) : {};
+    if (!Object.keys(cors).length) return res;
+    const out = new Response(res.body, res);
+    for (const [k, v] of Object.entries(cors)) out.headers.set(k, v);
+    return out;
   },
 };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dalSito } from '../src/origine';
+import { corsPer, dalSito } from '../src/origine';
 
 const r = (h: Record<string, string>) => new Request('https://ps.example/api/palermo', { headers: h });
 
@@ -21,5 +21,17 @@ describe('dalSito', () => {
   });
   it('rifiuta chi non manda nessuna intestazione (curl)', () => {
     expect(dalSito(r({}))).toBe(false);
+  });
+  it('ammette solo le origini in whitelist, anche cross-site', () => {
+    const h = { 'Sec-Fetch-Site': 'cross-site', Origin: 'https://palermohub.opendatasicilia.it' };
+    expect(dalSito(r(h))).toBe(true);
+    expect(dalSito(r({ ...h, Origin: 'https://siciliahub.github.io' }))).toBe(true);
+    expect(dalSito(r({ ...h, Origin: 'https://siciliahub.github.io.evil.it' }))).toBe(false);
+    expect(dalSito(r({ ...h, Origin: 'https://palermohub.opendatasicilia.it/' }))).toBe(false);
+  });
+  it('CORS solo per le origini ammesse', () => {
+    expect(corsPer(r({ Origin: 'https://siciliahub.github.io' }))['Access-Control-Allow-Origin']).toBe('https://siciliahub.github.io');
+    expect(corsPer(r({ Origin: 'https://altro.it' }))).toEqual({});
+    expect(corsPer(r({}))).toEqual({});
   });
 });
