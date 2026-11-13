@@ -2,6 +2,7 @@ import { FONTE_DI_PS, type Snapshot } from './aggiorna';
 import { PS } from './anagrafica';
 import { valuta, type Affidabilita } from './freschezza';
 import { FONTI } from './registry';
+import type { StatoFonte, StatoFonti } from './allarmi';
 
 /**
  * «Salute dei dati»: per ogni fonte, com'è andata nelle ultime 24 ore a finestre di 30 minuti.
@@ -122,4 +123,23 @@ export async function costruisciSalute(db: D1Database, snap: Snapshot | null, ad
     };
   });
   return { generatoAlle: adesso_.toISOString(), passo: PASSO_SALUTE, da, fonti };
+}
+
+/** Stato di ogni fonte in una riga, senza toccare il database: serve all'Action di allarme. */
+export function statoFonti(snap: Snapshot | null, adesso = new Date()): StatoFonti {
+  const fonti = FONTI.map((fonte): StatoFonte => {
+    const ids = PS.filter((p) => FONTE_DI_PS[p.id] === fonte.id);
+    let stato: Affidabilita = snap ? 'ok' : 'assente', motivo: string | null = snap ? null : 'nessuna lettura', etaMin: number | null = null;
+    for (const p of ids) {
+      const s = snap?.ps[p.id] ?? { lettura: null, acquisitaAlle: null, ultimoErrore: null };
+      const v = valuta(s, adesso);
+      if (GRAVITA.indexOf(v.stato) > GRAVITA.indexOf(stato)) { stato = v.stato; motivo = v.motivo; }
+      if (s.acquisitaAlle) {
+        const m = Math.max(0, Math.round((adesso.getTime() - Date.parse(s.acquisitaAlle)) / 60_000));
+        etaMin = etaMin == null ? m : Math.max(etaMin, m);
+      }
+    }
+    return { id: fonte.id, nome: NOMI[fonte.id] ?? fonte.id, stato, motivo, etaMin };
+  });
+  return { generatoAlle: adesso.toISOString(), aggiornatoAlle: snap && snap.aggiornatoAlle !== new Date(0).toISOString() ? snap.aggiornatoAlle : null, fonti };
 }

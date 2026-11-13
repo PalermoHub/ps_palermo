@@ -32,6 +32,9 @@ Regola dei dati: se la fonte non pubblica un valore è `null`, mai `0` inventato
 - `.github/workflows/backup-storico.yml` gira ogni notte (02:30 UTC): scarica il CSV di ieri in `dati/storico/AAAA/`, ricalcola `heatmap.json`, crea con `scripts/aggrega.mjs` i CSV di settimane e mesi chiusi e riscrive `indice.json`, poi fa commit e push. Il sito legge questi file da `raw.githubusercontent.com`, senza nuovo deploy (cache ~5 min). Le colonne sono descritte in `dati/storico/descrizione-colonne.csv`.
 - Backup locale dell'archivio grezzo: `scripts/backup-d1.sh` (vedi `docs/backup-grezzo.md`).
 
+## Allarmi
+`.github/workflows/controllo-fonti.yml` (ogni 30 minuti) legge `/api/stato` (serve `EXPORT_TOKEN`) e apre una **issue** con label `allarme-dati` se una fonte è irraggiungibile da almeno 30 minuti, ferma («congelata») o vecchia, se il Worker non aggiorna da oltre 20 minuti o se il sito non risponde. L'issue si chiude da sola quando il problema rientra. Anche il backup notturno apre e chiude la sua issue. Le regole sono in `src/allarmi.ts`. Per ricevere l'email, metti il repo in «Watch» su GitHub.
+
 ## Comandi
 `npm test` · `npm run typecheck` · `npm run dev` (anteprima locale su http://localhost:8787) · `npm run deploy`
 

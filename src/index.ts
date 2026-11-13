@@ -3,7 +3,7 @@ import { PS } from './anagrafica';
 import { verifica } from './coerenza';
 import { valuta } from './freschezza';
 import { archivia, leggi, pota, type Cattura } from './grezzo';
-import { costruisciSalute } from './salute';
+import { costruisciSalute, statoFonti } from './salute';
 import { costruisciStorico, csvGiorno, salvaLetture } from './storico';
 import { FONTI } from './registry';
 import { conteggiDownload, contaDownload, fileValido } from './download';
@@ -90,6 +90,11 @@ const gestore = {
       // Statistiche per il gestore: serve il token, come l'export CSV.
       if (!env.EXPORT_TOKEN || req.headers.get('Authorization') !== `Bearer ${env.EXPORT_TOKEN}`) return new Response('non autorizzato', { status: 401 });
       return new Response(JSON.stringify(await conteggiDownload(env.DB)), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
+    }
+    if (pathname === '/api/stato') {
+      // Per l'Action di allarme (.github/workflows/controllo-fonti.yml): serve il token, come l'export CSV.
+      if (!env.EXPORT_TOKEN || req.headers.get('Authorization') !== `Bearer ${env.EXPORT_TOKEN}`) return new Response('non autorizzato', { status: 401 });
+      return new Response(JSON.stringify(statoFonti(await snapshot(env), new Date())), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
     }
     if (pathname === '/api/refresh') {
       // Pubblico ma innocuo: rinfresca solo se lo snapshot ha più di 270s (il cron arriva ogni 300s), quindi chi lo chiama non può moltiplicare le letture.

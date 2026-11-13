@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   backup:
@@ -44,4 +45,22 @@ jobs:
           git config user.name "backup-storico"
           git config user.email "actions@users.noreply.github.com"
           git add dati/storico
-          git diff --cached --quiet || (git commit -m "Backup storico $(date -u +%F)" && git push)
+          git diff --cached --quiet || (git commit -m "Backup storico $(date -u +%F)" && git pull --rebase && git push)
+      # Allarme: se il backup fallisce si apre una issue (una sola, finché resta aperta); al primo successo si chiude.
+      - name: Segnala il fallimento
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          T="Allarme dati: backup notturno fallito"
+          gh label create allarme-dati --color d93f0b --description "Fonte ferma o dati non aggiornati (automatica)" 2>/dev/null || true
+          N=$(gh issue list --label allarme-dati --state open --search "\"$T\" in:title" --json number --jq '.[0].number // empty')
+          URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          if [ -z "$N" ]; then gh issue create --title "$T" --label allarme-dati --body "Il backup notturno dello storico non è riuscito: $URL. Il giorno mancante si recupera lanciando il workflow a mano (campo «giorno»). Si chiude da sola al primo backup riuscito."; else gh issue comment "$N" --body "Fallito di nuovo: $URL"; fi
+      - name: Chiudi l'allarme se rientrato
+        if: ${{ success() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          N=$(gh issue list --label allarme-dati --state open --search "\"Allarme dati: backup notturno fallito\" in:title" --json number --jq '.[0].number // empty')
+          [ -n "$N" ] && gh issue comment "$N" --body "Backup riuscito: chiudo." && gh issue close "$N" || true

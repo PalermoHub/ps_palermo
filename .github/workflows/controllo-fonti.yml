@@ -1,0 +1,32 @@
+name: Controllo fonti
+
+# Ogni 30 minuti chiede al Worker lo stato delle fonti e apre una issue (label allarme-dati) se una è ferma, vecchia o congelata,
+# oppure se il Worker non aggiorna più o non risponde. La issue si chiude da sola quando il problema rientra.
+# Regole in src/allarmi.ts (un errore breve non allarma: serve una fonte irraggiungibile da almeno 30 minuti).
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency: controllo-fonti
+
+jobs:
+  controlla:
+    runs-on: ubuntu-latest
+    env:
+      EXPORT_TOKEN: ${{ secrets.EXPORT_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
+      SITO: ${{ vars.SITO_URL || 'https://palermo-ps.coseerobe.workers.dev' }}
+    steps:
+      - name: Token mancante
+        if: ${{ env.EXPORT_TOKEN == '' }}
+        run: echo "::error::Imposta il secret EXPORT_TOKEN." && exit 1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx vite-node scripts/controlla-fonti.ts
