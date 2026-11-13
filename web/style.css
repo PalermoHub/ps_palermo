@@ -14,7 +14,7 @@
   --cr-bg:#3a1717;--cr-bd:#7a3535;--ca-bg:#3a2810;--ca-bd:#7a5420;--cz-bg:#10303d;--cz-bd:#2d6a85;--cv-bg:#12301f;--cv-bd:#2d6b45;--cb-bg:#1a3447;--cb-bd:#43627a}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:12px}
-body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--ff-b);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--ff-b);-webkit-text-size-adjust:100%;text-wrap:pretty}
 ::selection{background:var(--acc);color:#0b2a3f}
 html{scrollbar-color:var(--ctl) var(--paper)}
 .wrap{max-width:1120px;margin:0 auto;padding-inline:20px}
@@ -585,7 +585,7 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 .g-in ul.g-cod li{display:flex;align-items:center;gap:8px}
 .g-in figure{margin:4px 0 0;display:flex;flex-direction:column;gap:6px}
 .g-in figure img{display:block;max-width:100%;height:auto;border-radius:14px;border:1px solid var(--line);align-self:flex-start}
-.g-in figcaption{font-size:.85em;opacity:.75}
+.g-in figcaption{font-size:.85em;color:var(--ink)}
 .g-nota{padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--accbg)}
 
 /* permanenza: tre fasce su una rampa blu, più scura = più a lungo (il colore dei codici triage resta ai codici) */
