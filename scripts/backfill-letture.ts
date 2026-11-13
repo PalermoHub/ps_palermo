@@ -9,7 +9,7 @@
  * `totale` e `sovraff` già salvati; altrimenti è saltata e conteggiata (mai dati attribuiti a un momento sbagliato).
  */
 import { execFileSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { FONTE_DI_PS } from '../src/aggiorna';
 import { FONTI } from '../src/registry';
 import { COLONNE, valoriLettura } from '../src/storico';
@@ -29,15 +29,31 @@ const caps = d1<{ id: number; fonte: string; chiave: string; ts: number }>("SELE
 const righe = d1<Record<string, number | string | null>>('SELECT ps_id, ts, in_attesa, totale, sovraff FROM letture ORDER BY ts');
 console.log(`catture ok: ${caps.length}, righe di letture: ${righe.length}`);
 
+// Cache su disco: se la rete cade, un nuovo lancio riparte da qui invece di riscaricare tutto.
+const CACHE = '.backfill-cache';
+mkdirSync(CACHE, { recursive: true });
 const corpi = new Map<number, string>();
 async function corpo(id: number): Promise<string> {
   const c = corpi.get(id);
   if (c != null) return c;
-  const r = await fetch(`${SITO}/api/grezzo?id=${id}`, { headers: { Authorization: `Bearer ${TOKEN}` } });
-  if (!r.ok) throw new Error(`grezzo ${id}: HTTP ${r.status}`);
-  const t = await r.text();
-  corpi.set(id, t);
-  return t;
+  const file = `${CACHE}/${id}.txt`;
+  if (existsSync(file)) { const t = readFileSync(file, 'utf8'); corpi.set(id, t); return t; }
+  for (let prova = 1; ; prova++) {
+    try {
+      const r = await fetch(`${SITO}/api/grezzo?id=${id}`, { headers: { Authorization: `Bearer ${TOKEN}` } });
+      if (r.status === 401 || r.status === 403) throw new Error(`grezzo ${id}: HTTP ${r.status} (token sbagliato?)`);
+      if (!r.ok) throw Object.assign(new Error(`grezzo ${id}: HTTP ${r.status}`), { ritenta: true });
+      const t = await r.text();
+      writeFileSync(file, t);
+      corpi.set(id, t);
+      return t;
+    } catch (e) {
+      // Token sbagliato = si ferma subito; errori di rete o 5xx si ritentano.
+      if (e instanceof Error && e.message.includes('token sbagliato')) throw e;
+      if (prova >= 6) throw e;
+      await new Promise((ok) => setTimeout(ok, 1000 * prova));
+    }
+  }
 }
 
 const sql: string[] = [];
