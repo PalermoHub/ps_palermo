@@ -73,6 +73,20 @@
     PERIODI.forEach(([k, t]) => { const b = el('button', 'chip', t); b.type = 'button'; b.setAttribute('aria-pressed', st.per === k); b.addEventListener('click', () => { st.per = k; periodi(); render(); }); c.append(b); });
   }
   periodi(); render();
+  // Arrivo con #scarica-sez: i grafici sopra si disegnano dopo e spostano il blocco, quindi si riallinea finché il layout si assesta
+  // (o finché l'utente non scorre). In embed scorre la pagina ospitante: le si chiede la posizione.
+  (function vaiAlBlocco() {
+    if (location.hash !== '#scarica-sez') return;
+    const sez = $('scarica-sez'); if (!sez) return;
+    const embed = document.documentElement.classList.contains('embed');
+    const vai = () => {
+      if (embed) { const y = Math.max(0, Math.round(sez.getBoundingClientRect().top + scrollY) - 12); try { parent.postMessage({ source: 'ps-palermo', type: 'scroll', y }, '*'); } catch {} }
+      else sez.scrollIntoView({ block: 'start' });
+    };
+    const ro = new ResizeObserver(vai), fine = () => { ro.disconnect(); ['wheel', 'touchstart', 'keydown'].forEach((e) => removeEventListener(e, fine)); };
+    ro.observe(document.body); ['wheel', 'touchstart', 'keydown'].forEach((e) => addEventListener(e, fine, { passive: true }));
+    setTimeout(fine, 6000); vai();
+  })();
   fetch('/api/dl-conteggi').then((r) => (r.ok ? r.json() : {})).then((c) => { st.conta = { ...st.conta, ...c }; }).catch(() => {}).finally(render);
   fetch(BASE + 'indice.json').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((i) => { st.indice = i; }).catch(() => { st.indice = null; }).finally(render);
 })();
