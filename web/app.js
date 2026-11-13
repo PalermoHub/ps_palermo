@@ -430,21 +430,25 @@ function apriScheda(id, daHash) {
   const chips = el('div', 's-chips');
   chips.append(el('span', `badge ${b.k}`, b.txt), el('span', 'badge nd', p.tipo === 'adulti' ? 'Adulti' : 'Pediatrico'));
   if (meno.has(p.id) && b.txt !== 'Meno affollato') chips.append(el('span', 'badge ok', 'Meno affollato'));
-  corpo.append(chips, el('p', 'dove', p.struttura));
+  chips.append(el('span', 'dove', p.struttura));
   const az = el('div', 's-az');
-  az.append(azione('Indicazioni', `https://www.google.com/maps/dir/?api=1&destination=${c}`, true, 'rotta'));
-  if (p.telefono) az.append(azione('Chiama', `tel:${p.telefono.replace(/\s/g, '')}`, false, 'tel'));
-  if (p.sito) az.append(azione('Sito', p.sito, false, 'web'));
-  const sh = conIcona(el('button', 'btn sec'), 'share', 'Condividi'); sh.type = 'button';
+  // Ogni pulsante mostra direttamente il dato (indirizzo, numero, sito) e ha la larghezza del suo testo.
+  const dato = (txt, href, primaria, k, nome) => { const a = azione(txt, href, primaria, k); a.setAttribute('aria-label', `${nome}: ${txt}`); a.title = nome; return a; };
+  az.append(dato(p.indirizzo, `https://www.google.com/maps/dir/?api=1&destination=${c}`, true, 'rotta', 'Indicazioni stradali verso'));
+  if (p.telefono) az.append(dato(p.telefono, `tel:${p.telefono.replace(/\s/g, '')}`, false, 'tel', 'Chiama'));
+  if (p.sito) az.append(dato(p.sito.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''), p.sito, false, 'web', 'Sito web'));
+  az.append(dato('Pagina della fonte', p.fonteUrl, false, 'doc', 'Pagina ufficiale della fonte'));
+  const sh = conIcona(el('button', 'btn sec'), 'share', 'Condividi'); sh.type = 'button'; sh.title = 'Condividi'; const shT = sh.querySelector('span'); shT.className = 'sr';
   sh.addEventListener('click', async () => {
     const url = `${BASE_CONDIVISIONE}#ps=${encodeURIComponent(p.id)}`;
-    const copia = async () => { try { await navigator.clipboard.writeText(url); sh.testo('Link copiato'); setTimeout(() => sh.testo('Condividi'), 2000); } catch { prompt('Copia il link', url); } };
+    const copia = async () => { try { await navigator.clipboard.writeText(url); sh.testo('Link copiato'); shT.className = ''; sh.classList.add('copiato'); setTimeout(() => { sh.testo('Condividi'); shT.className = 'sr'; sh.classList.remove('copiato'); }, 2000); } catch { prompt('Copia il link', url); } };
     if (!navigator.share) return copia();
     try { await navigator.share({ title: `Pronto soccorso ${p.nome}`, url }); } catch (e) { if (e.name !== 'AbortError') copia(); }
   });
-  az.append(sh); corpo.append(az);
+  sh.classList.add('s-sh'); az.append(sh); h.insertBefore(chips, x); corpo.append(az);
 
-  const griglia = el('div', 's-grid'), sx = el('div', 's-col'), dx = el('div', 's-col');
+  const griglia = el('div', 's-grid'), dx = el('div', 's-col');
+  let andamento = null, codBox = null;
 
   // Fascia in alto: i numeri che contano, con il termometro del sovraffollamento.
   const cur = el('section', 's-hero'), top = el('div', 's-top');
@@ -481,7 +485,7 @@ function apriScheda(id, daHash) {
       const g = ser && PS_STORICO.linea(ser, da, S.passo, per);
       sl.append(g || el('p', 'vuoto', 'Storico in raccolta: il grafico compare dopo qualche ora di dati.'));
     };
-    mostraPer('24h'); sx.append(sez);
+    mostraPer('24h'); andamento = sez;
   }
 
   // Colonna sinistra: tabella per codice colore e mappa.
@@ -514,7 +518,7 @@ function apriScheda(id, daHash) {
     tb.append(tot);
     t.append(tb); tw.append(t); box.append(tw);
     if (cols.length === 1) box.append(el('p', 's-nota', 'Questo ospedale pubblica solo i pazienti in attesa per codice.'));
-    sx.append(box);
+    codBox = box;
   }
   const dove = el('section', 's-box'); dove.append(el('h3', null, 'Mappa'));
   const mm = el('div'); mm.id = 's-map'; mm.setAttribute('role', 'region'); mm.setAttribute('aria-label', `Posizione di ${p.nome}`); dove.append(mm);
@@ -527,7 +531,7 @@ function apriScheda(id, daHash) {
     if (pres.children.length > 1) dx.append(pres);
     const tiles = (tit, voci, cls) => {
       const v = voci.filter(([, x]) => x != null); if (!v.length) return;
-      const bx = el('section', 's-box'); bx.append(el('h3', null, tit));
+      const bx = el('section', 's-box s-fisso'); bx.append(el('h3', null, tit));
       const g = el('div', `s-tiles ${cls || ''}`);
       v.forEach(([lab, x, col]) => { const d = el('div'); if (col) d.style.setProperty('--tc', col); d.append(el('b', null, x), el('span', null, lab)); g.append(d); });
       bx.append(g); dx.append(bx);
@@ -535,18 +539,16 @@ function apriScheda(id, daHash) {
     tiles('Tempo in struttura', [['meno di 24 ore', perm?.meno24h], ['24–48 ore', perm?.da24a48h], ['oltre 48 ore', perm?.oltre48h]]);
     if (tm) tiles('Attesa media', COD.filter((cd) => tm[cd] != null).map((cd) => [cd === 'arancione' ? 'Arancione' : ETI[cd], fmtMin(tm[cd]), cd === 'bianco' ? 'var(--ctl)' : `var(--${cd})`]), 'col');
   }
-  const inf = el('section', 's-box'); inf.append(el('h3', null, 'Informazioni'));
-  inf.append(info('pin', link(p.indirizzo, `https://www.google.com/maps/search/?api=1&query=${c}`)));
-  if (p.telefono) inf.append(info('tel', link(p.telefono, `tel:${p.telefono.replace(/\s/g, '')}`)));
-  if (p.sito) inf.append(info('web', link(p.sito.replace(/^https?:\/\/(www\.)?/, ''), p.sito)));
-  inf.append(info('doc', link('Pagina ufficiale della fonte', p.fonteUrl)));
-  if (p.ultimoErrore) inf.append(el('p', 'err', 'La fonte non è raggiungibile: si vede l’ultimo dato valido.'));
-  if (p.lettura?.sovraffollamentoCalcolato) inf.append(el('p', 'err', 'L’indice di sovraffollamento non è pubblicato dall’ospedale: lo calcoliamo noi con la stessa formula della maggior parte degli altri presidi (presenti ÷ posti tecnici).'));
-  if (!p.ultimoErrore && fermo(p)) inf.append(el('p', 'err', 'I numeri non cambiano da ore: la fonte potrebbe essersi fermata. Non usarli per scegliere dove andare.'));
-  sx.append(inf);
-  dx.append(dove);
-
-  griglia.append(sx, dx); corpo.append(griglia);
+  const note = el('div', 's-note-g');
+  if (p.ultimoErrore) note.append(el('p', 'err', 'La fonte non è raggiungibile: si vede l’ultimo dato valido.'));
+  if (p.lettura?.sovraffollamentoCalcolato) note.append(el('p', 'err', 'L’indice di sovraffollamento non è pubblicato dall’ospedale: lo calcoliamo noi con la stessa formula della maggior parte degli altri presidi (presenti ÷ posti tecnici).'));
+  if (!p.ultimoErrore && fermo(p)) note.append(el('p', 'err', 'I numeri non cambiano da ore: la fonte potrebbe essersi fermata. Non usarli per scegliere dove andare.'));
+  if (note.children.length) cur.after(note);
+  // Colonne: codici colore | presenze e tempi | andamento + mappa. Su schermi larghi stanno su un'unica riga, così la scheda entra in un monitor.
+  const dir = el('div', 's-col'); if (andamento) { andamento.classList.add('s-fisso'); dir.append(andamento); } dir.append(dove);
+  const pezzi = [codBox, dx.children.length ? dx : null, dir].filter(Boolean);
+  griglia.dataset.n = pezzi.length;
+  griglia.append(...pezzi); corpo.append(griglia);
   const nota = el('div', 's-avviso');
   const c112 = el('a', 'call112', 'In emergenza chiama il 112'); c112.href = 'tel:112'; c112.setAttribute('aria-label', 'In emergenza chiama il 112, numero unico di emergenza');
   nota.append(c112, el('p', null, 'I dati sono pubblicati dal pronto soccorso e potrebbero non essere sempre accurati o aggiornati.'));
