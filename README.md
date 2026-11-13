@@ -49,8 +49,5 @@ Copyright © 2026 OpenDataSicilia.
 - **Codice** (`src/`, `web/`, `scripts/`, `test/`): [MIT](LICENSE).
 - **Dati** (`dati/`): [CC BY 4.0](dati/LICENZA.md), da citare come «Pronto Soccorso Palermo (#opendatasicilia), CC BY 4.0». I numeri di partenza restano degli enti che li pubblicano.
 
-## Altra documentazione
-`docs/`: `da-fare.md` (attività aperte), `audit-fonti.md`, `analisi-dati-e-grafici.md`, `diagnosi-dati-non-aggiornati.md`, `embed.md`, `backup-grezzo.md`.
-
 ## Da fare
 Lista unica e aggiornata in [`docs/da-fare.md`](docs/da-fare.md) (priorità, cose da sapere prima di ripartire).
