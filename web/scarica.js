@@ -65,7 +65,7 @@
     const doc = el('button', 'exp-b', 'Descrizione delle colonne (CSV)'); doc.type = 'button';
     doc.addEventListener('click', () => scarica({ file: 'descrizione-colonne.csv' }, doc));
     const rigaDoc = el('div', 'exp-r'); rigaDoc.append(doc);
-    const nDoc = testoConta('descrizione-colonne.csv'); if (nDoc) rigaDoc.append(el('small', 'dl-n', nDoc.slice(3)));
+    const nDoc = testoConta('descrizione-colonne.csv'); if (nDoc) rigaDoc.prepend(el('small', 'dl-n', nDoc.slice(3)));
     box.append(ul, rigaDoc, el('p', 'bc-nota', `Colonne: ${st.indice.colonne.replaceAll(',', ', ')}. Orari in UTC. Un campo vuoto vuol dire che la fonte non pubblica quel dato. Cosa significa ogni colonna e a cosa serve è nel file di descrizione.`));
   }
   function periodi() {
