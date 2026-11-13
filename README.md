@@ -8,6 +8,7 @@ Un **Cloudflare Worker** con cron ogni 5 minuti interroga 5 fonti, normalizza in
 
 - Il cron chiama `/api/refresh` tramite un binding a sé stesso (`SELF`): lo scraping parte da una richiesta, così rispetta il placement `aws:eu-south-1` (Milano). Riuniti e ARNAS Civico non rispondono a IP di datacenter esteri.
 - Se una fonte cade resta l'ultima lettura buona con `acquisitaAlle` e `ultimoErrore`: un dato vecchio non passa mai per fresco (`src/freschezza.ts`). Fonti congelate e incoerenze sono segnalate (`src/coerenza.ts`, `src/salute.ts`).
+- Gli endpoint `/api/*` pubblici sono pensati per il sito: rispondono solo a richieste della stessa origine o di `palermohub.opendatasicilia.it` e `siciliahub.github.io` (con CORS), con un limite di 30 richieste al minuto per IP (`src/origine.ts`, binding `LIMITE` in `wrangler.toml`). Export CSV e archivio grezzo richiedono `EXPORT_TOKEN`.
 - Ogni risposta grezza delle fonti è archiviata (`src/grezzo.ts`), così i parser si possono rieseguire sul passato. Le catture `ok` più vecchie di 7 giorni sono potate (resta la prima per fonte/chiave/giorno), gli errori restano 90 giorni.
 
 | Fonte | Formato | PS | File |
@@ -20,16 +21,6 @@ Un **Cloudflare Worker** con cron ogni 5 minuti interroga 5 fonti, normalizza in
 
 Regola dei dati: se la fonte non pubblica un valore è `null`, mai `0` inventato né totali calcolati da noi
 (eccezione dichiarata: `pazientiTotali` Buccheri/Policlinico e `sovraffollamentoPct` Policlinico).
-
-## API
-| Endpoint | Cosa restituisce |
-|---|---|
-| `GET /api/palermo` | Ultima lettura di ogni PS, con affidabilità e coerenza (cache 30 s) |
-| `GET /api/storico` | Serie storiche per i grafici (cache in D1, 5 min) |
-| `GET /api/salute` | Affidabilità delle fonti nelle ultime 24 ore (cache in D1, 5 min) |
-| `GET /api/refresh` | Rinfresca lo snapshot se più vecchio di 270 s (usato dal cron) |
-| `GET /api/export.csv?day=AAAA-MM-GG` | CSV di un giorno, **con token** (`EXPORT_TOKEN`) |
-| `GET /api/grezzo[?id=N]` | Archivio delle risposte grezze, **con token** |
 
 ## Sito (`web/`)
 - `index.html`: mappa Leaflet, schede per presidio, filtro adulti/pediatrico, riepilogo, pulsante 112 e disclaimer «non sostituisce il 118».
