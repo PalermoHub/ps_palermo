@@ -44,6 +44,7 @@ Secret nel repo: `CLOUDFLARE_API_TOKEN` (template "Edit Cloudflare Workers"), `C
 Se l'Action non parte, il deploy si fa a mano con `npm run deploy`.
 
 ## Licenze
+Copyright © 2026 OpenDataSicilia.
 - **Codice** (`src/`, `web/`, `scripts/`, `test/`): [MIT](LICENSE).
 - **Dati** (`dati/`): [CC BY 4.0](dati/LICENZA.md), da citare come «Pronto Soccorso Palermo (#opendatasicilia), CC BY 4.0». I numeri di partenza restano degli enti che li pubblicano.
 

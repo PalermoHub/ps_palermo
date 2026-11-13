@@ -1,5 +1,7 @@
 # Licenza dei dati
 
+Copyright © 2026 OpenDataSicilia
+
 I file in `dati/` (CSV giornalieri, settimanali e mensili in `storico/`, `heatmap.json`, `indice.json`, `descrizione-colonne.csv`) sono rilasciati con licenza **[Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.it)**. Testo completo: [`LICENSE-CC-BY-4.0.txt`](LICENSE-CC-BY-4.0.txt).
 
 Puoi copiarli, ridistribuirli, modificarli e usarli anche a fini commerciali, a condizione di citare la fonte e indicare se hai fatto modifiche.
