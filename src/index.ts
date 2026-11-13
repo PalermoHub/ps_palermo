@@ -6,6 +6,7 @@ import { archivia, leggi, pota, type Cattura } from './grezzo';
 import { costruisciSalute } from './salute';
 import { costruisciStorico, csvGiorno, salvaLetture } from './storico';
 import { FONTI } from './registry';
+import { API_SOLO_SITO, dalSito } from './origine';
 
 interface Env {
   DB: D1Database;
@@ -64,6 +65,7 @@ export default {
 
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const { pathname } = new URL(req.url);
+    if (API_SOLO_SITO.has(pathname) && !dalSito(req)) return new Response('accesso consentito solo dal sito', { status: 403, headers: { 'Cache-Control': 'no-store' } });
     if (pathname === '/api/refresh') {
       // Pubblico ma innocuo: rinfresca solo se lo snapshot ha più di 270s (il cron arriva ogni 300s), quindi chi lo chiama non può moltiplicare le letture.
       const snap = await snapshot(env);
