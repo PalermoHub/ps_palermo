@@ -340,16 +340,6 @@ function trendPill(tn, px) {
   return t;
 }
 
-/** Versione discreta della tendenza per le card: freccia e variazione accanto a «in attesa», frase intera in title/aria-label. */
-function trendMini(tn) {
-  const frase = { su: 'In salita', giu: 'In calo', stabile: 'Stabile' }[tn.verso] + (tn.verso === 'stabile' ? " rispetto a un'ora fa" : `: ${tn.delta > 0 ? '+' : '−'}${Math.abs(tn.delta)} rispetto a un'ora fa`);
-  const s = el('span', `trend-m ${tn.verso}`), ico = el('i');
-  ico.innerHTML = icona(tn.verso, 11); ico.setAttribute('aria-hidden', 'true');
-  s.title = frase; s.setAttribute('role', 'img'); s.setAttribute('aria-label', frase);
-  s.append(ico, tn.verso === 'stabile' ? 'stabile' : `${tn.delta > 0 ? '+' : '−'}${Math.abs(tn.delta)} in 1 h`);
-  return s;
-}
-
 function card(p, menoId) {
   const l = p.lettura, b = badge(p, menoId), art = el('article', 'card lv-' + b.k);
   const head = el('div', 'card-h'), tit = el('div');
@@ -374,7 +364,7 @@ function card(p, menoId) {
   }
   const foot = el('div', 'card-f');
   const tn = l && !f.vecchio && st.storico && PS_STORICO.tendenza(st.storico.spark.ps[p.id], st.storico.spark.da, st.storico.passo, l.inAttesa);
-  if (tn) foot.append(trendMini(tn));
+  if (tn) foot.append(trendPill(tn, 14));
   const btn = el('button', 'btn sec', 'Scheda'); btn.type = 'button'; btn.title = 'Scheda di dettaglio della struttura'; btn.addEventListener('click', () => apriScheda(p.id));
   foot.append(btn); art.append(foot);
   return art;
