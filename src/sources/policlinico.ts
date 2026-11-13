@@ -8,8 +8,10 @@ const MAPPA: [Codice, string][] = [
 ];
 
 /**
- * ASSUNZIONE DA VERIFICARE: `pazientiInCarico` = pazienti in trattamento. Il JSON non dice altro e
- * non pubblica un orario di rilevazione (rilevataAlle = null: mostrare solo l'ora della nostra lettura).
+ * `pazientiInCarico` = pazienti in trattamento. Verificato il 2026-11-13: la pagina ufficiale
+ * (policlinico.pa.it, fragment del PS) mostra questi valori sotto l'etichetta «Pazienti in Cura» (icona medico), accanto a
+ * «Pazienti in Attesa» = `pazientiInAttesa`; inoltre `carichiUrgenza` = 4 x `pazientiInCarico` per ogni codice (fixture e dato live).
+ * Il JSON non pubblica un orario di rilevazione (rilevataAlle = null: mostrare solo l'ora della nostra lettura).
  */
 export function parsePoliclinico(principale: string, indici: string): Lettura[] {
   const d = JSON.parse(principale);
