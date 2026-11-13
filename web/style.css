@@ -667,6 +667,7 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 .dl li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px}.dl li+li{border-top:1px solid var(--soft)}
 .dl-t{min-width:0}.dl-t b{display:block;color:var(--head);font-size:14px;text-transform:capitalize}.dl-t small{display:block;font-size:12.5px}
 .dl .exp-b{flex:none}
+.dl+.exp-r{padding-right:15px} /* bordo destro = quello dei pulsanti nella lista (1px bordo + 14px padding) */
 #scarica-per{flex-wrap:nowrap;align-items:center}
 #scarica-per .dl-sel{flex:1 1 0;min-width:0;max-width:220px;min-height:40px;border-radius:10px;border:1.5px solid var(--ctl);background:var(--white);color:var(--head);font:600 13px var(--ff-b);padding:0 8px;text-transform:capitalize}
 @media(max-width:600px){#scarica-per{gap:6px}#scarica-per .chip{padding:0 10px}#scarica-per .dl-sel{min-height:34px;font-size:12.5px}}
