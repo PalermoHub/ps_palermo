@@ -353,6 +353,7 @@ header .tema{margin-left:-8px;border-color:rgba(255,255,255,.35);background:tran
 .s-h{align-items:center;gap:8px}.s-az .s-sh{margin-left:auto;min-width:44px;padding:0 12px;justify-content:center}.s-az .s-sh.copiato{padding:0 16px}.s-h h2{min-width:0}
 .s-h{flex-wrap:wrap}.s-h h2{order:1}.s-h .s-x{order:3}.s-h .s-chips{order:4;flex-basis:100%}
 .s-col>.s-box.s-fisso{flex:0 0 auto}
+.s-col>.s-box.s-grow{flex:1 1 auto}
 @media (min-width:1000px){
   dialog{max-width:min(1240px,calc(100vw - 48px))}
   .s-h{flex-wrap:nowrap}.s-h .s-chips{order:2;flex:1 1 auto;flex-basis:auto;margin-left:10px}.s-h .s-x{order:4}
