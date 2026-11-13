@@ -1,29 +1,37 @@
 import type { Ps } from './types';
 
 // Dati anagrafici ripresi dal config di prontosoccorso_api (da ricontrollare prima della pubblicazione).
+// telefono: numeri del pronto soccorso copiati dalle pagine contatti ufficiali (novembre 2026: ospedaliriunitipalermo.it/lazienda-ospedaliera/contatti-e-numeri-utili, arnascivico.it/index.php/contatti, ospedalebuccherilaferla.it/contatti, urp.policlinico.pa.it/numeri-utili-policlinico-palermo: la pagina dà per il PS 091 6556001 e 091 6556031, ma il link del primo punta al numero della Farmacia, quindi uso il secondo). Manca l'Ingrassia: nessun numero PS ufficiale trovato.
 export const PS: Ps[] = [
   { id: 'villa-sofia-adulti', nome: 'Villa Sofia', struttura: 'Ospedali Riuniti Villa Sofia-Cervello', tipo: 'adulti',
     indirizzo: 'Piazza Salerno 1, 90146 Palermo', coords: { lat: 38.155978, lng: 13.337607 },
+    telefono: '091 780 4031',
     fonteUrl: 'https://www.ospedaliriunitipalermo.it/amministrazione-trasparente/servizi-erogati/liste-di-attesa/pazienti-in-attesa-al-pronto-soccorso/', sito: 'https://www.ospedaliriunitipalermo.it' },
   { id: 'cervello-adulti', nome: 'Cervello', struttura: 'Ospedali Riuniti Villa Sofia-Cervello', tipo: 'adulti',
     indirizzo: 'Via Trabucco 180, 90146 Palermo', coords: { lat: 38.1545298, lng: 13.3138741 },
+    telefono: '091 680 2515',
     fonteUrl: 'https://www.ospedaliriunitipalermo.it/amministrazione-trasparente/servizi-erogati/liste-di-attesa/pazienti-in-attesa-al-pronto-soccorso/', sito: 'https://www.ospedaliriunitipalermo.it' },
   { id: 'cervello-pediatrico', nome: 'Cervello Pediatrico', struttura: 'Ospedali Riuniti Villa Sofia-Cervello', tipo: 'pediatrico',
     indirizzo: 'Via Trabucco 180, 90146 Palermo', coords: { lat: 38.1545298, lng: 13.3138741 },
+    telefono: '091 680 2015',
     fonteUrl: 'https://www.ospedaliriunitipalermo.it/amministrazione-trasparente/servizi-erogati/liste-di-attesa/pazienti-in-attesa-al-pronto-soccorso/', sito: 'https://www.ospedaliriunitipalermo.it' },
   { id: 'civico-adulti', nome: 'Civico', struttura: 'ARNAS Civico', tipo: 'adulti',
     indirizzo: 'Via Carmelo Lazzaro 4, 90127 Palermo', coords: { lat: 38.1042334, lng: 13.3560857 },
+    telefono: '091 666 5528',
     fonteUrl: 'https://www.arnascivico.it/index.php?option=com_content&view=article&id=3415&catid=24&Itemid=139', sito: 'https://www.arnascivico.it' },
   { id: 'di-cristina-pediatrico', nome: 'Di Cristina', struttura: 'ARNAS Civico', tipo: 'pediatrico',
     indirizzo: 'Via Carmelo Lazzaro 4, 90127 Palermo', coords: { lat: 38.1099461, lng: 13.3548131 },
+    telefono: '091 666 6028',
     fonteUrl: 'https://www.arnascivico.it/index.php?option=com_content&view=article&id=3415&catid=24&Itemid=139', sito: 'https://www.arnascivico.it' },
   { id: 'policlinico-adulti', nome: 'Policlinico', struttura: 'AOUP Policlinico "P. Giaccone"', tipo: 'adulti',
     indirizzo: 'Via del Vespro 129, 90127 Palermo', coords: { lat: 38.1044938, lng: 13.3625445 },
+    telefono: '091 655 6031',
     fonteUrl: 'https://www.policlinico.pa.it/web/guest', sito: 'https://www.policlinico.pa.it' },
   { id: 'ingrassia-adulti', nome: 'Ingrassia', struttura: 'ASP Palermo', tipo: 'adulti',
     indirizzo: 'Corso Calatafimi 1002, 90131 Palermo', coords: { lat: 38.0932568, lng: 13.3099573 },
     fonteUrl: 'https://www.asppalermo.org/attese_ps/index_mod2.php', sito: 'https://www.asppalermo.org' },
   { id: 'buccheri-adulti', nome: 'Buccheri La Ferla', struttura: 'Fatebenefratelli', tipo: 'adulti',
     indirizzo: 'Via Messina Marine 197, 90123 Palermo', coords: { lat: 38.1058898, lng: 13.3859316 },
+    telefono: '091 479203',
     fonteUrl: 'https://servizionline.provinciaromanafbf.it/palermo/monitorps/portal-view/01/G', sito: 'https://www.provinciaromanafbf.it' },
 ];
