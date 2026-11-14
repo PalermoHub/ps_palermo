@@ -5,7 +5,7 @@ html.embed body{background:transparent;padding:12px 24px 16px}
 
 /* via ciò che la pagina ospitante già fornisce */
 .embed .top,
-.embed .foot > div:not(:nth-child(2)){display:none!important}
+.embed .foot-b .logo{display:none!important}
 
 /* navigazione interna minima (al posto del menu in testata) */
 .emb-nav{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 12px 64px}
