@@ -20,7 +20,7 @@ html.embed body{background:transparent;padding:12px 24px 16px}
 /* spazi compatti: il contenitore è quello della pagina ospitante */
 .embed main > .wrap,.embed footer .wrap{max-width:none;padding-inline:0}
 .embed .sez{padding-block:24px 4px}
-.embed .hero{border-radius:20px;border:0}
+.embed .hero{border-radius:0;border:0;margin-inline:-24px} /* hero a tutta larghezza dell'iframe */
 .embed footer{margin-top:24px;background:none;color:var(--ink)}
 .embed .foot{padding-block:0;grid-template-columns:1fr}
 .embed footer h2{color:var(--head);font-size:16px}
@@ -32,6 +32,7 @@ html.embed body{background:transparent;padding:12px 24px 16px}
 
 @media (max-width:700px){
   .emb-nav{display:none}
+  .embed .hero{margin:-10px -14px 0}
   .embed .bnav{grid-template-columns:repeat(6,1fr);padding-inline:2px}
   .embed .bnav a,.embed .bnav button{font-size:11px}
   @media (max-width:360px){.embed .bnav a,.embed .bnav button{font-size:10px}}
