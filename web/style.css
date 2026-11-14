@@ -722,14 +722,22 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 .exp-av{margin:0 0 6px;font-size:11.5px;line-height:1.45}.exp-meta{margin:0;font-size:11px;font-weight:700;color:var(--ink2)}
 
 /* ---------- scarica i dati ---------- */
-.dl{list-style:none;margin:0;padding:0;max-height:420px;overflow-y:auto;border:1px solid var(--line);border-radius:14px;background:var(--white)}
-.dl li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px}.dl li+li{border-top:1px solid var(--soft)}
+.dl-acc{border:1px solid var(--line);border-radius:14px;background:var(--white);overflow:hidden}
+.dl-g+.dl-g{border-top:1px solid var(--line)}
+.dl-g summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;min-height:44px;cursor:pointer;list-style:none;color:var(--head);font:700 14px var(--ff-b);transition:background .12s}
+.dl-g summary::-webkit-details-marker{display:none}
+.dl-g summary::before{content:"";flex:none;width:8px;height:8px;margin-right:2px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+.dl-g[open]>summary::before{transform:rotate(45deg)}
+.dl-gn{flex:1;text-transform:capitalize}.dl-gc{font-weight:500;font-size:12.5px;color:var(--ink2)}
+.dl-g summary:hover,.dl-g summary:focus-visible{background:var(--accbg)}
+.dl-g[open]>summary{border-bottom:1px solid var(--soft)}
+.dl{list-style:none;margin:0;padding:0;max-height:360px;overflow-y:auto}
+.dl li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;transition:background .12s}.dl li+li{border-top:1px solid var(--soft)}
+.dl li:hover,.dl li:focus-within{background:var(--accbg)}
 .dl-t{min-width:0}.dl-t b{display:block;color:var(--head);font-size:14px;text-transform:capitalize}.dl-t small{display:block;font-size:12.5px}
 .dl .exp-b{flex:none}
-.dl+.exp-r{padding-right:15px} /* bordo destro = quello dei pulsanti nella lista (1px bordo + 14px padding) */
-#scarica-per{flex-wrap:nowrap;align-items:center}
-#scarica-per .dl-sel{flex:1 1 auto;min-width:max-content;max-width:220px;min-height:40px;border-radius:10px;border:1.5px solid var(--ctl);background:var(--white);color:var(--head);font:600 13px var(--ff-b);padding:0 8px;text-transform:capitalize}
-@media(max-width:600px){#scarica-per{gap:6px}#scarica-per .chip{padding:0 10px}#scarica-per .dl-sel{min-height:34px;font-size:12.5px}}
+.dl-acc+.exp-r{padding-right:15px} /* bordo destro = quello dei pulsanti nella lista (1px bordo + 14px padding) */
+@media(max-width:600px){.dl-gc{font-size:12px}}
 
 /* Pagina privacy: colonna di lettura stretta (in embed allineata a sinistra come le altre pagine) */
 main > .wrap.priv{max-width:46rem}

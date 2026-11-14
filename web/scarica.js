@@ -38,35 +38,43 @@
   /** " · 12 download" (vuoto se nessuno): il conteggio viene dal Worker, che conta i download fatti da qui. */
   const testoConta = (f) => { const n = st.conta[f]; return n ? ` · ${num.format(n)} download` : ''; };
   function render() {
-    const box = $('scarica'); if (!box) return; box.replaceChildren(); $('scarica-per')?.querySelector('.dl-sel')?.remove();
+    const box = $('scarica'); if (!box) return; box.replaceChildren();
     if (st.indice === undefined) { box.append(el('p', 'vuoto', 'Caricamento…')); return; }
     if (!st.indice) { box.append(el('p', 'vuoto', 'L\'elenco dei file non è disponibile al momento. Riprova più tardi.')); return; }
     const elenco = st.indice[st.per] ?? [];
     if (!elenco.length) { box.append(el('p', 'vuoto', st.per === 'giorni' ? 'Ancora nessun giorno archiviato.' : (st.per === 'mesi' ? 'Ancora nessun mese concluso' : 'Ancora nessuna settimana conclusa') + ': i file compaiono a periodo finito.')); return; }
     const chiavi = [...new Set(elenco.map(gruppo[st.per]))]; // l'indice è dal più recente: la prima è la più recente
-    const scelta = chiavi.includes(st.sel[st.per]) ? st.sel[st.per] : chiavi[0];
-    const riga = $('scarica-per'); riga?.querySelector('.dl-sel')?.remove();
-    if (chiavi.length > 1 && riga) {
-      const sel = el('select', 'dl-sel');
-      sel.setAttribute('aria-label', st.per === 'giorni' ? 'Mese' : 'Anno');
-      chiavi.forEach((k) => sel.append(new Option(nomeGruppo[st.per](k), k, false, k === scelta)));
-      sel.addEventListener('change', () => { st.sel[st.per] = sel.value; render(); });
-      riga.append(sel);
-    }
-    const ul = el('ul', 'dl');
-    elenco.filter((x) => gruppo[st.per](x) === scelta).forEach((x) => {
-      const li = el('li'), t = el('div', 'dl-t');
-      t.append(el('b', null, etichetta[st.per](x)), el('small', null, `${num.format(x.righe)} righe${x.byte ? ` · ${kb(x.byte)}` : ''}${st.per !== 'giorni' ? ` · ${x.giorni} giorni con dati` : ''}${testoConta(x.file)}`));
-      const b = el('button', 'exp-b', 'Scarica CSV'); b.type = 'button';
-      b.setAttribute('aria-label', `Scarica il CSV: ${etichetta[st.per](x)}`);
-      b.addEventListener('click', () => scarica(x, b));
-      li.append(t, b); ul.append(li);
+    const aperto = chiavi.includes(st.sel[st.per]) ? st.sel[st.per] : (st.sel[st.per] === null ? null : chiavi[0]); // null = l'utente ha chiuso tutto
+    const acc = el('div', 'dl-acc');
+    chiavi.forEach((k) => {
+      const voci = elenco.filter((x) => gruppo[st.per](x) === k);
+      const det = el('details', 'dl-g'); det.open = k === aperto;
+      const sum = el('summary');
+      sum.append(el('span', 'dl-gn', nomeGruppo[st.per](k)), el('span', 'dl-gc', `${num.format(voci.length)} ${st.per === 'giorni' ? (voci.length === 1 ? 'giorno' : 'giorni') : (st.per === 'mesi' ? (voci.length === 1 ? 'mese' : 'mesi') : (voci.length === 1 ? 'settimana' : 'settimane'))}`));
+      det.append(sum);
+      const ul = el('ul', 'dl');
+      voci.forEach((x) => {
+        const li = el('li'), t = el('div', 'dl-t');
+        t.append(el('b', null, etichetta[st.per](x)), el('small', null, `${num.format(x.righe)} righe${x.byte ? ` · ${kb(x.byte)}` : ''}${st.per !== 'giorni' ? ` · ${x.giorni} giorni con dati` : ''}${testoConta(x.file)}`));
+        const b = el('button', 'exp-b', 'Scarica CSV'); b.type = 'button';
+        b.setAttribute('aria-label', `Scarica il CSV: ${etichetta[st.per](x)}`);
+        b.addEventListener('click', () => scarica(x, b));
+        li.append(t, b); ul.append(li);
+      });
+      det.append(ul);
+      // Fisarmonica: aprendo un gruppo si chiudono gli altri (senza ridisegnare, così non si perde la posizione)
+      det.addEventListener('toggle', () => {
+        if (!det.isConnected) return; // evento arrivato dopo un nuovo render: non deve toccare lo stato
+        if (det.open) { st.sel[st.per] = k; acc.querySelectorAll('details[open]').forEach((o) => { if (o !== det) o.open = false; }); }
+        else if (st.sel[st.per] === k) st.sel[st.per] = null;
+      });
+      acc.append(det);
     });
     const doc = el('button', 'exp-b', 'Descrizione delle colonne (CSV)'); doc.type = 'button';
     doc.addEventListener('click', () => scarica({ file: 'descrizione-colonne.csv' }, doc));
     const rigaDoc = el('div', 'exp-r'); rigaDoc.append(doc);
     const nDoc = testoConta('descrizione-colonne.csv'); if (nDoc) rigaDoc.prepend(el('small', 'dl-n', nDoc.slice(3)));
-    box.append(ul, rigaDoc, el('p', 'bc-nota', `Colonne: ${st.indice.colonne.replaceAll(',', ', ')}. Orari in UTC. Un campo vuoto vuol dire che la fonte non pubblica quel dato. Cosa significa ogni colonna e a cosa serve è nel file di descrizione.`));
+    box.append(acc, rigaDoc, el('p', 'bc-nota', `Colonne: ${st.indice.colonne.replaceAll(',', ', ')}. Orari in UTC. Un campo vuoto vuol dire che la fonte non pubblica quel dato. Cosa significa ogni colonna e a cosa serve è nel file di descrizione.`));
   }
   function periodi() {
     const c = $('scarica-per'); if (!c) return; c.replaceChildren();
