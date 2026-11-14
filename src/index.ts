@@ -15,6 +15,8 @@ interface Env {
   LIMITE: RateLimit;
   /** Secret (wrangler secret put EXPORT_TOKEN): protegge l'export CSV usato dal backup su GitHub. */
   EXPORT_TOKEN?: string;
+  /** Secret (wrangler secret put GITHUB_TOKEN): token fine-grained con «Actions: Read and write» sul solo repo; serve ad avviare il backup. */
+  GITHUB_TOKEN?: string;
   ASSETS: Fetcher;
   /** Il Worker stesso: il cron gira fuori dal placement (Varsavia), le richieste no (Milano). */
   SELF: Fetcher;
@@ -59,11 +61,36 @@ async function rinfrescaSeLibero(env: Env): Promise<void> {
   await rinfresca(env);
 }
 
+const REPO_BACKUP = 'PalermoHub/ps_palermo';
+/** Ora UTC dopo la quale il giorno precedente è chiuso anche a Palermo (03 UTC = 04-05 locali). */
+const ORA_BACKUP_UTC = 3;
+
+/**
+ * Avvia il workflow «Backup storico dati» una volta al giorno. Il cron di GitHub Actions ritarda di ore o salta le esecuzioni,
+ * quello di Cloudflare no. Il giorno si segna in D1 solo se GitHub risponde 204: se fallisce, il cron dopo 5 minuti riprova.
+ */
+async function avviaBackup(env: Env): Promise<void> {
+  const ora = new Date();
+  if (!env.GITHUB_TOKEN || ora.getUTCHours() < ORA_BACKUP_UTC) return;
+  const oggi = ora.toISOString().slice(0, 10);
+  const fatto = await env.DB.prepare('SELECT valore FROM stato WHERE chiave = ?1').bind('backup:avviato').first<{ valore: string }>();
+  if (fatto?.valore === oggi) return;
+  const r = await fetch(`https://api.github.com/repos/${REPO_BACKUP}/actions/workflows/backup-storico.yml/dispatches`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'palermo-ps-worker', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ref: 'main' }),
+  });
+  if (r.status !== 204) { console.error(`avvio backup: GitHub ${r.status}`); return; }
+  await env.DB.prepare("INSERT INTO stato (chiave, valore, ts) VALUES ('backup:avviato', ?1, ?2) ON CONFLICT(chiave) DO UPDATE SET valore = ?1, ts = ?2")
+    .bind(oggi, ora.getTime()).run();
+}
+
 const gestore = {
   // Cron (wrangler.toml): ogni 5 minuti legge le fonti e salva lo snapshot.
   async scheduled(_c: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     // Lo scraping deve partire da una richiesta, non dal cron: solo le richieste rispettano il placement.
     ctx.waitUntil(env.SELF.fetch('https://self.internal/api/refresh').then(() => undefined));
+    ctx.waitUntil(avviaBackup(env).catch((e) => console.error('avvio backup', e)));
   },
 
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
