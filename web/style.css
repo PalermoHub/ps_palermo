@@ -312,7 +312,7 @@ dialog::backdrop{background:rgba(6,20,31,.7)}
 @media (max-width:760px){.s-grid{grid-template-columns:1fr}.s-t{font-size:13px}.s-t th,.s-t td{padding:8px 4px}.s-t thead th{font-size:10px;letter-spacing:0}.s-box{padding:12px}.s-big{gap:20px}.s-big b{font-size:36px}}
 @media (max-width:520px){.hero-in{padding-block:24px 20px}#map{height:340px}.s-in{padding:16px}.s-h h2{font-size:22px}}
 .mleg .dc{border:1px solid rgba(0,0,0,.4);width:14px;height:14px}
-.mleg .sep{width:1px;height:14px;background:var(--line)}
+.mleg .ltit{font-weight:700;color:var(--ink,inherit)}.mleg .sep{width:1px;height:14px;background:var(--line)}
 
 /* tema scuro: pannelli Leaflet e interruttore */
 :root[data-theme=dark] .raster .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.95) contrast(.9) saturate(.7)}
@@ -417,7 +417,7 @@ header .tema{margin-left:-8px;border-color:rgba(255,255,255,.35);background:tran
   .sez>h2{font-size:26px;margin-bottom:12px}.sez>h2:after{width:44px;height:5px;margin-top:8px}
   .sez-s{font-size:13px;margin-bottom:10px}
   #map{height:380px;border-radius:16px}
-  .mleg{gap:4px 12px;font-size:12px}.mleg i{width:12px;height:12px;border-width:2.5px}
+  .mleg{gap:6px 4px;font-size:10.5px;justify-content:space-between}.mleg i{width:11px;height:11px;border-width:2.5px}.mleg li{gap:4px;white-space:nowrap}.mleg .sep{flex-basis:100%;width:100%;height:0;background:none}
   .tools,.tools2{gap:8px}
   .cerca input{height:42px;padding:0 16px;font-size:15px}
   .grp{gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%}
