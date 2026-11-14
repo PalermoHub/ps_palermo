@@ -808,3 +808,4 @@ html,body{overflow-x:clip;max-width:100%}
 .box li{align-items:flex-start}.box li .dot{margin-top:4px}
 
 .pin-osp{filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}.pin-osp svg{display:block}
+.pin-osp{cursor:pointer}

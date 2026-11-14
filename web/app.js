@@ -580,7 +580,7 @@ function apriScheda(id, daHash) {
     if (miniMappa) { miniMappa.remove(); miniMappa = null; }
     miniMappa = L.map(mm, { scrollWheelZoom: false }).setView([p.coords.lat, p.coords.lng], 16);
     aggiungiBase(miniMappa);
-    L.marker([p.coords.lat, p.coords.lng], { title: p.nome, icon: L.divIcon({ className: '', iconSize: [36, 44], iconAnchor: [18, 44], html: '<div class="pin-osp" aria-hidden="true"><svg viewBox="0 0 36 44" width="36" height="44"><path d="M18 43C18 43 3 27 3 16a15 15 0 0 1 30 0c0 11-15 27-15 27z" fill="#c8102e" stroke="#fff" stroke-width="2"/><rect x="15" y="8" width="6" height="16" rx="1" fill="#fff"/><rect x="10" y="13" width="16" height="6" rx="1" fill="#fff"/></svg></div>' }) }).addTo(miniMappa);
+    L.marker([p.coords.lat, p.coords.lng], { title: `${p.nome}: apri le indicazioni stradali`, icon: L.divIcon({ className: '', iconSize: [36, 44], iconAnchor: [18, 44], html: '<div class="pin-osp" aria-hidden="true"><svg viewBox="0 0 36 44" width="36" height="44"><path d="M18 43C18 43 3 27 3 16a15 15 0 0 1 30 0c0 11-15 27-15 27z" fill="#c8102e" stroke="#fff" stroke-width="2"/><rect x="15" y="8" width="6" height="16" rx="1" fill="#fff"/><rect x="10" y="13" width="16" height="6" rx="1" fill="#fff"/></svg></div>' }), keyboard: true }).on('click', () => window.open(`https://www.google.com/maps/dir/?api=1&destination=${p.coords.lat},${p.coords.lng}`, '_blank', 'noopener')).addTo(miniMappa);
   } else mm.append(el('p', 'nomap', 'Mappa non disponibile.'));
   dlg.scrollTop = 0;
 }
