@@ -442,7 +442,7 @@ header .tema{margin-left:-8px;border-color:rgba(255,255,255,.35);background:tran
   .card-h{padding:16px 16px 0}.card h3{font-size:19px}.card-h p{font-size:12px}
   .num{gap:20px}.num div b{font-size:50px}.num div:nth-child(2) b{font-size:34px}
   .cod div{padding:8px 2px;border-radius:10px}.cod b{font-size:18px}.cod span{font-size:10px}
-  .card-f{padding-block:10px 12px}.btn{min-height:40px;padding:0 14px;font-size:13px}
+  .card-f{padding-block:10px 12px;flex-direction:column;align-items:flex-start;flex-wrap:nowrap;gap:10px}.card-f .btn{margin-left:auto;align-self:flex-end}.btn{min-height:40px;padding:0 14px;font-size:13px}
   .box{padding:16px;border-radius:16px}.box h3{font-size:18px}
   .info{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:8px;margin-inline:-16px;padding-inline:16px;scroll-padding-inline:16px;overscroll-behavior-x:contain;scrollbar-width:none}
   .info::-webkit-scrollbar{display:none}
