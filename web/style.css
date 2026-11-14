@@ -422,8 +422,9 @@ header .tema{margin-left:-8px;border-color:rgba(255,255,255,.35);background:tran
   .cerca input{height:42px;padding:0 16px;font-size:15px}
   .grp{gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%}
   #filtri,.geo{flex:none}
-  .tools{flex-direction:column;align-items:stretch}
-  .tools .cerca{flex:none}
+  .tools{flex-direction:row;flex-wrap:wrap;align-items:center}
+  #filtri{width:auto}
+  .tools .cerca{flex:1 1 100%}
   .pill{min-height:38px;padding:0 14px;font-size:13px;flex:none}
   .pill small{font-size:12px}
   .chip{min-height:34px;padding:0 12px;font-size:12.5px;flex:none}
@@ -581,7 +582,7 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 .sl-axs{display:flex;justify-content:space-between}
 .sl-n{display:flex;flex-direction:column;gap:2px;min-width:0}.sl-n b{font:800 17px/1.2 var(--ff-d);color:var(--head)}.sl-n small{font-size:12px}
 .sl-b{display:flex;gap:2px;height:28px}
-.sl-b i,.sl-k{flex:1 1 0;min-width:0;border-radius:3px;box-sizing:border-box;display:block}
+.sl-b i,.sl-k{flex:1 1 auto;min-width:max-content;border-radius:3px;box-sizing:border-box;display:block}
 .sl-b i.n,.sl-k.n{background:var(--sea);border:1px solid var(--sea)}
 .sl-b i.s,.sl-k.s{background:var(--track);border:1px solid var(--ctl)}
 .sl-b i.e,.sl-k.e{background:repeating-linear-gradient(45deg,var(--lv-mid) 0 3px,var(--mid-bg) 3px 6px);border:1px solid var(--mid-fg)}
@@ -723,7 +724,7 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 .dl .exp-b{flex:none}
 .dl+.exp-r{padding-right:15px} /* bordo destro = quello dei pulsanti nella lista (1px bordo + 14px padding) */
 #scarica-per{flex-wrap:nowrap;align-items:center}
-#scarica-per .dl-sel{flex:1 1 0;min-width:0;max-width:220px;min-height:40px;border-radius:10px;border:1.5px solid var(--ctl);background:var(--white);color:var(--head);font:600 13px var(--ff-b);padding:0 8px;text-transform:capitalize}
+#scarica-per .dl-sel{flex:1 1 auto;min-width:max-content;max-width:220px;min-height:40px;border-radius:10px;border:1.5px solid var(--ctl);background:var(--white);color:var(--head);font:600 13px var(--ff-b);padding:0 8px;text-transform:capitalize}
 @media(max-width:600px){#scarica-per{gap:6px}#scarica-per .chip{padding:0 10px}#scarica-per .dl-sel{min-height:34px;font-size:12.5px}}
 
 /* Pagina privacy: colonna di lettura stretta (in embed allineata a sinistra come le altre pagine) */
@@ -743,3 +744,34 @@ dialog.zoom{max-width:min(1100px,calc(100vw - 24px))}
 .z-h h3{margin:0;font:800 18px/1.25 var(--ff-d);color:var(--head)}
 .zoom .ln-out{font-size:15px}
 @media (max-width:520px){.z-in{padding:12px 12px 16px}}
+
+/* icone nei filtri/ordinamento: su mobile solo icona */
+.conico .ic{flex:none;display:none}
+@media (max-width:700px){
+  .conico .ic{display:block}
+  .geo.conico svg{width:18px;height:18px}
+  .conico .t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .conico{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:44px}
+  .pill.conico,.chip.conico{padding:0 12px}
+}
+/* niente scroll orizzontale della pagina né barre di scorrimento visibili */
+html,body{overflow-x:clip;max-width:100%}
+.grp::-webkit-scrollbar,.top nav::-webkit-scrollbar{display:none}
+
+/* mobile: 7 pulsanti + 2 separatori su un'unica riga, spaziati in modo uniforme */
+@media (max-width:700px){
+  #presidi{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;row-gap:8px}
+  #presidi>h2,#presidi>#lista,#presidi .cerca{flex:1 1 100%;min-width:0}
+  #presidi>h2{order:-2}
+  #presidi .cerca{order:-1}
+  #presidi>#lista{order:3}
+  #presidi>.tools,#presidi>.tools2,#presidi #filtri,#presidi .tools2>.grp,#presidi #ordini{display:contents}
+  #presidi .tools2 .lab,#presidi #viste{display:none}
+  #presidi #ordini .chip{order:1}
+  #presidi .geo{order:2;position:static;margin:0}
+  #presidi #ordini::before,#presidi #ordini::after{content:"";flex:none;width:1.5px;height:26px;background:var(--ctl)}
+  #presidi #ordini::before{order:0}
+  #presidi #ordini::after{order:1}
+  #presidi .pill.conico,#presidi .chip.conico{min-width:36px;padding:0 7px;gap:3px;flex:none}
+  #presidi .pill small{font-size:12px}
+}

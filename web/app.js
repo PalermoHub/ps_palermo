@@ -607,11 +607,21 @@ $('scheda').addEventListener('close', () => {
 $('scheda').addEventListener('click', (e) => { if (e.target === $('scheda')) $('scheda').close(); });
 
 /* ---------- controlli ---------- */
+const S = (d) => `<svg aria-hidden="true" class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICONE = {
+  tutti: S('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'),
+  adulti: S('<circle cx="12" cy="5" r="2.5"/><path d="M8 21v-7l-2-2v-2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2l-2 2v7M12 21v-5"/>'),
+  pediatrico: S('<circle cx="12" cy="7" r="3.5"/><path d="M7 21v-5a5 5 0 0 1 10 0v5M9 21v-3M15 21v-3"/>'),
+  attesa: S('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+  sov: S('<path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-6"/>'),
+  nome: S('<path d="M3 18l4-11 4 11M4.5 14h5M15 8h5l-5 8h5"/>'),
+};
 function toggles(cont, voci, chiave, cls, conta) {
   const box = $(cont); box.replaceChildren();
   for (const [id, lab] of voci) {
     const b = el('button', cls); b.type = 'button'; b.setAttribute('aria-pressed', String(st[chiave] === id));
-    b.append(lab);
+    const ic = ICONE[id];
+    if (ic) { b.insertAdjacentHTML('beforeend', ic); b.classList.add('conico'); b.title = lab; b.setAttribute('aria-label', lab); b.append(el('span', 't', lab)); } else b.append(lab);
     if (conta) b.append(' ', el('small', null, String(st.dati.ps.filter((p) => id === 'tutti' || p.tipo === id).length)));
     b.addEventListener('click', () => { st[chiave] = id; if (chiave === 'ordine') { st.col = null; st.pos = null; $('vicino').setAttribute('aria-pressed', 'false'); } controlli(); renderLista(); });
     box.append(b);
