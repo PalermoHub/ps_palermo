@@ -854,12 +854,12 @@ html,body{overflow-x:clip;max-width:100%}
 }
 /* mobile (sito normale): la hero riempie lo spazio fino alla barra in basso, niente striscia bianca su iPhone Plus / Pro Max */
 @media (max-width:700px){
-  html:not(.embed) .hero{min-height:calc(100svh - var(--hh,87px) - 68px - env(safe-area-inset-bottom));display:flex;flex-direction:column;justify-content:center}
+  html:not(.embed) .hero{min-height:calc(100svh - var(--hh,87px) - 60px - env(safe-area-inset-bottom));display:flex;flex-direction:column;justify-content:center}
   html:not(.embed) .hero-in{width:100%;box-sizing:border-box;align-content:space-evenly}
 }
 /* embed mobile: se la pagina ospitante comunica l'altezza visibile (--vh-host), la hero arriva fino alla barra in basso */
 @media (max-width:700px){
-  html.embed .hero{min-height:calc(var(--vh-host,0px) - 68px - env(safe-area-inset-bottom));display:flex;flex-direction:column;justify-content:center}
+  html.embed .hero{min-height:calc(var(--vh-host,0px) - 60px - env(safe-area-inset-bottom));display:flex;flex-direction:column;justify-content:center}
   html.embed .hero-in{width:100%;box-sizing:border-box;align-content:space-evenly}
 }
 
@@ -888,7 +888,7 @@ html,body{overflow-x:clip;max-width:100%}
    sopra e sotto il padding è minimo e l'eventuale spazio in più va tra gli elementi (space-between), non ai bordi */
 @media (max-width:700px){
   html.embed .hero{margin-top:-10px}
-  html.embed .hero-in,html.embed[style*="--vh-host"] .hero-in{padding-block:max(40px,env(safe-area-inset-top)) 10px;align-content:space-between;gap:clamp(6px,1.2vh,12px)}
+  html.embed .hero-in,html.embed[style*="--vh-host"] .hero-in{padding-block:max(40px,env(safe-area-inset-top)) 16px;align-content:space-between;gap:clamp(6px,1.2vh,12px)}
   html.embed .hero .live{line-height:1.25}
 }
 html.embed .hero-in{flex:1 1 auto}
