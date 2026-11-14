@@ -432,7 +432,9 @@ header .tema{margin-left:-8px;border-color:rgba(255,255,255,.35);background:tran
   .vista{margin-left:0}
   .tools2 .grp{width:100%}
   #lista{margin-top:10px}
-  .griglia{gap:12px}
+  .griglia{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:8px;margin-inline:-16px;padding-inline:16px;scroll-padding-inline:16px;overscroll-behavior-x:contain;scrollbar-width:none}
+  .griglia::-webkit-scrollbar{display:none}
+  .griglia>.card{flex:0 0 86%;scroll-snap-align:start}
   .card{border-radius:16px}
   .card>*,.card>.tempi{margin-inline:16px}.card>.card-h+*{margin-top:14px}
   .card-h{padding:16px 16px 0}.card h3{font-size:19px}.card-h p{font-size:12px}
@@ -549,6 +551,7 @@ h3.sep-tipo::before,h3.sep-tipo::after,.sep-in::before,.sep-in::after{content:""
 .sep-tipo span,.sep-in span{background:#0b5ea8;padding:7px 14px 7px 12px;border-radius:50px;white-space:nowrap;box-shadow:0 2px 6px rgba(11,94,168,.3)}
 .sep-tipo span::before,.sep-in span::before{content:"";display:inline-block;width:11px;height:11px;margin-right:7px;background:currentColor;-webkit-mask:var(--croce) center/contain no-repeat;mask:var(--croce) center/contain no-repeat}
 :root{--croce:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 2h6v7h7v6h-7v7H9v-7H2V9h7z'/%3E%3C/svg%3E")}
+@media(max-width:700px){.griglia>h3.sep-tipo{display:none}}
 #lista tr.sep-tipo{background:none;box-shadow:none;border:0;padding:0}
 #lista tr.sep-tipo th{padding:18px 20px 10px;border:0;background:var(--soft)}
 @media(max-width:700px){#lista tr.sep-tipo{display:block;margin:10px 0 2px;background:none}#lista tr.sep-tipo th{display:block;background:none;padding:6px 2px}}
