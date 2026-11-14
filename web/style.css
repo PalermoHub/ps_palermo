@@ -883,3 +883,12 @@ html,body{overflow-x:clip;max-width:100%}
   html.embed[style*="--vh-host"] .avviso{font-size:clamp(11px,calc(1.5 * var(--u)),14px)}
 }
 @media (max-width:700px){html.embed[data-vh-corto] .lead{display:none}}
+
+/* embed mobile: il menù flottante della pagina ospitante occupa l'angolo in alto a sinistra, quindi il pallino "live" parte sotto di esso (≈40px);
+   sopra e sotto il padding è minimo e l'eventuale spazio in più va tra gli elementi (space-between), non ai bordi */
+@media (max-width:700px){
+  html.embed .hero{margin-top:-10px}
+  html.embed .hero-in,html.embed[style*="--vh-host"] .hero-in{padding-block:max(40px,env(safe-area-inset-top)) 10px;align-content:space-between;gap:clamp(6px,1.2vh,12px)}
+  html.embed .hero .live{line-height:1.25}
+}
+html.embed .hero-in{flex:1 1 auto}
