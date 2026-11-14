@@ -337,7 +337,8 @@ function trendPill(tn, px) {
   const t = el('p', `s-trend ${tn.verso}`), ico = el('span');
   ico.innerHTML = icona(tn.verso, px); ico.setAttribute('aria-hidden', 'true');
   const num = tn.delta > 0 ? `+${tn.delta}` : `−${Math.abs(tn.delta)}`;
-  t.append(ico, { su: `In salita: ${num} rispetto a un'ora fa`, giu: `In calo: ${num} rispetto a un'ora fa`, stabile: "Stabile rispetto a un'ora fa" }[tn.verso]);
+  const testa = { su: `In salita: ${num}`, giu: `In calo: ${num}`, stabile: 'Stabile' }[tn.verso], sfx = el('span', 't-sfx', " rispetto a un'ora fa");
+  t.title = `${testa} rispetto a un'ora fa`; t.append(ico, testa, sfx);
   return t;
 }
 
