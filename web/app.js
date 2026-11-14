@@ -365,7 +365,7 @@ function card(p, menoId) {
   const foot = el('div', 'card-f');
   const tn = l && !f.vecchio && st.storico && PS_STORICO.tendenza(st.storico.spark.ps[p.id], st.storico.spark.da, st.storico.passo, l.inAttesa);
   if (tn) foot.append(trendPill(tn, 14));
-  const btn = el('button', 'btn sec', 'Scheda'); btn.type = 'button'; btn.title = 'Scheda di dettaglio della struttura'; btn.addEventListener('click', () => apriScheda(p.id));
+  const btn = el('button', 'btn sec', 'Scheda'); btn.type = 'button'; btn.insertAdjacentHTML('beforeend', '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'); btn.title = 'Scheda di dettaglio della struttura'; btn.addEventListener('click', () => apriScheda(p.id));
   foot.append(btn); art.append(foot);
   return art;
 }
