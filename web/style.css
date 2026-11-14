@@ -844,3 +844,34 @@ html,body{overflow-x:clip;max-width:100%}
   html:not(.embed) .hero .live{line-height:1.25}
   html:not(.embed) .plate .pl-t{line-height:1.2}
 }
+/* mobile (sito normale): la hero riempie lo spazio fino alla barra in basso, niente striscia bianca su iPhone Plus / Pro Max */
+@media (max-width:700px){
+  html:not(.embed) .hero{min-height:calc(100svh - var(--hh,87px) - 68px - env(safe-area-inset-bottom));display:flex;flex-direction:column;justify-content:center}
+  html:not(.embed) .hero-in{width:100%;box-sizing:border-box;align-content:space-evenly}
+}
+/* embed mobile: se la pagina ospitante comunica l'altezza visibile (--vh-host), la hero arriva fino alla barra in basso */
+@media (max-width:700px){
+  html.embed .hero{min-height:calc(var(--vh-host,0px) - 68px - env(safe-area-inset-bottom));display:flex;flex-direction:column;justify-content:center}
+  html.embed .hero-in{width:100%;box-sizing:border-box;align-content:space-evenly}
+}
+
+/* embed con altezza dello schermo nota: stesse misure, ma sull'altezza comunicata dalla pagina ospitante */
+@media (max-width:700px){
+  html.embed[style*="--vh-host"]{--u:calc(var(--vh-host) / 100)}
+  html.embed[style*="--vh-host"] .hero-in{padding-block:clamp(8px,calc(1.8 * var(--u)),20px) clamp(10px,calc(2 * var(--u)),22px);gap:clamp(6px,calc(1.3 * var(--u)),14px)}
+  html.embed[style*="--vh-host"] .hero .live{font-size:clamp(11px,calc(1.5 * var(--u)),13px)}
+  html.embed[style*="--vh-host"] .hero h1{margin-top:0;font-size:clamp(22px,min(8.4vw,calc(3.9 * var(--u))),42px)}
+  html.embed[style*="--vh-host"] .stats{min-height:0;gap:clamp(6px,calc(1.3 * var(--u)),14px)}
+  html.embed[style*="--vh-host"] .plate{padding:clamp(8px,calc(1.4 * var(--u)),16px) clamp(14px,4vw,18px)}
+  html.embed[style*="--vh-host"] .plate b{font-size:clamp(40px,min(16vw,calc(7.6 * var(--u))),84px)}
+  html.embed[style*="--vh-host"] .plate .pl-k{font-size:clamp(10.5px,calc(1.45 * var(--u)),13px)}
+  html.embed[style*="--vh-host"] .plate .pl-t,html.embed[style*="--vh-host"] .plate .pl-s{font-size:clamp(12px,calc(1.65 * var(--u)),15px);margin-top:0}
+  html.embed[style*="--vh-host"] .plate.verde{padding:clamp(6px,calc(1.1 * var(--u)),12px) clamp(12px,4vw,16px)}
+  html.embed[style*="--vh-host"] .plate.verde .pct{width:clamp(40px,calc(5.4 * var(--u)),60px);height:clamp(40px,calc(5.4 * var(--u)),60px);font-size:clamp(14px,calc(2 * var(--u)),17px)}
+  html.embed[style*="--vh-host"] .plate.verde .pl-t{font-size:clamp(13px,calc(1.9 * var(--u)),17px)}
+  html.embed[style*="--vh-host"] .lead{font-size:clamp(13px,calc(1.9 * var(--u)),17px)}
+  html.embed[style*="--vh-host"] .call112{min-height:clamp(36px,calc(4.8 * var(--u)),44px);padding-block:clamp(6px,calc(1.1 * var(--u)),12px)}
+  html.embed[style*="--vh-host"] .avviso .call112{margin-bottom:clamp(4px,calc(1 * var(--u)),12px)}
+  html.embed[style*="--vh-host"] .avviso{font-size:clamp(11px,calc(1.5 * var(--u)),14px)}
+}
+@media (max-width:700px){html.embed[data-vh-corto] .lead{display:none}}

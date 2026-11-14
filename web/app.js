@@ -754,3 +754,10 @@ document.addEventListener('click', (e) => { if (e.target.closest('#viste')) setT
   g.addEventListener('click', (e) => { if (e.target === g) g.close(); });
   if (new URLSearchParams(location.search).get('guida') === '1') { apri(); setTimeout(segna, 0); } // arrivo dai grafici (la guida vive solo in questa pagina)
 })();
+
+// altezza dell'intestazione in una variabile CSS: la hero mobile riempie lo spazio fino alla barra in basso
+(() => {
+  const h = document.querySelector('header.top, header');
+  if (!h || !window.ResizeObserver) return;
+  new ResizeObserver(() => document.documentElement.style.setProperty('--hh', Math.round(h.getBoundingClientRect().height) + 'px')).observe(h);
+})();

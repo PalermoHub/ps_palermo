@@ -85,12 +85,26 @@
     if (h && h !== ult) { ult = h; invia({ type: 'height', height: h }); }
   };
   new ResizeObserver(altezza).observe(document.body);
+  invia({ type: 'pronto' }); // il genitore risponde con {type:'vista', height}
   addEventListener('load', altezza);
+  // host con iframe a altezza fissa (es. PalermoHub tra header e footer): l'iframe non viene allungato dal genitore,
+  // quindi la sua altezza è già lo schermo visibile e la hero può riempirla
+  const vhHost = h => { H.style.setProperty('--vh-host', Math.round(h) + 'px'); H.toggleAttribute('data-vh-corto', h <= 940); };
+  const fissa = () => {
+    if (H.style.getPropertyValue('--vh-host') && !H.dataset.fissa) return;
+    if (H.dataset.fissa) { vhHost(innerHeight); return; }
+    const iH = innerHeight, bH = document.body.getBoundingClientRect().height;
+    if (iH > 200 && bH > iH + 80) { H.dataset.fissa = '1'; vhHost(iH); }
+  };
+  addEventListener('load', () => setTimeout(fissa, 700));
+  addEventListener('resize', () => { if (H.dataset.fissa) fissa(); });
   addEventListener('message', e => {
     if (e.source !== parent) return; // solo dal genitore (l'origine non è nota: embed su siti terzi)
     const d = e.data;
     if (d && d.source === 'ps-palermo' && d.type === 'tema' && (d.value === 'light' || d.value === 'dark')) H.dataset.theme = d.value;
     if (d && d.source === 'ps-palermo' && d.type === 'rimisura') { ult = 0; altezza(); }
+    // altezza visibile della pagina ospitante: su mobile la hero riempie lo schermo fino alla barra in basso
+    if (d && d.source === 'ps-palermo' && d.type === 'vista' && d.height > 200 && d.height < 4000) vhHost(d.height);
   });
 
   // scheda aperta: chiedi al genitore di portare in vista l'inizio dell'iframe
