@@ -892,3 +892,10 @@ html,body{overflow-x:clip;max-width:100%}
   html.embed .hero .live{line-height:1.25}
 }
 html.embed .hero-in{flex:1 1 auto}
+
+/* fonti e crediti */
+#crediti{max-width:min(640px,calc(100vw - 24px))}
+#crediti .s-h h2{font-size:26px}
+.cr h3{font:800 13px var(--ff-d);letter-spacing:.08em;text-transform:uppercase;color:var(--head);margin:0 0 6px}
+.cr p{margin:0 0 8px;line-height:1.6}
+footer .lk{color:#fff}footer .lk:hover{background:rgba(255,255,255,.14)}.embed footer .lk{color:var(--head)}.embed footer .lk:hover{background:var(--accbg)}

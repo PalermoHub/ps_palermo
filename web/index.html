@@ -158,9 +158,7 @@
   <footer id="fonti">
     <div class="wrap foot">
       <div class="foot-b"><span class="logo"><img src="img/opendatasicilia.png" alt="Logo opendatasicilia" width="48" height="52"></span>
-        <p>Un progetto civico di <a href="https://opendatasicilia.it">opendatasicilia</a>. Non è un servizio ufficiale e non sostituisce le indicazioni del personale sanitario.</p></div>
-      <div><h2>Fonti dei dati</h2><p>Ospedali Riuniti Villa Sofia-Cervello, ARNAS Civico, Policlinico, ASP Palermo, Fatebenefratelli.</p><p>© 2026 OpenDataSicilia. Dati elaborati: <a href="https://creativecommons.org/licenses/by/4.0/deed.it" rel="license">CC BY 4.0</a> · codice: <a href="https://github.com/PalermoHub/ps_palermo/blob/main/LICENSE">MIT</a> · <a href="privacy.html">Privacy</a>.</p></div>
-      <div><h2>In emergenza</h2><p>Chiama il <a href="tel:112"><strong>112</strong></a> o contatta direttamente il pronto soccorso.</p></div>
+        <p>Un progetto civico di <a href="https://opendatasicilia.it">opendatasicilia</a>. Non è un servizio ufficiale e non sostituisce le indicazioni del personale sanitario. <button type="button" class="lk" data-crediti>Fonti dei dati e crediti</button></p></div>
     </div>
   </footer>
 
@@ -170,6 +168,29 @@
     <a href="grafici.html#scarica-sez" data-s="scarica"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14"/></svg><span>Scarica</span></a>
     <button type="button" id="bn-vicino"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span>Vicino a me</span></button>
   </nav>
+
+  <dialog id="crediti" aria-labelledby="c-titolo">
+    <div class="s-in g-in">
+      <div class="s-h"><h2 id="c-titolo">Fonti dei dati e crediti</h2><button type="button" class="s-x" id="c-x" aria-label="Chiudi fonti e crediti">×</button></div>
+      <section class="cr">
+        <h3>Fonti dei dati</h3>
+        <p>I numeri arrivano dai dati pubblicati dalle stesse aziende sanitarie: Ospedali Riuniti Villa Sofia-Cervello, ARNAS Civico, Policlinico, ASP Palermo e Fatebenefratelli. Vengono riuniti in un’unica pagina e aggiornati a intervalli regolari.</p>
+      </section>
+      <section class="cr">
+        <h3>Sviluppo</h3>
+        <p><strong>Autore:</strong> <a href="https://www.linkedin.com/in/gbvitrano/" target="_blank" rel="noopener" title="Profilo LinkedIn di @gbvitrano">@gbvitrano</a>. Lo sviluppo tecnico è stato realizzato in collaborazione con <a href="https://claude.ai/" target="_blank" rel="noopener" title="Claude, l’assistente AI di Anthropic">Claude AI</a> (Anthropic).</p>
+        <p>Un progetto civico di <a href="https://opendatasicilia.it" target="_blank" rel="noopener">opendatasicilia</a>.</p>
+      </section>
+      <section class="cr">
+        <h3>Licenze e privacy</h3>
+        <p>© 2026 OpenDataSicilia. Dati elaborati: <a href="https://creativecommons.org/licenses/by/4.0/deed.it" rel="license">CC BY 4.0</a> · codice: <a href="https://github.com/PalermoHub/ps_palermo/blob/main/LICENSE">MIT</a> · <a href="privacy.html">Privacy</a>.</p>
+      </section>
+      <section class="cr">
+        <h3>In emergenza</h3>
+        <p>Chiama il <a href="tel:112"><strong>112</strong></a> o contatta direttamente il pronto soccorso.</p>
+      </section>
+    </div>
+  </dialog>
 
   <dialog id="guida" aria-labelledby="g-titolo">
     <div class="s-in g-in">

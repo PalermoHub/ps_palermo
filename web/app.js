@@ -756,6 +756,15 @@ document.addEventListener('click', (e) => { if (e.target.closest('#viste')) setT
   if (new URLSearchParams(location.search).get('guida') === '1') { apri(); setTimeout(segna, 0); } // arrivo dai grafici (la guida vive solo in questa pagina)
 })();
 
+/* ---------- fonti e crediti ---------- */
+(() => {
+  const c = $('crediti');
+  if (!c) return;
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-crediti]') && !c.open) { c.showModal(); c.scrollTop = 0; } });
+  $('c-x').addEventListener('click', () => c.close());
+  c.addEventListener('click', (e) => { if (e.target === c) c.close(); });
+})();
+
 // altezza dell'intestazione in una variabile CSS: la hero mobile riempie lo spazio fino alla barra in basso
 (() => {
   const h = document.querySelector('header.top, header');
