@@ -447,10 +447,10 @@ function apriScheda(id, daHash) {
   const az = el('div', 's-az');
   // Ogni pulsante mostra direttamente il dato (indirizzo, numero, sito) e ha la larghezza del suo testo.
   const dato = (txt, href, primaria, k, nome) => { const a = azione(txt, href, primaria, k); a.setAttribute('aria-label', `${nome}: ${txt}`); a.title = nome; return a; };
-  az.append(dato(p.indirizzo, `https://www.google.com/maps/dir/?api=1&destination=${c}`, true, 'rotta', 'Indicazioni stradali verso'));
+  az.append(dato(p.indirizzo.replace(/,?\s*Palermo\s*$/i, ''), `https://www.google.com/maps/dir/?api=1&destination=${c}`, true, 'rotta', 'Indicazioni stradali verso'));
   if (p.telefono) az.append(dato(p.telefono, `tel:${p.telefono.replace(/\s/g, '')}`, false, 'tel', 'Chiama'));
   if (p.sito) az.append(dato(p.sito.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''), p.sito, false, 'web', 'Sito web'));
-  az.append(dato('Pagina della fonte', p.fonteUrl, false, 'doc', 'Pagina ufficiale della fonte'));
+  az.append(dato('Fonte', p.fonteUrl, false, 'doc', 'Pagina ufficiale della fonte'));
   const sh = conIcona(el('button', 'btn sec'), 'share', 'Condividi'); sh.type = 'button'; sh.title = 'Condividi'; const shT = sh.querySelector('span'); shT.className = 'sr';
   sh.addEventListener('click', async () => {
     const url = `${BASE_CONDIVISIONE}#ps=${encodeURIComponent(p.id)}`;

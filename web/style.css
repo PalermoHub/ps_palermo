@@ -352,6 +352,7 @@ header .tema{margin-left:-8px;border-color:rgba(255,255,255,.35);background:tran
 .s-az{padding-bottom:2px}
 .s-chips{align-items:center}.s-chips .dove{margin:0 0 0 4px;color:var(--ink)}
 .s-h{align-items:center;gap:8px}.s-az .s-sh{margin-left:auto;min-width:44px;padding:0 12px;justify-content:center}.s-az .s-sh.copiato{padding:0 16px}.s-h h2{min-width:0}
+@media (max-width:700px){.s-az .btn:first-child{flex:1 1 150px;min-width:0}.s-az .btn:first-child{height:auto;padding-top:6px;padding-bottom:6px}.s-az .btn:first-child span{min-width:0;white-space:normal;line-height:1.25}.s-az .btn:nth-child(2){flex:0 0 auto}}
 .s-h{flex-wrap:wrap}.s-h h2{order:1}.s-h .s-x{order:3}.s-h .s-chips{order:4;flex-basis:100%}
 .s-col>.s-box.s-fisso{flex:0 0 auto}
 .s-col>.s-box.s-grow{flex:1 1 auto}
