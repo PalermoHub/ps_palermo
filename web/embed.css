@@ -41,3 +41,7 @@ html.embed body{background:transparent;padding:12px 24px 16px}
 
 /* "Torna in cima" più in alto: in basso a destra la pagina ospitante ha già un suo pulsante */
 .embed .cima{bottom:84px}
+
+/* niente barra di scorrimento nell'iframe: la barra fissa in basso arriva fino al margine destro (lo scroll resta attivo) */
+html.embed{scrollbar-width:none;-ms-overflow-style:none}
+html.embed::-webkit-scrollbar,html.embed body::-webkit-scrollbar{display:none;width:0;height:0}
