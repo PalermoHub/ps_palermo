@@ -17,6 +17,8 @@ interface Env {
   EXPORT_TOKEN?: string;
   /** Secret (wrangler secret put GITHUB_TOKEN): token fine-grained con «Actions: Read and write» sul solo repo; serve ad avviare il backup. */
   GITHUB_TOKEN?: string;
+  /** Secret di riserva (wrangler secret put GITHUB_TOKEN_GENERALE): token ampio, usato solo se GITHUB_TOKEN è scaduto; serve anche ad aprire la issue promemoria. */
+  GITHUB_TOKEN_GENERALE?: string;
   ASSETS: Fetcher;
   /** Il Worker stesso: il cron gira fuori dal placement (Varsavia), le richieste no (Milano). */
   SELF: Fetcher;
@@ -64,23 +66,62 @@ async function rinfrescaSeLibero(env: Env): Promise<void> {
 const REPO_BACKUP = 'PalermoHub/ps_palermo';
 /** Ora UTC dopo la quale il giorno precedente è chiuso anche a Palermo (03 UTC = 04-05 locali). */
 const ORA_BACKUP_UTC = 3;
+/** Giorni di preavviso prima della scadenza del token, per aprire la issue promemoria. */
+const PREAVVISO_TOKEN_GIORNI = 14;
+const LABEL_TOKEN = 'promemoria-token';
+
+const ghFetch = (token: string, path: string, init: RequestInit = {}) =>
+  fetch(`https://api.github.com/repos/${REPO_BACKUP}/${path}`, {
+    ...init,
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'palermo-ps-worker', 'Content-Type': 'application/json' },
+  });
+
+/** Apre una issue promemoria sul token, una sola finché resta aperta. Serve un token con «Issues: write» (quello generale lo ha). */
+async function segnalaToken(token: string, titolo: string, testo: string): Promise<void> {
+  const aperte = await ghFetch(token, `issues?labels=${LABEL_TOKEN}&state=open&per_page=1`);
+  if (!aperte.ok) { console.error(`promemoria token: elenco issue ${aperte.status}`); return; }
+  if ((await aperte.json<unknown[]>()).length) return;
+  const r = await ghFetch(token, 'issues', { method: 'POST', body: JSON.stringify({ title: titolo, body: testo, labels: [LABEL_TOKEN] }) });
+  if (!r.ok) console.error(`promemoria token: issue ${r.status}`);
+}
+
+const COME_RINNOVARE = 'Crea un nuovo token fine-grained (solo repo `ps_palermo`, permesso **Actions: Read and write**, scadenza max 1 anno) e salvalo con `npx wrangler secret put GITHUB_TOKEN`. Poi chiudi questa issue.';
 
 /**
  * Avvia il workflow «Backup storico dati» una volta al giorno. Il cron di GitHub Actions ritarda di ore o salta le esecuzioni,
  * quello di Cloudflare no. Il giorno si segna in D1 solo se GitHub risponde 204: se fallisce, il cron dopo 5 minuti riprova.
+ * Token: GITHUB_TOKEN (ristretto, scade) per primo; se GitHub lo rifiuta (401/403) si ripiega su GITHUB_TOKEN_GENERALE e si apre una issue.
+ * Se il token ristretto è ancora valido ma scade entro PREAVVISO_TOKEN_GIORNI, la issue si apre in anticipo.
  */
 async function avviaBackup(env: Env): Promise<void> {
   const ora = new Date();
-  if (!env.GITHUB_TOKEN || ora.getUTCHours() < ORA_BACKUP_UTC) return;
+  if ((!env.GITHUB_TOKEN && !env.GITHUB_TOKEN_GENERALE) || ora.getUTCHours() < ORA_BACKUP_UTC) return;
   const oggi = ora.toISOString().slice(0, 10);
   const fatto = await env.DB.prepare('SELECT valore FROM stato WHERE chiave = ?1').bind('backup:avviato').first<{ valore: string }>();
   if (fatto?.valore === oggi) return;
-  const r = await fetch(`https://api.github.com/repos/${REPO_BACKUP}/actions/workflows/backup-storico.yml/dispatches`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'palermo-ps-worker', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ref: 'main' }),
-  });
-  if (r.status !== 204) { console.error(`avvio backup: GitHub ${r.status}`); return; }
+  const avvia = (t: string) => ghFetch(t, 'actions/workflows/backup-storico.yml/dispatches', { method: 'POST', body: JSON.stringify({ ref: 'main' }) });
+
+  let r: Response | undefined;
+  let usato = '';
+  if (env.GITHUB_TOKEN) { r = await avvia(env.GITHUB_TOKEN); usato = env.GITHUB_TOKEN; }
+  if ((!r || r.status === 401 || r.status === 403) && env.GITHUB_TOKEN_GENERALE) {
+    const principale = r?.status;
+    r = await avvia(env.GITHUB_TOKEN_GENERALE); usato = env.GITHUB_TOKEN_GENERALE;
+    if (r.status === 204) {
+      await segnalaToken(usato, 'Token del backup scaduto o non valido: serve un nuovo token',
+        `Il Worker non è riuscito a usare \`GITHUB_TOKEN\` (${principale ?? 'assente'}) e ha avviato il backup con il token generale. ${COME_RINNOVARE}`);
+    }
+  }
+  if (!r || r.status !== 204) { console.error(`avvio backup: GitHub ${r?.status}`); return; }
+
+  // Il token ristretto dichiara la propria scadenza in un'intestazione di ogni risposta.
+  const scade = r.headers.get('github-authentication-token-expiration');
+  const giorni = scade ? (Date.parse(scade.replace(' ', 'T').replace(' UTC', 'Z')) - ora.getTime()) / 86400000 : NaN;
+  if (usato === env.GITHUB_TOKEN && giorni <= PREAVVISO_TOKEN_GIORNI) {
+    const chiave = env.GITHUB_TOKEN_GENERALE ?? env.GITHUB_TOKEN;
+    await segnalaToken(chiave, 'Il token del backup sta per scadere', `Il token \`GITHUB_TOKEN\` scade il ${scade} (tra circa ${Math.max(0, Math.ceil(giorni))} giorni). ${COME_RINNOVARE}`)
+      .catch((e) => console.error('promemoria token', e));
+  }
   await env.DB.prepare("INSERT INTO stato (chiave, valore, ts) VALUES ('backup:avviato', ?1, ?2) ON CONFLICT(chiave) DO UPDATE SET valore = ?1, ts = ?2")
     .bind(oggi, ora.getTime()).run();
 }
