@@ -1,4 +1,5 @@
 const COD = ['rosso', 'arancione', 'azzurro', 'verde', 'bianco'];
+const DESC = { rosso: 'Emergenza: accesso immediato', arancione: 'Urgenza: entro 15 minuti', azzurro: 'Urgenza differibile: entro 60 minuti', verde: 'Urgenza minore: entro 120 minuti', bianco: 'Non urgenza: entro 240 minuti' };
 const ETI = { rosso: 'Rosso', arancione: 'Arancio', azzurro: 'Azzurro', verde: 'Verde', bianco: 'Bianco' };
 const ORDINI = [['attesa', 'Più in attesa'], ['sov', 'Meno affollati'], ['nome', 'Nome']];
 const FILTRI = [['tutti', 'Tutti'], ['adulti', 'Adulti'], ['pediatrico', 'Pediatrici']];
@@ -504,7 +505,7 @@ function apriScheda(id, daHash) {
   if (l) {
     const cols = [['attesa', 'In attesa di visita'], ['trattamento', 'In trattamento'], ['osservazione', 'In osservazione'], ['totale', 'Totali']]
       .filter(([k]) => COD.some((cd) => l.codici[cd]?.[k] != null));
-    const box = el('section', 's-box'); box.append(el('h3', null, 'Per codice colore'));
+    const box = el('section', 's-box'); box.append(el('h3', null, 'Triage per codice colore'));
     // Quanto sono gravi: quota dei codici tra chi aspetta la visita (solo se la fonte pubblica il dato).
     const att = COD.map((cd) => [cd, l.codici[cd]?.attesa]).filter(([, v]) => v != null), nAtt = att.reduce((a, [, v]) => a + v, 0);
     if (nAtt > 0) {
@@ -521,7 +522,8 @@ function apriScheda(id, daHash) {
     COD.forEach((cd) => {
       const tr = el('tr'), th = el('th'), sw = el('span', 'sw'); th.scope = 'row';
       sw.style.background = cd === 'bianco' ? '#fff' : `var(--${cd})`;
-      th.append(sw, cd === 'arancione' ? 'Arancione' : ETI[cd]); tr.append(th);
+      const nm = el('span', 'cd-n'); nm.append(cd === 'arancione' ? 'Arancione' : ETI[cd], el('small', 'cd-d', DESC[cd]));
+      th.append(sw, nm); tr.append(th);
       cols.forEach(([k]) => tr.append(el('td', 'n', nd(l.codici[cd]?.[k]))));
       tb.append(tr);
     });
