@@ -632,7 +632,32 @@ function controlli() {
   toggles('ordini', ORDINI, 'ordine', 'chip');
   toggles('viste', [['card', 'Schede'], ['tab', 'Tabella']], 'vista', 'chip');
 }
-$('cerca').addEventListener('input', (e) => { st.q = e.target.value; renderLista(); });
+/* ricerca: icona -> campo; da 3 lettere propone i nomi delle strutture */
+{
+  const box = document.querySelector('.cerca'), btn = $('cerca-b'), wrap = $('cerca-r'), inp = $('cerca'), sug = $('cerca-sug');
+  let idx = -1, items = [];
+  const chiudiSug = () => { sug.hidden = true; inp.setAttribute('aria-expanded', 'false'); idx = -1; };
+  const scegli = (p) => { inp.value = p.nome; st.q = p.nome; chiudiSug(); renderLista(); };
+  const evid = () => [...sug.children].forEach((li, i) => li.setAttribute('aria-selected', i === idx));
+  function suggerisci() {
+    const q = inp.value.trim().toLowerCase();
+    items = q.length < 3 ? [] : st.dati.ps.filter((p) => `${p.nome} ${p.struttura}`.toLowerCase().includes(q)).slice(0, 6);
+    sug.replaceChildren(...items.map((p) => { const li = el('li', '', p.nome); li.setAttribute('role', 'option'); if (p.struttura && p.struttura !== p.nome) li.append(el('small', '', p.struttura)); li.addEventListener('mousedown', (e) => { e.preventDefault(); scegli(p); }); return li; }));
+    sug.hidden = !items.length; inp.setAttribute('aria-expanded', String(items.length > 0)); idx = -1;
+  }
+  const apri = () => { box.classList.add('aperta'); wrap.hidden = false; btn.setAttribute('aria-expanded', 'true'); inp.focus(); };
+  const chiudi = () => { if (inp.value) return; box.classList.remove('aperta'); wrap.hidden = true; btn.setAttribute('aria-expanded', 'false'); chiudiSug(); };
+  btn.addEventListener('click', apri);
+  $('cerca-x').addEventListener('mousedown', (e) => { e.preventDefault(); inp.value = ''; st.q = ''; renderLista(); chiudiSug(); chiudi(); btn.focus(); });
+  inp.addEventListener('input', (e) => { st.q = e.target.value; renderLista(); suggerisci(); });
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' && items.length) { e.preventDefault(); idx = (idx + 1) % items.length; evid(); }
+    else if (e.key === 'ArrowUp' && items.length) { e.preventDefault(); idx = (idx - 1 + items.length) % items.length; evid(); }
+    else if (e.key === 'Enter' && idx >= 0) { e.preventDefault(); scegli(items[idx]); }
+    else if (e.key === 'Escape') { if (!sug.hidden) chiudiSug(); else { inp.value = ''; st.q = ''; renderLista(); chiudi(); btn.focus(); } }
+  });
+  inp.addEventListener('blur', () => { chiudiSug(); chiudi(); });
+}
 $('vicino').addEventListener('click', (e) => {
   if (st.pos) { st.pos = null; e.currentTarget.setAttribute('aria-pressed', 'false'); return renderLista(); }
   const btn = e.currentTarget;

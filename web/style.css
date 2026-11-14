@@ -443,6 +443,9 @@ header .tema{margin-left:-8px;border-color:rgba(255,255,255,.35);background:tran
   .cod div{padding:8px 2px;border-radius:10px}.cod b{font-size:18px}.cod span{font-size:10px}
   .card-f{padding-block:10px 12px}.btn{min-height:40px;padding:0 14px;font-size:13px}
   .box{padding:16px;border-radius:16px}.box h3{font-size:18px}
+  .info{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:8px;margin-inline:-16px;padding-inline:16px;scroll-padding-inline:16px;overscroll-behavior-x:contain;scrollbar-width:none}
+  .info::-webkit-scrollbar{display:none}
+  .info>.box{flex:0 0 86%;scroll-snap-align:start}
   .plate b{font-size:clamp(56px,18vw,84px)}
   .plate{padding:14px 18px 16px;border-radius:16px}
   .plate.verde{padding:12px 16px;gap:12px}.plate.verde .pct{width:60px;height:60px;font-size:17px}.plate.verde .pl-t{font-size:17px}
@@ -775,3 +778,27 @@ html,body{overflow-x:clip;max-width:100%}
   #presidi .pill.conico,#presidi .chip.conico{min-width:36px;padding:0 7px;gap:3px;flex:none}
   #presidi .pill small{font-size:12px}
 }
+
+/* ricerca presidi: icona che apre il campo, suggerimenti da 3 lettere */
+.cerca{flex:0 0 auto;position:relative}
+.cerca.aperta{flex:1 1 240px}
+.cerca.aperta .cerca-b{display:none}
+.cerca-r[hidden]{display:none}
+.cerca-r{position:relative}
+.sug{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);margin:0;padding:6px;list-style:none;background:var(--white);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-card);max-height:260px;overflow:auto}
+.sug[hidden]{display:none}
+.sug li{padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;color:var(--head)}
+.sug li small{display:block;font-size:12px;color:var(--ink)}
+.sug li[aria-selected="true"],.sug li:hover{background:var(--line)}
+@media (max-width:700px){
+  #presidi .cerca{flex:none;order:-2}
+  #presidi .pill{padding-inline:10px}
+  #presidi .cerca-b{padding-inline:0;width:38px;justify-content:center}
+  #presidi>.tools::before{content:"";flex:none;order:-1;width:1.5px;height:26px;background:var(--ctl)}
+  #presidi>.tools:has(.cerca.aperta)::before{display:none}
+  #presidi .cerca.aperta{flex:1 1 100%}
+}
+.cerca-r input{padding-right:46px}
+.cerca-r input::-webkit-search-cancel-button{display:none}
+.cerca-x{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;border-radius:50%;background:none;color:var(--head);cursor:pointer;display:grid;place-items:center}
+.cerca-x:hover{background:var(--line)}

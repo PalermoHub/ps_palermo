@@ -106,8 +106,13 @@
       <h2>I presidi</h2>
       <div class="tools">
         <div class="cerca">
-          <label for="cerca" class="vh">Cerca un presidio</label>
-          <input id="cerca" type="search" placeholder="Cerca un presidio…" autocomplete="off">
+          <button type="button" class="pill cerca-b" id="cerca-b" aria-expanded="false" aria-controls="cerca-r" aria-label="Cerca un presidio" title="Cerca un presidio"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+          <div class="cerca-r" id="cerca-r" hidden>
+            <label for="cerca" class="vh">Cerca un presidio</label>
+            <input id="cerca" type="search" placeholder="Scrivi almeno 3 lettere…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="cerca-sug" aria-autocomplete="list">
+            <button type="button" class="cerca-x" id="cerca-x" aria-label="Chiudi la ricerca" title="Chiudi"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+            <ul id="cerca-sug" class="sug" role="listbox" hidden></ul>
+          </div>
         </div>
         <div class="grp" role="group" aria-label="Tipo di pronto soccorso" id="filtri"></div>
         <button type="button" class="pill geo conico" id="vicino" aria-pressed="false" aria-label="Vicino a me" title="Vicino a me">
