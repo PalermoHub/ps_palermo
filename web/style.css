@@ -810,3 +810,37 @@ html,body{overflow-x:clip;max-width:100%}
 
 .pin-osp{filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}.pin-osp svg{display:block}
 .pin-osp{cursor:pointer}
+
+/* hero mobile: misure legate all'altezza dello schermo (svh), così sta intera sopra la barra in basso su qualsiasi display */
+@media (max-width:700px){
+  html:not(.embed) .hero-in{padding-block:clamp(8px,1.8svh,20px) clamp(10px,2svh,22px);gap:clamp(6px,1.3svh,14px)}
+  html:not(.embed) .hero .live{font-size:clamp(11px,1.5svh,13px)}
+  html:not(.embed) .hero h1{margin-top:0;font-size:clamp(22px,min(8.4vw,3.9svh),42px)}
+  html:not(.embed) .stats{min-height:0;gap:clamp(6px,1.3svh,14px)}
+  html:not(.embed) .plate{padding:clamp(8px,1.4svh,16px) clamp(14px,4vw,18px)}
+  html:not(.embed) .plate b{font-size:clamp(40px,min(16vw,7.6svh),84px)}
+  html:not(.embed) .plate .pl-k{font-size:clamp(10.5px,1.45svh,13px)}
+  html:not(.embed) .plate .pl-t,html:not(.embed) .plate .pl-s{font-size:clamp(12px,1.65svh,15px);margin-top:0}
+  html:not(.embed) .plate.verde{padding:clamp(6px,1.1svh,12px) clamp(12px,4vw,16px)}
+  html:not(.embed) .plate.verde .pct{width:clamp(40px,5.4svh,60px);height:clamp(40px,5.4svh,60px);font-size:clamp(14px,2svh,17px)}
+  html:not(.embed) .plate.verde .pl-t{font-size:clamp(13px,1.9svh,17px)}
+  html:not(.embed) .lead{font-size:clamp(13px,1.9svh,17px)}
+  html:not(.embed) .call112{min-height:clamp(36px,4.8svh,44px);padding-block:clamp(6px,1.1svh,12px)}
+  html:not(.embed) .avviso .call112{margin-bottom:clamp(4px,1svh,12px)}
+  html:not(.embed) .avviso{font-size:clamp(11px,1.5svh,14px)}
+}
+/* schermi bassi: il testo introduttivo cede il posto ai dati (la guida resta nella barra in basso) */
+@media (max-width:700px) and (max-height:940px){html:not(.embed) .lead{display:none}}
+/* embed mobile: l'iframe è alto quanto il contenuto (svh non utilizzabile), quindi la hero si adatta solo alla larghezza */
+@media (max-width:700px){
+  html.embed .hero h1{font-size:clamp(24px,8.6vw,42px)}
+  html.embed .plate b{font-size:clamp(48px,17vw,84px)}
+  html.embed .plate.verde .pl-t{font-size:clamp(14px,4.4vw,17px)}
+  html.embed .plate .pl-k{font-size:clamp(11px,3.3vw,13px)}
+  html.embed .lead{font-size:clamp(14px,4.2vw,17px)}
+}
+@media (max-width:700px) and (max-height:700px){
+  html:not(.embed) .top-in{padding-block:6px;gap:10px}
+  html:not(.embed) .hero .live{line-height:1.25}
+  html:not(.embed) .plate .pl-t{line-height:1.2}
+}
