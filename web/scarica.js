@@ -74,7 +74,7 @@
     doc.addEventListener('click', () => scarica({ file: 'descrizione-colonne.csv' }, doc));
     const rigaDoc = el('div', 'exp-r'); rigaDoc.append(doc);
     const nDoc = testoConta('descrizione-colonne.csv'); if (nDoc) rigaDoc.prepend(el('small', 'dl-n', nDoc.slice(3)));
-    box.append(acc, rigaDoc, el('p', 'bc-nota', `Colonne: ${st.indice.colonne.replaceAll(',', ', ')}. Orari in UTC. Un campo vuoto vuol dire che la fonte non pubblica quel dato. Cosa significa ogni colonna e a cosa serve è nel file di descrizione.`));
+    box.append(acc, rigaDoc);
   }
   function periodi() {
     const c = $('scarica-per'); if (!c) return; c.replaceChildren();
