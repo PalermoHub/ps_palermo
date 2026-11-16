@@ -68,9 +68,16 @@ export async function costruisciSalute(db: D1Database, snap: Snapshot | null, ad
     .prepare('SELECT ps_id, ts, in_attesa, totale, sovraff, att_rosso, att_arancione, att_azzurro, att_verde, att_bianco FROM letture WHERE ts >= ? ORDER BY ps_id, ts')
     .bind(da - PASSO_SALUTE).all<RigaLettura>();
   // Le righe di errore valgono fino alla riga successiva: serve anche l'ultima riga PRIMA della finestra.
-  const { results: grezzo } = await db
-    .prepare('SELECT fonte, chiave, ts, esito FROM grezzo WHERE ts >= ?1 OR id IN (SELECT MAX(id) FROM grezzo WHERE ts < ?1 GROUP BY fonte, chiave) ORDER BY fonte, chiave, ts')
-    .bind(da).all<RigaGrezzo>();
+  // Si cerca chiave per chiave sull'indice (fonte, chiave, ts) partendo da `grezzo_ultimo`, invece del
+  // `id IN (SELECT MAX(id) ... GROUP BY fonte, chiave)` che faceva un full scan di `grezzo` a ogni ricalcolo.
+  const { results: dentro } = await db.prepare('SELECT fonte, chiave, ts, esito FROM grezzo WHERE ts >= ?1').bind(da).all<RigaGrezzo>();
+  const { results: ultimi } = await db.prepare('SELECT fonte, chiave FROM grezzo_ultimo').all<{ fonte: string; chiave: string }>();
+  const chiavi = new Map<string, { fonte: string; chiave: string }>();
+  for (const k of [...ultimi, ...dentro]) chiavi.set(JSON.stringify([k.fonte, k.chiave]), { fonte: k.fonte, chiave: k.chiave });
+  const prima: RigaGrezzo[] = chiavi.size
+    ? (await db.batch([...chiavi.values()].map((k) => db.prepare('SELECT fonte, chiave, ts, esito FROM grezzo WHERE fonte = ?1 AND chiave = ?2 AND ts < ?3 ORDER BY ts DESC LIMIT 1').bind(k.fonte, k.chiave, da)))).flatMap((r) => r.results as unknown as RigaGrezzo[])
+    : [];
+  const grezzo = [...prima, ...dentro].sort((a, b) => (a.fonte !== b.fonte ? (a.fonte < b.fonte ? -1 : 1) : a.chiave !== b.chiave ? (a.chiave < b.chiave ? -1 : 1) : a.ts - b.ts));
 
   const righe = new Map<string, { ha: boolean[]; nuovo: boolean[]; ultimoNuovo: number | null }>();
   const per = (id: string) => righe.get(id) ?? (righe.set(id, { ha: Array(FINESTRE).fill(false), nuovo: Array(FINESTRE).fill(false), ultimoNuovo: null }), righe.get(id)!);

@@ -3,7 +3,7 @@ import worker from '../src/index';
 import { d1Finto } from './d1';
 import { fx } from './fx';
 
-const MIGR = ['0001_letture.sql', '0002_grezzo.sql', '0003_stato.sql', '0004_download.sql', '0005_letture_estese.sql'];
+const MIGR = ['0001_letture.sql', '0002_grezzo.sql', '0003_stato.sql', '0004_download.sql', '0005_letture_estese.sql', '0006_grezzo_ultimo.sql', '0007_mezzora.sql'];
 const BASE = 'https://ps.example';
 const TOKEN = 'segreto-di-prova';
 const SITO = { 'Sec-Fetch-Site': 'same-origin', 'User-Agent': 'Mozilla/5.0' };

@@ -27,10 +27,10 @@ interface Env {
 const CHIAVE = 'palermo:snapshot';
 const LOCK = 'palermo:lock';
 const CHIAVE_STORICO = 'palermo:storico:v1';
-/** Il calcolo dello storico legge settimane di righe: lo teniamo in D1 e lo rifacciamo al massimo ogni 10 minuti. */
-const STORICO_TTL_S = 600;
+/** Il calcolo dello storico legge le mezze ore degli ultimi 14 giorni: lo teniamo in D1 e lo rifacciamo al massimo ogni 15 minuti. */
+const STORICO_TTL_S = 900;
 const CHIAVE_SALUTE = 'palermo:salute:v1';
-const SALUTE_TTL_S = 300;
+const SALUTE_TTL_S = 600;
 /** Oltre questa età l'API avvia un rinfresco in background (rete di sicurezza se il cron ritarda). */
 const ETA_MAX_MS = 8 * 60_000;
 const VUOTO = { lettura: null, acquisitaAlle: null, ultimoErrore: null };

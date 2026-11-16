@@ -30,7 +30,11 @@ export async function salvaLetture(db: D1Database, snap: Snapshot): Promise<void
     const l = s.lettura;
     return [stmt.bind(p.id, ts, ...valoriLettura(l))];
   });
-  if (righe.length) await db.batch(righe);
+  if (!righe.length) return;
+  await db.batch(righe);
+  // Mezz'ora appena scritta, ricalcolata dalle righe: così una riscrittura dello stesso minuto non gonfia la media.
+  const b = Math.floor(ts / PASSO) * PASSO;
+  await aggiornaMezzora(db, b, b + PASSO);
 }
 
 interface Riga { ps_id: string; b: number; v: number }
@@ -49,6 +53,23 @@ export interface Storico {
 
 const PASSO = 1800;
 
+/**
+ * Ricalcola i bucket di mezz'ora compresi in [da, a) (secondi unix UTC) leggendo `letture`.
+ * È idempotente: si può chiamare per il solo bucket appena scritto oppure su tutto lo storico nel riempimento.
+ */
+export async function aggiornaMezzora(db: D1Database, da: number, a: number): Promise<void> {
+  await db.prepare(
+    `INSERT INTO mezzora (ps_id, b, somma, n)
+     SELECT ps_id, CAST(ts / ${PASSO} AS INTEGER), SUM(in_attesa), COUNT(*) FROM letture
+     WHERE ts >= ?1 AND ts < ?2 AND in_attesa IS NOT NULL
+     GROUP BY ps_id, CAST(ts / ${PASSO} AS INTEGER)
+     ON CONFLICT(ps_id, b) DO UPDATE SET somma = excluded.somma, n = excluded.n`,
+  ).bind(da, a).run();
+}
+
+/** Media delle letture salvate per presidio e mezz'ora. */
+interface Riga { ps_id: string; b: number; somma: number; n: number }
+
 /** Calcolo pesante (legge fino a 8 settimane): il chiamante lo mette in cache. */
 export async function costruisciStorico(db: D1Database, adesso = Date.now()): Promise<Storico> {
   const now = Math.floor(adesso / 1000);
@@ -56,8 +77,9 @@ export async function costruisciStorico(db: D1Database, adesso = Date.now()): Pr
   const daCitta = fine - 7 * 86400, daPrima = daCitta - 7 * 86400;
   const n = 7 * 86400 / PASSO;
 
-  // Ultime 2 settimane a 30 minuti. La heatmap (8 settimane) non è qui: la calcola la Action dai CSV su GitHub.
-  const mezz = await db.prepare(`SELECT ps_id, CAST(ts / ${PASSO} AS INTEGER) AS b, AVG(in_attesa) AS v FROM letture WHERE ts >= ? AND in_attesa IS NOT NULL GROUP BY ps_id, b`).bind(daPrima).all<Riga>();
+  // Ultime 2 settimane a 30 minuti, già aggregate in `mezzora` (migrazione 0007): poche migliaia di righe
+  // invece delle ~28.000 di `letture`. La heatmap (8 settimane) non è qui: la calcola la Action dai CSV su GitHub.
+  const mezz = await db.prepare(`SELECT ps_id, b, somma, n FROM mezzora WHERE b >= ?1 AND b < ?2`).bind(daPrima / PASSO, fine / PASSO).all<Riga>();
 
   const b0 = fine / PASSO - n; // primo bucket della finestra "adesso"
   const spark: Record<string, (number | null)[]> = {}, ps7: Record<string, (number | null)[]> = {};
@@ -67,12 +89,14 @@ export async function costruisciStorico(db: D1Database, adesso = Date.now()): Pr
   for (const r of mezz.results) {
     const i = r.b - (b0 - n); // 0..2n-1
     if (i < 0 || i >= 2 * n) continue;
+    const v = r.n ? r.somma / r.n : null;
+    if (v == null) continue;
     if (i >= n) {
       const k = i - n, ult = n - 48; // ultime 24h
-      if (k >= ult) (spark[r.ps_id] ??= Array(48).fill(null))[k - ult] = Math.round(r.v * 10) / 10;
-      (ps7[r.ps_id] ??= Array(n).fill(null))[k] = Math.round(r.v * 10) / 10;
-      ora[k] = (ora[k] ?? 0) + r.v;
-    } else prima[i] = (prima[i] ?? 0) + r.v;
+      if (k >= ult) (spark[r.ps_id] ??= Array(48).fill(null))[k - ult] = Math.round(v * 10) / 10;
+      (ps7[r.ps_id] ??= Array(n).fill(null))[k] = Math.round(v * 10) / 10;
+      ora[k] = (ora[k] ?? 0) + v;
+    } else prima[i] = (prima[i] ?? 0) + v;
     cnt[i]!++;
   }
   // Un totale città con troppi presidi mancanti sarebbe una buca falsa: meglio nessun punto.

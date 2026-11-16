@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { aggiorna, type FetchFn } from '../src/aggiorna';
 import { FONTI } from '../src/registry';
-import { COLONNE, costruisciStorico, csvGiorno, salvaLetture, valoriLettura } from '../src/storico';
+import { aggiornaMezzora, COLONNE, costruisciStorico, csvGiorno, salvaLetture, valoriLettura } from '../src/storico';
 import { d1Finto } from './d1';
 import { fx } from './fx';
 
@@ -10,7 +10,7 @@ const risposte: Record<string, string> = {
   'provinciaromanafbf.it': fx('buccheri.json'), 'ProntoSoccorsoIndici': fx('policlinico-indici.json'), 'ProntoSoccorso': fx('policlinico.json'),
 };
 const rete: FetchFn = async (url) => new Response(risposte[Object.keys(risposte).find((x) => url.includes(x))!]);
-const MIGR = ['0001_letture.sql', '0005_letture_estese.sql'];
+const MIGR = ['0001_letture.sql', '0005_letture_estese.sql', '0007_mezzora.sql'];
 const ORA = new Date('2026-11-12T10:30:00Z');
 
 describe('storico: colonne estese', () => {
@@ -43,6 +43,16 @@ describe('storico: colonne estese', () => {
     expect(csv[0]).toContain('perm_oltre48h');
   });
 
+  it('salvare due volte lo stesso giro non gonfia la mezz\'ora: il bucket si ricalcola, non si incrementa', async () => {
+    const d = d1Finto(MIGR);
+    const snap = await aggiorna(null, FONTI, rete, ORA);
+    await salvaLetture(d, snap);
+    await salvaLetture(d, snap);
+    const { results } = await d.prepare('SELECT n FROM mezzora').all<{ n: number }>();
+    expect(results).toHaveLength(8); // una riga per presidio nel bucket
+    expect(results.every((r) => r.n === 1)).toBe(true);
+  });
+
   it('le colonne aggiunte (da indice 10) e i valori (da indice 8) combaciano: lo usa scripts/backfill-letture.ts', async () => {
     const l = (await aggiorna(null, FONTI, rete, ORA)).ps['policlinico-adulti']!.lettura!;
     expect(COLONNE.slice(10)).toHaveLength(valoriLettura(l).slice(8).length);
@@ -53,8 +63,12 @@ describe('storico: colonne estese', () => {
 describe('costruisciStorico', () => {
   const adesso = Date.parse('2026-11-12T12:10:00Z');
   const ts = (iso: string) => Date.parse(iso) / 1000;
-  const riga = (d: D1Database, ps: string, iso: string, attesa: number | null) =>
-    d.prepare('INSERT INTO letture (ps_id, ts, in_attesa) VALUES (?,?,?)').bind(ps, ts(iso), attesa).run();
+  // Scrive la lettura e ricalcola la mezz'ora che la contiene, come fa salvaLetture in produzione.
+  const riga = async (d: D1Database, ps: string, iso: string, attesa: number | null) => {
+    await d.prepare('INSERT INTO letture (ps_id, ts, in_attesa) VALUES (?,?,?)').bind(ps, ts(iso), attesa).run();
+    const b = Math.floor(ts(iso) / 1800) * 1800;
+    await aggiornaMezzora(d, b, b + 1800);
+  };
 
   it('senza dati: serie vuote ma con la forma giusta (48 punti nelle 24 ore, 336 in 7 giorni)', async () => {
     const s = await costruisciStorico(d1Finto(MIGR), adesso);

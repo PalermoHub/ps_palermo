@@ -43,7 +43,7 @@ describe('cattura delle risposte originali', () => {
 });
 
 describe('archivio (SQLite reale, migrazione vera)', () => {
-  const nuovoDb = () => d1Finto(['0002_grezzo.sql']);
+  const nuovoDb = () => d1Finto(['0002_grezzo.sql', '0006_grezzo_ultimo.sql']);
   const cat = (corpo: string | null, esito = 'ok'): Cattura => ({ fonte: 'asp', chiave: 'pagina', corpo, esito });
 
   it('gzip: andata e ritorno, anche con accenti', async () => {
@@ -81,10 +81,32 @@ describe('archivio (SQLite reale, migrazione vera)', () => {
     await archivia(db, [cat('g1-a')], giorno(1, 0));
     await archivia(db, [cat(null, 'rete: vecchio')], giorno(20, 0));
     await pota(db, T0);
-    const { results } = await db.prepare('SELECT esito FROM grezzo ORDER BY id').all<{ esito: string }>();
     const corpi = [];
     for (let i = 1; i <= 4; i++) corpi.push((await leggi(db, i))?.corpo ?? null);
     expect(corpi).toEqual(['g10-a', null, 'g1-a', null]); // 4° = errore senza corpo
+    const { results } = await db.prepare('SELECT esito FROM grezzo ORDER BY id').all<{ esito: string }>();
     expect(results.map((r) => r.esito)).toEqual(['ok', 'ok', 'rete: vecchio']);
+  });
+
+  it('grezzo_ultimo porta l\'ultima cattura e il giorno dell\'ultimo campione: la deduplica non rilegge `grezzo`', async () => {
+    const db = nuovoDb();
+    await archivia(db, [cat('A')], T0);
+    const riga = async () => (await db.prepare('SELECT fonte, chiave, hash, esito, giorno FROM grezzo_ultimo').all<Record<string, unknown>>()).results[0]!;
+    const a = await riga();
+    expect(a).toMatchObject({ fonte: 'asp', chiave: 'pagina', esito: 'ok', giorno: '2026-11-12' });
+    // corpo diverso: hash nuovo, giorno del campione invariato
+    await archivia(db, [cat('B')], new Date(T0.getTime() + 3600_000));
+    const b = await riga();
+    expect(b.hash).not.toBe(a.hash);
+    expect(b.giorno).toBe('2026-11-12');
+  });
+
+  it('campione: resta la prima cattura ok del giorno, non la prima in assoluto (un errore non è campione)', async () => {
+    const db = nuovoDb();
+    await archivia(db, [cat(null, 'rete: HTTP 500')], T0);
+    await archivia(db, [cat('A')], new Date(T0.getTime() + 60_000));
+    await archivia(db, [cat('B')], new Date(T0.getTime() + 120_000));
+    const { results } = await db.prepare('SELECT corpo IS NOT NULL AS corpo, campione FROM grezzo ORDER BY id').all<{ corpo: number; campione: number }>();
+    expect(results).toEqual([{ corpo: 0, campione: 0 }, { corpo: 1, campione: 1 }, { corpo: 1, campione: 0 }]);
   });
 });

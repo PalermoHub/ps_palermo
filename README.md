@@ -30,6 +30,7 @@ Regola dei dati: se la fonte non pubblica un valore è `null`, mai `0` inventato
 
 ## Storico e archivio CSV
 - Ogni lettura finisce nel database D1 `palermo-ps-storico` (migrazioni in `migrations/`).
+- Il piano Free di D1 concede **5 milioni di righe lette al giorno**: è il tetto che conta, non le richieste. Il 16/11/2026 è stato superato dalle sole query del Worker (2,5 M `archivia` + 2,8 M `costruisciStorico`), quindi: `grezzo_ultimo` evita il full scan di `grezzo`, `mezzora` tiene le medie di 30 minuti già calcolate, `campione` sulla riga fa leggere a `pota` solo ciò che cancella (`migrations/0006`, `0007`). Dopo la sistemazione il consumo è intorno a 1 M al giorno: se risale, guarda `d1QueriesAdaptiveGroups` in Analytics.
 - `.github/workflows/backup-storico.yml` gira ogni notte (02:30 UTC): scarica il CSV di ieri in `dati/storico/AAAA/`, ricalcola `heatmap.json`, crea con `scripts/aggrega.mjs` i CSV di settimane e mesi chiusi e riscrive `indice.json`, poi fa commit e push. Il sito legge questi file da `raw.githubusercontent.com`, senza nuovo deploy (cache ~5 min). Le colonne sono descritte in `dati/storico/descrizione-colonne.csv`.
 - Backup locale dell'archivio grezzo: `scripts/backup-d1.sh` (vedi `docs/backup-grezzo.md`).
 

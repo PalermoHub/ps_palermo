@@ -17,6 +17,7 @@ export function d1Finto(migrazioni: string[]): D1Database {
   });
   return {
     prepare: (sql: string) => prepara(sql),
-    batch: async (st: { run(): Promise<unknown> }[]) => { for (const s of st) await s.run(); return []; },
+    // Come D1: un risultato per istruzione, nell'ordine in cui sono state messe.
+    batch: async (st: { all(): Promise<{ results: unknown[] }> }[]) => { const out = []; for (const s of st) out.push(await s.all()); return out; },
   } as unknown as D1Database;
 }
