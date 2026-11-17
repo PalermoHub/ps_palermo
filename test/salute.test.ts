@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Snapshot } from '../src/aggiorna';
 import { archivia } from '../src/grezzo';
-import { costruisciSalute, FINESTRE } from '../src/salute';
+import { costruisciSalute, FINESTRE, SQL_LETTURE } from '../src/salute';
 import { d1Finto } from './d1';
 
 const MIGRAZIONI = ['0001_letture.sql', '0002_grezzo.sql', '0003_stato.sql', '0004_download.sql', '0005_letture_estese.sql', '0006_grezzo_ultimo.sql'];
@@ -35,6 +35,14 @@ describe('salute dei dati', () => {
       expect(f.episodiErrore).toBe(0);
     }
     expect(s.da).toBe(t('2026-11-11T12:30:00Z'));
+  });
+
+  it('la query delle 24 ore usa l\'indice su ts: niente full scan di `letture`', async () => {
+    // `ORDER BY ps_id, ts` farebbe scegliere la chiave primaria (ps_id, ts) e quindi un full scan: 15.000 righe invece di 2.400.
+    const { d } = await db();
+    const p = await d.prepare(`EXPLAIN QUERY PLAN ${SQL_LETTURE}`).bind(1).all<{ detail: string }>();
+    expect(p.results.map((r) => r.detail).join(' / ')).toContain('letture_ts');
+    expect(p.results.map((r) => r.detail).join(' / ')).not.toContain('SCAN letture');
   });
 
   it('distingue dato nuovo e invariato guardando i valori, non il corpo grezzo', async () => {

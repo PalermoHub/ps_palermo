@@ -57,6 +57,13 @@ const GRAVITA: Affidabilita[] = ['ok', 'sospetto', 'assente', 'vecchio', 'congel
 interface RigaLettura { ps_id: string; ts: number; in_attesa: number | null; totale: number | null; sovraff: number | null; att_rosso: number | null; att_arancione: number | null; att_azzurro: number | null; att_verde: number | null; att_bianco: number | null }
 interface RigaGrezzo { fonte: string; chiave: string; ts: number; esito: string }
 
+/**
+ * Le letture delle ultime 24 ore. Niente `ORDER BY ps_id, ts`: quell'ordine combacia con la chiave primaria di
+ * `letture` (ps_id, ts), quindi SQLite la sceglie per risparmiarsi l'ordinamento e finisce per scansionare tutta la
+ * tabella (15.000 righe invece di 2.400). Con il solo filtro su `ts` usa l'indice `letture_ts`; l'ordine lo dà il sort qui sotto.
+ */
+export const SQL_LETTURE = 'SELECT ps_id, ts, in_attesa, totale, sovraff, att_rosso, att_arancione, att_azzurro, att_verde, att_bianco FROM letture WHERE ts >= ?';
+
 export async function costruisciSalute(db: D1Database, snap: Snapshot | null, adesso = Date.now()): Promise<Salute> {
   const ora = Math.floor(adesso / 1000);
   const fine = Math.floor(ora / PASSO_SALUTE) * PASSO_SALUTE + PASSO_SALUTE;
@@ -64,9 +71,8 @@ export async function costruisciSalute(db: D1Database, snap: Snapshot | null, ad
   const finestra = (ts: number) => Math.floor((ts - da) / PASSO_SALUTE);
 
   // Una finestra di margine prima di `da`: serve come termine di confronto per la prima lettura.
-  const { results: letture } = await db
-    .prepare('SELECT ps_id, ts, in_attesa, totale, sovraff, att_rosso, att_arancione, att_azzurro, att_verde, att_bianco FROM letture WHERE ts >= ? ORDER BY ps_id, ts')
-    .bind(da - PASSO_SALUTE).all<RigaLettura>();
+  const { results: letture } = await db.prepare(SQL_LETTURE).bind(da - PASSO_SALUTE).all<RigaLettura>();
+  letture.sort((a, b) => (a.ps_id === b.ps_id ? a.ts - b.ts : a.ps_id < b.ps_id ? -1 : 1));
   // Le righe di errore valgono fino alla riga successiva: serve anche l'ultima riga PRIMA della finestra.
   // Si cerca chiave per chiave sull'indice (fonte, chiave, ts) partendo da `grezzo_ultimo`, invece del
   // `id IN (SELECT MAX(id) ... GROUP BY fonte, chiave)` che faceva un full scan di `grezzo` a ogni ricalcolo.
