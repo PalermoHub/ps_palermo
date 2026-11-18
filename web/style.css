@@ -900,3 +900,13 @@ html.embed .hero-in{flex:1 1 auto}
 .cr h3{font:800 13px var(--ff-d);letter-spacing:.08em;text-transform:uppercase;color:var(--head);margin:0 0 6px}
 .cr p{margin:0 0 8px;line-height:1.6}
 footer .lk{color:#fff}footer .lk:hover{background:rgba(255,255,255,.14)}.embed footer .lk{color:var(--head)}.embed footer .lk:hover{background:var(--accbg)}
+
+/* invito a installare l'app (install.js) */
+.ps-install{position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:1200;max-width:460px;margin-inline:auto;background:#1c2530;color:#fff;border-radius:18px;padding:16px 18px;box-shadow:0 8px 28px rgba(0,0,0,.35);animation:ps-in .3s ease-out}
+.ps-install p{margin:0 0 12px;font-size:15px;line-height:1.45}
+.ps-install div{display:flex;justify-content:flex-end;gap:10px}
+.ps-install button{font:700 14px var(--ff-b);min-height:40px;padding:0 20px;border-radius:999px;cursor:pointer;color:#fff;background:transparent;border:2px solid #fff}
+.ps-install button.si{background:#b35a12;border-color:#d98a45}
+.ps-install button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+@keyframes ps-in{from{opacity:0;transform:translateY(16px)}}
+@media (prefers-reduced-motion:reduce){.ps-install{animation:none}}
