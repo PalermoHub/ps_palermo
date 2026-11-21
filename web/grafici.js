@@ -262,7 +262,7 @@ function renderHeat() {
   const box = $('heat'); if (!box) return; box.replaceChildren();
   const H = st.heat, sel = $('heat-ps');
   if (!H || !(Object.keys(H.heat || {}).length || Object.keys(H.profilo || {}).length)) { box.append(el('p', 'vuoto', 'Storico in raccolta: il grafico compare quando ci sono dati di qualche giorno.')); sel.hidden = true; sel.parentElement.hidden = true; return; }
-  sel.parentElement.hidden = false;
+  sel.parentElement.hidden = false; sel.hidden = false;
   if (!sel.dataset.pronto) {
     if (!sel.options.length) sel.append(new Option('Tutta la città (somma)', 'citta'));
     sel.addEventListener('change', () => { renderHeat(); renderPicco(); renderPermTempo(); }); sel.dataset.pronto = '1';
