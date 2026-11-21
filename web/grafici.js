@@ -391,6 +391,62 @@ function renderPermTempo() {
   box.append(leg, svg, out, el('p', 'bc-nota', `Media delle letture di ogni giorno, sul totale dei pazienti presenti (${dett(ult).split(' · ')[1]} l'ultimo giorno).${senza.length && serie === P.citta ? ` La somma non include ${senza.join(' e ')}, che non pubblica${senza.length > 1 ? 'no' : ''} la permanenza.` : ''} Si aggiorna ogni notte.`));
 }
 
+/* ---------- ieri contro la settimana scorsa ---------- */
+const fData = (g) => new Date(g + 'T12:00:00Z').toLocaleDateString('it-IT', { timeZone: 'Europe/Rome', weekday: 'long', day: 'numeric', month: 'long' });
+function popolaSel(sel, serie, id) {
+  if (!sel.dataset.pronto) { if (!sel.options.length) sel.append(new Option('Tutta la città (somma)', 'citta')); sel.addEventListener('change', id); sel.dataset.pronto = '1'; }
+  if (st.dati && sel.options.length < 2) st.dati.ps.filter((p) => serie[p.id]).forEach((p) => sel.append(new Option(p.nome + (p.tipo === 'pediatrico' ? ' (pediatrico)' : ''), p.id)));
+}
+function renderConfronto24() {
+  const box = $('conf'); if (!box) return; box.replaceChildren();
+  const C = st.heat?.confronto; if (!C || !C.ieri || !C.serie?.citta) { box.append(el('p', 'vuoto', 'Storico in raccolta: il confronto compare quando ci sono dati di otto giorni.')); return; }
+  const sc = $('conf-ps'); popolaSel(sc, C.serie, renderConfronto24); sc.hidden = false; sc.parentElement.hidden = false;
+  const [ieri, prima] = C.serie[sc.value] || C.serie.citta;
+  if (!prima.some((v) => v != null)) { box.append(el('p', 'vuoto', 'Per questo presidio manca la giornata di confronto.')); return; }
+  const S_ = PS_STORICO.s, W = 640, Hh = 230, L = 34, R = 10, T = 12, B = 28, max = Math.max(10, Math.ceil(Math.max(...ieri.filter((v) => v != null), ...prima.filter((v) => v != null)) / 20) * 20);
+  const x = (i) => L + (i / 23) * (W - L - R), y = (v) => T + (1 - v / max) * (Hh - T - B);
+  const svg = S_('svg', { viewBox: `0 0 ${W} ${Hh}`, class: 'ln', role: 'img' });
+  for (let v = 0; v <= max; v += max / 4) { svg.append(S_('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'ln-g' })); const t = S_('text', { x: L - 6, y: y(v) + 4, class: 'ln-t', 'text-anchor': 'end' }); t.textContent = Math.round(v); svg.append(t); }
+  for (let h = 0; h < 24; h += 3) { svg.append(S_('line', { x1: x(h), x2: x(h), y1: T, y2: Hh - B, class: 'ln-g v' })); const t = S_('text', { x: x(h), y: Hh - 8, class: 'ln-t', 'text-anchor': 'middle' }); t.textContent = h; svg.append(t); }
+  const linea = (serie, cls) => { let d = '', gap = true; serie.forEach((v, i) => { if (v == null) { gap = true; return; } d += `${gap ? 'M' : 'L'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`; gap = false; }); if (d) svg.append(S_('path', { d, class: cls })); };
+  linea(prima, 'ln-l ln-we'); linea(ieri, 'ln-l');
+  const somma = (a) => a.filter((v) => v != null), mi = somma(ieri), mp = somma(prima);
+  const med = (a) => a.reduce((s, v) => s + v, 0) / a.length, diff = mi.length && mp.length ? Math.round((med(mi) / med(mp) - 1) * 100) : null;
+  svg.setAttribute('aria-label', `Pazienti in attesa per ora: ${fData(C.ieri)} contro ${fData(C.prima)}${diff == null ? '' : `, ${Math.abs(diff)}% ${diff >= 0 ? 'in più' : 'in meno'} in media`}.`);
+  const leg = el('ul', 'sb-leg'); [['ln-lg', fData(C.ieri)], ['ln-lg ln-lw', fData(C.prima)]].forEach(([c, t]) => { const li = el('li'); li.append(el('i', c), t); leg.append(li); });
+  const cur = S_('line', { y1: T, y2: Hh - B, class: 'ln-c', visibility: 'hidden' }); svg.append(cur);
+  const out = el('p', 'ln-out', 'Tocca o passa il mouse sul grafico per i dettagli.'), base = out.textContent, f = (v) => (v == null ? 'n.d.' : Math.round(v));
+  const muovi = (e) => { const m = svg.getScreenCTM(); if (!m) return; const px = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()).x, h = Math.max(0, Math.min(23, Math.round((px - L) / (W - L - R) * 23))); cur.setAttribute('x1', x(h)); cur.setAttribute('x2', x(h)); cur.setAttribute('visibility', 'visible'); out.textContent = `${h}:00–${h + 1}:00 · ${f(ieri[h])} contro ${f(prima[h])} in attesa`; out.classList.add('hot'); };
+  const fine = () => { cur.setAttribute('visibility', 'hidden'); out.textContent = base; out.classList.remove('hot'); };
+  ['pointermove', 'pointerdown'].forEach((t) => svg.addEventListener(t, muovi)); ['pointerleave', 'pointercancel'].forEach((t) => svg.addEventListener(t, fine));
+  box.append(leg, svg, out, el('p', 'bc-nota', `${diff == null ? '' : `In media ${Math.abs(diff)}% ${diff >= 0 ? 'più carico' : 'meno carico'} dello stesso giorno della settimana prima. `}Media oraria dei pazienti in attesa; si confronta l'ultima giornata completa archiviata con la stessa giornata di sette giorni prima. Si aggiorna ogni notte.`));
+}
+
+/* ---------- sovraffollamento giorno per giorno ---------- */
+function renderSovra() {
+  const box = $('sovra'); if (!box) return; box.replaceChildren();
+  const V = st.heat?.sovra; if (!V || !st.dati) { box.append(el('p', 'vuoto', 'Storico in raccolta: il grafico compare quando ci sono dati di qualche giorno.')); return; }
+  const giorni = [...new Set(Object.values(V).flatMap((r) => r.map((d) => d.g)))].sort().slice(-14);
+  const righe = st.dati.ps.filter((p) => V[p.id]).map((p) => ({ p, d: Object.fromEntries(V[p.id].map((x) => [x.g, x])) }));
+  if (!righe.length || giorni.length < 2) { box.append(el('p', 'vuoto', 'Servono almeno due giorni di dati.')); return; }
+  const tab = el('table', 'hm sv'); tab.append(el('caption', 'sr', 'Indice medio di sovraffollamento per presidio e giorno'));
+  const th = el('thead'), tr = el('tr'); tr.append(el('td', 'nd0')); giorni.forEach((g) => tr.append(el('th', null, g.slice(8)))); th.append(tr); tab.append(th);
+  const tb = el('tbody');
+  righe.forEach(({ p, d }) => {
+    const r = el('tr'), rh = el('th', null, p.nome.replace('Pediatrico', 'ped.')); rh.scope = 'row'; r.append(rh);
+    giorni.forEach((g) => {
+      const c = el('td'), x = d[g];
+      if (!x) { c.className = 'nd'; c.title = `${p.nome}, ${g.split('-').reverse().join('/')}: nessun dato`; }
+      else { c.textContent = x.m; c.style.setProperty('--q', (Math.min(x.m, 300) / 300 * 100).toFixed(0) + '%'); if (x.m > 170) c.classList.add('sv-d'); c.title = `${p.nome}, ${g.split('-').reverse().join('/')}: indice medio ${x.m}%, sopra capacità nel ${Math.round(x.q)}% delle letture`; }
+      r.append(c);
+    });
+    tb.append(r);
+  });
+  tab.append(tb);
+  const sc = el('div', 'hm-sc'); sc.append(tab);
+  box.append(sc, el('p', 'bc-nota', "Ogni cella è l'indice medio di sovraffollamento del giorno (100 = tutti i posti occupati): più scura = più sopra la capacità. Tocca o passa il mouse su una cella per la quota di letture sopra il 100%. Si aggiorna ogni notte."));
+}
+
 /* ---------- affidabilità dei dati: una striscia di 48 mezz'ore per fonte ---------- */
 const SAL_STATO = { ok: ['ok', 'Aggiornata'], sospetto: ['mid', 'Da verificare'], congelato: ['bad', 'Dato fermo'], vecchio: ['bad', 'Non aggiornata'], errore: ['bad', 'In errore'], assente: ['nd', 'Nessun dato'] };
 /** Quattro stati distinti per riempimento e bordo, non solo per colore. */
@@ -433,11 +489,11 @@ function renderSalute() {
 const caricaSalute = () => fetch('/api/salute').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => { st.salute = d; renderSalute(); }).catch(() => { st.salute = null; renderSalute(); });
 
 /* ---------- avvio ---------- */
-const carica = () => fetch('/api/palermo').then((r) => r.json()).then((d) => { st.dati = d; renderConfronto(); renderAttesa(); renderDumbbell(); renderPercorso(); renderPerm(); renderHeat(); renderPicco(); renderPermTempo(); $('sub').textContent = `Dati in tempo reale · ${d.ps.filter((p) => p.lettura).length}/${d.ps.length} pronto soccorso con dati`; });
+const carica = () => fetch('/api/palermo').then((r) => r.json()).then((d) => { st.dati = d; renderConfronto(); renderAttesa(); renderDumbbell(); renderPercorso(); renderPerm(); renderHeat(); renderPicco(); renderPermTempo(); renderConfronto24(); renderSovra(); $('sub').textContent = `Dati in tempo reale · ${d.ps.filter((p) => p.lettura).length}/${d.ps.length} pronto soccorso con dati`; });
 carica().catch(() => { $('sub').textContent = 'Impossibile caricare i dati. Riprova tra poco.'; });
 setInterval(() => carica().catch(() => {}), 300000);
 periodi(); modiAttesa();
 const caricaStorico = () => PS_STORICO.carica().then((d) => { st.storico = d; renderCitta(); }).catch(() => renderCitta());
-const caricaHeat = () => PS_STORICO.caricaHeat().then((d) => { st.heat = d; renderHeat(); renderPicco(); renderPermTempo(); }).catch(() => { renderHeat(); renderPicco(); renderPermTempo(); });
+const caricaHeat = () => PS_STORICO.caricaHeat().then((d) => { st.heat = d; renderHeat(); renderPicco(); renderPermTempo(); renderConfronto24(); renderSovra(); }).catch(() => { renderHeat(); renderPicco(); renderPermTempo(); renderConfronto24(); renderSovra(); });
 caricaStorico(); caricaHeat(); renderSalute(); caricaSalute();
 setInterval(caricaStorico, 300000); setInterval(caricaSalute, 300000);

@@ -921,3 +921,6 @@ footer .lk{color:#fff}footer .lk:hover{background:rgba(255,255,255,.14)}.embed f
 .bc-b i.pk-p{left:0;background:var(--lv-bad);border-radius:4px;opacity:.55}.bc-b i.pk-m{left:0;background:var(--sea);border-radius:4px}
 :root[data-theme=dark] .bc-b i.pk-m{background:#5d9bc4}
 .sb-leg i.pk-p{background:var(--lv-bad);opacity:.55;border-radius:3px}.sb-leg i.pk-m{background:var(--sea);border-radius:3px}
+
+.hm.sv{min-width:520px}.hm.sv tbody th{width:96px;text-align:right;font-size:11px}.hm.sv td{height:30px;text-align:center;font:600 11px var(--ff-b);color:var(--head);font-variant-numeric:tabular-nums}.hm.sv td.sv-d{color:#fff}
+:root[data-theme=dark] .hm.sv td.sv-d{color:#0b2a3f}
