@@ -72,9 +72,15 @@
 
     <section id="heat-sez" class="wrap sez">
       <h2 class="sez-h">Quando c'è meno gente</h2>
-      <p class="sez-s">Mediana dei pazienti in attesa per giorno della settimana e ora, sulle ultime otto settimane. Colore più scuro = di solito più persone in attesa. È un quadro di come vanno le cose in media: non prevede l'attesa di chi arriva, che dipende dalla gravità e da quello che succede in quel momento.</p>
+      <p class="sez-s">Mediana dei pazienti in attesa per ora del giorno, nei giorni feriali e nel weekend. Sotto, quando i dati bastano, la mappa giorno × ora sulle ultime otto settimane: colore più scuro = di solito più persone in attesa. È un quadro di come vanno le cose in media: non prevede l'attesa di chi arriva, che dipende dalla gravità e da quello che succede in quel momento.</p>
       <label class="hm-sel">Presidio <select id="heat-ps"></select></label>
       <div id="heat"></div>
+    </section>
+
+    <section id="picco-sez" class="wrap sez">
+      <h2 class="sez-h">Il momento più carico della settimana</h2>
+      <p class="sez-s">Per ogni presidio, l'ora in cui c'erano più pazienti in attesa negli ultimi sette giorni, confrontata con il livello tipico dello stesso presidio. Mostra dove una giornata storta ha pesato di più.</p>
+      <div id="picco"></div>
     </section>
 
     <section id="attesa-sez" class="wrap sez">
@@ -101,6 +107,13 @@
       <h2 class="sez-h">Chi resta più a lungo</h2>
       <p class="sez-s">Per ogni presidio, da quanto tempo sono in struttura i pazienti presenti: meno di 24 ore, tra 24 e 48 ore, oltre 48 ore. Chi supera le 24 ore è già stato preso in carico e occupa ancora il pronto soccorso, in osservazione o in attesa di un posto letto: è una pressione che altrove non si vede. In ordine, dal presidio con la quota più alta di permanenze oltre 24 ore. Tocca una barra per aprire la scheda.</p>
       <div id="perm"></div>
+    </section>
+
+    <section id="permt-sez" class="wrap sez">
+      <h2 class="sez-h">Permanenze oltre 24 ore, giorno per giorno</h2>
+      <p class="sez-s">Quanti pazienti restano in struttura da più di un giorno, in media per giornata. Se la barra cresce, il pronto soccorso sta trattenendo più persone in attesa di un posto letto. Il grafico sopra mostra solo il momento attuale: qui si vede l'andamento.</p>
+      <label class="hm-sel">Presidio <select id="permt-ps"></select></label>
+      <div id="permt"></div>
     </section>
 
     <section id="confronto-sez" class="wrap sez">

@@ -261,15 +261,18 @@ function periodi() {
 function renderHeat() {
   const box = $('heat'); if (!box) return; box.replaceChildren();
   const H = st.heat, sel = $('heat-ps');
-  if (!H || !Object.keys(H.heat).length) { box.append(el('p', 'vuoto', 'Storico in raccolta: la mappa compare quando ci sono dati di qualche giorno.')); sel.hidden = true; sel.parentElement.hidden = true; return; }
+  if (!H || !(Object.keys(H.heat || {}).length || Object.keys(H.profilo || {}).length)) { box.append(el('p', 'vuoto', 'Storico in raccolta: il grafico compare quando ci sono dati di qualche giorno.')); sel.hidden = true; sel.parentElement.hidden = true; return; }
   sel.parentElement.hidden = false;
-  if (!sel.options.length) {
-    sel.append(new Option('Tutta la città (somma)', 'citta'));
-    st.dati?.ps.filter((p) => H.heat[p.id]).forEach((p) => sel.append(new Option(p.nome + (p.tipo === 'pediatrico' ? ' (pediatrico)' : ''), p.id)));
-    sel.addEventListener('change', renderHeat);
+  if (!sel.dataset.pronto) {
+    if (!sel.options.length) sel.append(new Option('Tutta la città (somma)', 'citta'));
+    sel.addEventListener('change', () => { renderHeat(); renderPicco(); renderPermTempo(); }); sel.dataset.pronto = '1';
   }
-  const m = H.heat[sel.value] || H.heat.citta;
-  const tutti = m.flat().filter((v) => v != null); if (!tutti.length) { box.append(el('p', 'vuoto', 'Dati ancora insufficienti per questo presidio.')); return; }
+  if (st.dati && sel.options.length < 2) { const serie = H.profilo || H.heat; st.dati.ps.filter((p) => serie[p.id]).forEach((p) => sel.append(new Option(p.nome + (p.tipo === 'pediatrico' ? ' (pediatrico)' : ''), p.id))); }
+  if (H.profilo) box.append(profiloOrario(H, sel.value));
+  const m = H.heat?.[sel.value] || H.heat?.citta;
+  const tutti = m ? m.flat().filter((v) => v != null) : [];
+  if (!tutti.length) { if (!H.profilo) box.append(el('p', 'vuoto', 'Dati ancora insufficienti per questo presidio.')); else box.append(el('p', 'bc-nota', 'La mappa completa giorno × ora comparirà quando ci saranno almeno tre settimane di dati: per ora vale il profilo qui sopra.')); return; }
+  box.append(el('h3', 'sez-h3', 'Giorno per giorno'));
   const max = Math.max(1, ...tutti);
   const tab = el('table', 'hm'), cap = el('caption', 'sr', 'Mediana dei pazienti in attesa per giorno della settimana e ora'); tab.append(cap);
   const th = el('thead'), tr = el('tr'); tr.append(el('td', 'nd0'));
@@ -297,6 +300,95 @@ function renderHeat() {
   const av = el('p', 'bc-nota', `Questo è l'andamento medio: non prevede quanto aspetterai tu. L'attesa del singolo paziente dipende dal codice di triage e dalle emergenze in arrivo. ${periodo ? periodo + '. ' : ''}Le celle vuote hanno pochi dati.`);
   const sc = el('div', 'hm-sc'); sc.append(tab);
   box.append(sc, leg); if (meno) box.append(meno); box.append(av);
+}
+
+
+/* ---------- profilo orario: feriali contro weekend ---------- */
+/** Mediana dei pazienti in attesa per ora, due curve: lunedì–venerdì e sabato–domenica. */
+function profiloOrario(H, id) {
+  const P = H.profilo[id] || H.profilo.citta, S_ = PS_STORICO.s, wrap = el('div', 'prof');
+  const fer = P[0], we = P[1];
+  if (![...fer, ...we].some((v) => v != null)) { wrap.append(el('p', 'vuoto', 'Dati ancora insufficienti per questo presidio.')); return wrap; }
+  const W = 640, Hh = 230, L = 34, R = 10, T = 12, B = 28, max = Math.max(10, Math.ceil(Math.max(...fer, ...we, 0) / 20) * 20);
+  const x = (i) => L + (i / 23) * (W - L - R), y = (v) => T + (1 - v / max) * (Hh - T - B);
+  const svg = S_('svg', { viewBox: `0 0 ${W} ${Hh}`, class: 'ln', role: 'img' });
+  for (let v = 0; v <= max; v += max / 4) { svg.append(S_('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'ln-g' })); const t = S_('text', { x: L - 6, y: y(v) + 4, class: 'ln-t', 'text-anchor': 'end' }); t.textContent = Math.round(v); svg.append(t); }
+  for (let h = 0; h < 24; h += 3) { svg.append(S_('line', { x1: x(h), x2: x(h), y1: T, y2: Hh - B, class: 'ln-g v' })); const t = S_('text', { x: x(h), y: Hh - 8, class: 'ln-t', 'text-anchor': 'middle' }); t.textContent = h; svg.append(t); }
+  const linea = (serie, cls) => { let d = '', gap = true; serie.forEach((v, i) => { if (v == null) { gap = true; return; } d += `${gap ? 'M' : 'L'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`; gap = false; }); if (d) svg.append(S_('path', { d, class: cls })); };
+  linea(we, 'ln-l ln-we'); linea(fer, 'ln-l');
+  const pk = (serie) => { const v = serie.filter((q) => q != null); return v.length ? serie.indexOf(Math.max(...v)) : null; };
+  const pf = pk(fer), pw = pk(we);
+  const tx = [pf != null && `feriali: più carico alle ${pf}–${pf + 1} (≈${Math.round(fer[pf])})`, pw != null && `sabato e domenica: alle ${pw}–${pw + 1} (≈${Math.round(we[pw])})`].filter(Boolean).join(' · ');
+  svg.setAttribute('aria-label', `Pazienti in attesa per ora del giorno, feriali contro weekend. ${tx}`);
+  const leg = el('ul', 'sb-leg'); [['ln-lg', 'Lunedì–venerdì'], ['ln-lg ln-lw', 'Sabato e domenica']].forEach(([c, t]) => { const li = el('li'); li.append(el('i', c), t); leg.append(li); });
+  const cur = S_('line', { y1: T, y2: Hh - B, class: 'ln-c', visibility: 'hidden' }); svg.append(cur);
+  const out = el('p', 'ln-out', 'Tocca o passa il mouse sul grafico per i dettagli.'), base = out.textContent;
+  const muovi = (e) => { const m = svg.getScreenCTM(); if (!m) return; const px = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()).x, h = Math.max(0, Math.min(23, Math.round((px - L) / (W - L - R) * 23)));
+    cur.setAttribute('x1', x(h)); cur.setAttribute('x2', x(h)); cur.setAttribute('visibility', 'visible');
+    const f = (v) => (v == null ? 'n.d.' : Math.round(v)); out.textContent = `${h}:00–${h + 1}:00 · feriali ${f(fer[h])} · sabato e domenica ${f(we[h])} in attesa`; out.classList.add('hot'); };
+  const fine = () => { cur.setAttribute('visibility', 'hidden'); out.textContent = base; out.classList.remove('hot'); };
+  ['pointermove', 'pointerdown'].forEach((t) => svg.addEventListener(t, muovi)); ['pointerleave', 'pointercancel'].forEach((t) => svg.addEventListener(t, fine));
+  const gp = H.giorniProfilo;
+  wrap.append(leg, svg, out, el('p', 'hm-meno', tx ? `Di solito il picco: ${tx}.` : ''), el('p', 'bc-nota', `Mediana delle medie orarie${gp ? `, su ${gp.feriali} giorni feriali e ${gp.weekend} giorni di weekend` : ''}. È l'andamento tipico, non una previsione: il weekend ha pochi giorni di dati, quindi la curva può ancora cambiare. Si aggiorna ogni notte.`));
+  return wrap;
+}
+
+/* ---------- picco della settimana ---------- */
+const fPicco = new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+function renderPicco() {
+  const box = $('picco'); if (!box) return; box.replaceChildren();
+  const H = st.heat, P = H?.picco;
+  if (!P || !Object.keys(P).length) { box.append(el('p', 'vuoto', 'Storico in raccolta: il grafico compare quando ci sono dati di qualche giorno.')); return; }
+  const nomi = Object.fromEntries((st.dati?.ps || []).map((p) => [p.id, p]));
+  const righe = Object.entries(P).filter(([id, v]) => nomi[id] && v.ore >= 24).map(([id, v]) => ({ id, p: nomi[id], ...v, x: v.mediana > 0 ? v.valore / v.mediana : null })).sort((a, b) => (b.x ?? 0) - (a.x ?? 0));
+  if (!righe.length) { box.append(el('p', 'vuoto', 'Dati ancora insufficienti.')); return; }
+  const max = Math.max(...righe.map((r) => r.valore));
+  const leg = el('ul', 'sb-leg'); [['pk-m', 'Livello tipico (mediana)'], ['pk-p', 'Picco della settimana']].forEach(([c, t]) => { const li = el('li'); li.append(el('i', c), t); leg.append(li); });
+  const lista = el('ol', 'bc');
+  righe.forEach((r) => {
+    const li = el('li', 'pk-r'), nome = el('span', 'bc-n'); nome.append(el('b', null, r.p.nome), r.p.tipo === 'pediatrico' ? el('em', null, ' pediatrico') : '');
+    const quando = fPicco.format(new Date(r.quando));
+    const num = el('span', 'bc-v'); num.append(el('b', null, `${Math.round(r.valore)}`), el('small', null, r.x ? `${r.x.toFixed(1).replace('.', ',')}× il tipico` : ''));
+    const bar = el('span', 'bc-b'), pic = el('i', 'pk-p'), med = el('i', 'pk-m'); pic.style.width = (r.valore / max * 100).toFixed(2) + '%'; med.style.width = (r.mediana / max * 100).toFixed(2) + '%'; bar.append(pic, med);
+    const dett = el('small', 'pk-q', `${quando} · tipico ${Math.round(r.mediana)}`);
+    li.setAttribute('aria-label', `${r.p.nome}: picco ${Math.round(r.valore)} in attesa, ${quando}, contro un livello tipico di ${Math.round(r.mediana)}.`);
+    li.append(nome, num, bar, dett); lista.append(li);
+  });
+  const dal = H.al ? H.al.split('-').reverse().join('/') : '';
+  box.append(leg, lista, el('p', 'bc-nota', `Per ogni presidio, l'ora con più pazienti in attesa negli ultimi 7 giorni (media oraria) e la mediana dello stesso periodo. Più il picco è lontano dal livello tipico, più quella giornata è stata fuori dall'ordinario.${dal ? ` Dati fino al ${dal}.` : ''} Si aggiorna ogni notte.`));
+}
+
+/* ---------- permanenza oltre 24 ore nel tempo ---------- */
+function renderPermTempo() {
+  const box = $('permt'); if (!box) return; box.replaceChildren();
+  const H = st.heat, sel = $('heat-ps');
+  const P = H?.perm; if (!P || !P.citta) { box.append(el('p', 'vuoto', 'Storico in raccolta: il grafico compare quando ci sono dati di qualche giorno.')); return; }
+  const sc = $('permt-ps');
+  if (sc && !sc.dataset.pronto) { if (!sc.options.length) sc.append(new Option('Tutta la città (somma)', 'citta')); sc.addEventListener('change', renderPermTempo); sc.dataset.pronto = '1'; }
+  if (sc && st.dati && sc.options.length < 2) st.dati.ps.filter((p) => P[p.id]).forEach((p) => sc.append(new Option(p.nome + (p.tipo === 'pediatrico' ? ' (pediatrico)' : ''), p.id)));
+  const serie = P[sc?.value] || P.citta;
+  if (serie.length < 2) { box.append(el('p', 'vuoto', 'Servono almeno due giorni di dati.')); return; }
+  const max = Math.max(5, ...serie.map((d) => d.a + d.b)), top = Math.ceil(max / 10) * 10 || 10;
+  const W = 640, Hh = 230, L = 34, R = 10, T = 12, B = 28, n = serie.length, bw = Math.min(40, (W - L - R) / n * 0.7);
+  const x = (i) => L + (i + 0.5) * (W - L - R) / n, y = (v) => T + (1 - v / top) * (Hh - T - B), S_ = PS_STORICO.s;
+  const svg = S_('svg', { viewBox: `0 0 ${W} ${Hh}`, class: 'ln', role: 'img' });
+  for (let v = 0; v <= top; v += top / 4) { svg.append(S_('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'ln-g' })); const t = S_('text', { x: L - 6, y: y(v) + 4, class: 'ln-t', 'text-anchor': 'end' }); t.textContent = Math.round(v); svg.append(t); }
+  const passo = Math.ceil(n / 8);
+  serie.forEach((d, i) => {
+    const h1 = (Hh - T - B) * d.a / top, h2 = (Hh - T - B) * d.b / top;
+    svg.append(S_('rect', { x: x(i) - bw / 2, y: y(d.a), width: bw, height: h1, class: 'pt-2', rx: 2 }), S_('rect', { x: x(i) - bw / 2, y: y(d.a) - h2, width: bw, height: h2, class: 'pt-3', rx: 2 }));
+    if (i % passo === 0 || i === n - 1) { const t = S_('text', { x: x(i), y: Hh - 8, class: 'ln-t', 'text-anchor': 'middle' }); t.textContent = d.g.slice(8) + '/' + d.g.slice(5, 7); svg.append(t); }
+  });
+  const ult = serie.at(-1);
+  svg.setAttribute('aria-label', `Pazienti presenti da oltre 24 ore, media giornaliera: ${Math.round(ult.a + ult.b)} il ${ult.g.split('-').reverse().join('/')}, di cui ${Math.round(ult.b)} oltre 48 ore.`);
+  const leg = el('ul', 'sb-leg'); [['pm-2', '24–48 ore'], ['pm-3', 'Oltre 48 ore']].forEach(([c, t]) => { const li = el('li'); li.append(el('i', c), t); leg.append(li); });
+  const out = el('p', 'ln-out', 'Tocca o passa il mouse su una barra per i dettagli.'), base = out.textContent;
+  const dett = (d) => `${d.g.split('-').reverse().join('/')} · ${Math.round(d.a + d.b)} oltre 24 ore (${Math.round(d.b)} oltre 48) su ${Math.round(d.t)} presenti, ${d.t ? Math.round((d.a + d.b) / d.t * 100) : 0}%`;
+  const muovi = (e) => { const m = svg.getScreenCTM(); if (!m) return; const px = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()).x, i = Math.max(0, Math.min(n - 1, Math.floor((px - L) / (W - L - R) * n))); out.textContent = dett(serie[i]); out.classList.add('hot'); };
+  const fine = () => { out.textContent = base; out.classList.remove('hot'); };
+  ['pointermove', 'pointerdown'].forEach((t) => svg.addEventListener(t, muovi)); ['pointerleave', 'pointercancel'].forEach((t) => svg.addEventListener(t, fine));
+  const senza = (st.dati?.ps || []).filter((p) => !P[p.id]).map((p) => p.nome);
+  box.append(leg, svg, out, el('p', 'bc-nota', `Media delle letture di ogni giorno, sul totale dei pazienti presenti (${dett(ult).split(' · ')[1]} l'ultimo giorno).${senza.length && serie === P.citta ? ` La somma non include ${senza.join(' e ')}, che non pubblica${senza.length > 1 ? 'no' : ''} la permanenza.` : ''} Si aggiorna ogni notte.`));
 }
 
 /* ---------- affidabilità dei dati: una striscia di 48 mezz'ore per fonte ---------- */
@@ -341,11 +433,11 @@ function renderSalute() {
 const caricaSalute = () => fetch('/api/salute').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => { st.salute = d; renderSalute(); }).catch(() => { st.salute = null; renderSalute(); });
 
 /* ---------- avvio ---------- */
-const carica = () => fetch('/api/palermo').then((r) => r.json()).then((d) => { st.dati = d; renderConfronto(); renderAttesa(); renderDumbbell(); renderPercorso(); renderPerm(); renderHeat(); $('sub').textContent = `Dati in tempo reale · ${d.ps.filter((p) => p.lettura).length}/${d.ps.length} pronto soccorso con dati`; });
+const carica = () => fetch('/api/palermo').then((r) => r.json()).then((d) => { st.dati = d; renderConfronto(); renderAttesa(); renderDumbbell(); renderPercorso(); renderPerm(); renderHeat(); renderPicco(); renderPermTempo(); $('sub').textContent = `Dati in tempo reale · ${d.ps.filter((p) => p.lettura).length}/${d.ps.length} pronto soccorso con dati`; });
 carica().catch(() => { $('sub').textContent = 'Impossibile caricare i dati. Riprova tra poco.'; });
 setInterval(() => carica().catch(() => {}), 300000);
 periodi(); modiAttesa();
 const caricaStorico = () => PS_STORICO.carica().then((d) => { st.storico = d; renderCitta(); }).catch(() => renderCitta());
-const caricaHeat = () => PS_STORICO.caricaHeat().then((d) => { st.heat = d; renderHeat(); }).catch(() => renderHeat());
+const caricaHeat = () => PS_STORICO.caricaHeat().then((d) => { st.heat = d; renderHeat(); renderPicco(); renderPermTempo(); }).catch(() => { renderHeat(); renderPicco(); renderPermTempo(); });
 caricaStorico(); caricaHeat(); renderSalute(); caricaSalute();
 setInterval(caricaStorico, 300000); setInterval(caricaSalute, 300000);

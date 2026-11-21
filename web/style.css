@@ -910,3 +910,14 @@ footer .lk{color:#fff}footer .lk:hover{background:rgba(255,255,255,.14)}.embed f
 .ps-install button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 @keyframes ps-in{from{opacity:0;transform:translateY(16px)}}
 @media (prefers-reduced-motion:reduce){.ps-install{animation:none}}
+
+/* profilo feriali/weekend, picco, permanenza nel tempo */
+.ln-we{stroke:var(--ink);stroke-dasharray:6 5}:root[data-theme=dark] .ln-we{stroke:#c9d6e0}
+.sb-leg i.ln-lw{background:none;border-top:3px dashed var(--ink);height:0;border-radius:0}
+.sez-h3{margin:20px 0 8px;font-size:15px;color:var(--head)}
+.pt-2{fill:#2e6c9c}.pt-3{fill:#0b2a3f}:root[data-theme=dark] .pt-2{fill:#5d9bc4}:root[data-theme=dark] .pt-3{fill:#b9d2e6}
+.pk-r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:8px 10px}
+.pk-q{grid-column:1/-1;font-size:12px;color:var(--ink)}
+.bc-b i.pk-p{left:0;background:var(--lv-bad);border-radius:4px;opacity:.55}.bc-b i.pk-m{left:0;background:var(--sea);border-radius:4px}
+:root[data-theme=dark] .bc-b i.pk-m{background:#5d9bc4}
+.sb-leg i.pk-p{background:var(--lv-bad);opacity:.55;border-radius:3px}.sb-leg i.pk-m{background:var(--sea);border-radius:3px}
